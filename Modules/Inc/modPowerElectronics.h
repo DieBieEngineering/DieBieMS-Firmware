@@ -27,8 +27,10 @@ typedef struct {
 	float cellVoltageLow;
 	float cellVoltageAverage;
 	float cellVoltagesIndividual[TotalLTCICs][NoOfCells];
-	bool preChargeAllowed;
+	bool preChargeDesired;
+	bool disChargeDesired;
 	bool disChargeAllowed;
+	bool chargeDesired;
 	bool chargeAllowed;
 	modPowerElectronicsPackOperationalStatesTypedef packOperationalState;
 } modPowerElectricsPackStateTypedef;
@@ -44,6 +46,6 @@ void modPowerElectronicsDisableAll(void);
 void modPowerElectronicsCalculateCellStats(void);
 void modPowerElectronicsSubTaskBalaning(void);
 void modPowerElectronicsSubTaskVoltageWatch(void);
-void modPowerElectronicsSubTaskSwitching(void);
+void modPowerElectronicsUpdateSwitches(void);
 
 #endif

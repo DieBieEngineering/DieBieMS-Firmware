@@ -23,9 +23,11 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState) {
 	packStatePowerElectronicshandle->cellVoltageHigh = 0.0f;
 	packStatePowerElectronicshandle->cellVoltageLow = 0.0f;
 	packStatePowerElectronicshandle->cellVoltageAverage = 0.0;
-	packStatePowerElectronicshandle->disChargeAllowed = false;
-	packStatePowerElectronicshandle->preChargeAllowed = false;
-	packStatePowerElectronicshandle->chargeAllowed = false;
+	packStatePowerElectronicshandle->disChargeDesired = false;
+	packStatePowerElectronicshandle->disChargeAllowed = true;
+	packStatePowerElectronicshandle->preChargeDesired = false;
+	packStatePowerElectronicshandle->chargeDesired = false;
+	packStatePowerElectronicshandle->chargeAllowed = true;
 	packStatePowerElectronicshandle->packOperationalState = PACK_STATE_NORMAL;
 	
 	// Init BUS monitor
@@ -75,30 +77,57 @@ void modPowerElectronicsTask(void) {
 };
 
 void modPowerElectronicsSetPreCharge(bool newState) {
-	if(newState)
-		driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);
-	driverHWSwitchesSetSwitchState(SWITCH_PRECHARGE,(driverHWSwitchesStateTypedef)newState);
+	bool preChargeLastState = false;
+	
+	if(preChargeLastState != newState) {
+		preChargeLastState = newState;
+		
+		if(newState)
+			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);
+		
+		packStatePowerElectronicshandle->preChargeDesired = newState;
+		modPowerElectronicsUpdateSwitches();
+	}
 };
 
 bool modPowerElectronicsSetDisCharge(bool newState) {
-	if(newState)
-		driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET); 
+	bool dischargeLastState = false;
 	
-	if((packStatePowerElectronicshandle->loadVoltage < PRECHARGE_PERCENTAGE*(packStatePowerElectronicshandle->packVoltage)) && newState) {// Prevent turn on with to low output voltage
-		return false;																																						// Load voltage to low (output not precharged enough)
+	if(dischargeLastState != newState) {
+		if(newState)
+			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET); 
+		
+		if((packStatePowerElectronicshandle->loadVoltage < PRECHARGE_PERCENTAGE*(packStatePowerElectronicshandle->packVoltage)) && newState) {// Prevent turn on with to low output voltage
+			return false;																																						// Load voltage to low (output not precharged enough)
+		}
+		
+		packStatePowerElectronicshandle->disChargeDesired = newState;
+		modPowerElectronicsUpdateSwitches();
+		dischargeLastState = newState;
+		return true;
 	}
 	
-	driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)newState);	// Allow turnon
 	return true;
 };
 
 void modPowerElectronicsSetCharge(bool newState) {
-	if(newState)
-		driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);
-	driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)newState);
+	bool chargeLastState = false;
+	
+	if(chargeLastState != newState) {
+		chargeLastState = newState;
+	
+		if(newState)
+			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);
+		
+		packStatePowerElectronicshandle->chargeDesired = newState;
+		modPowerElectronicsUpdateSwitches();
+}
 };
 
 void modPowerElectronicsDisableAll(void) {
+	packStatePowerElectronicshandle->disChargeDesired = false;
+	packStatePowerElectronicshandle->preChargeDesired = false;
+	packStatePowerElectronicshandle->chargeDesired = false;
 	driverHWSwitchesDisableAll();
 };
 
@@ -130,10 +159,28 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	// Handle hard cell voltage limits
 	
 	// update outputs directly if needed
-	// modPowerElectronicsUpdateSwitches();
+	modPowerElectronicsUpdateSwitches();
 };
 
 void modPowerElectronicsUpdateSwitches(void) {
 	// Do the actual power switching in here
+	
+	//Handle pre charge output
+	if(packStatePowerElectronicshandle->preChargeDesired && packStatePowerElectronicshandle->disChargeAllowed)
+		driverHWSwitchesSetSwitchState(SWITCH_PRECHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
+	else
+		driverHWSwitchesSetSwitchState(SWITCH_PRECHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
+	
+	//Handle discharge output
+	if(packStatePowerElectronicshandle->disChargeDesired && packStatePowerElectronicshandle->disChargeAllowed)
+		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
+	else
+		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
+	
+	//Handle charge input
+	if(packStatePowerElectronicshandle->chargeDesired && packStatePowerElectronicshandle->chargeAllowed)
+		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
+	else
+		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 };
 

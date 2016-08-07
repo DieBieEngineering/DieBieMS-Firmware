@@ -13,6 +13,8 @@ UART_HandleTypeDef huart2;
 modConfigGeneralConfigStructTypedef *generalConfig;
 modPowerElectricsPackStateTypedef packState; 
 
+uint32_t temp;
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void Error_Handler(void);
