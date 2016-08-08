@@ -46,3 +46,4 @@ diebiems\modpowerelectronics.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 diebiems\modpowerelectronics.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 diebiems\modpowerelectronics.o: ..\Drivers\HWDrivers\Inc\driverHWSwitches.h
 diebiems\modpowerelectronics.o: ..\Modules\Inc\modDelay.h
+diebiems\modpowerelectronics.o: ..\Modules\Inc\modConfig.h

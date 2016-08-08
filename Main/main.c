@@ -40,7 +40,7 @@ int main(void)
 	modEffectInit();																			// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);			// Set Debug LED to blinking mode
 	modPowerStateInit(P_STAT_SET);												// Enable power supply to keep operational
-	modPowerElectronicsInit(&packState);									// Will measure all voltages and store them in packState
+	modPowerElectronicsInit(&packState,generalConfig);									// Will measure all voltages and store them in packState
 	modOperationalStateInit(&packState);									// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 
   while(true) {

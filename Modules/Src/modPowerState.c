@@ -7,7 +7,6 @@ bool modPowerStateLastButtonFirstPress;
 uint32_t modPowerStateButtonPressedDuration;
 uint32_t modPowerStateButtonPressedTimeStamp;
 
-
 void modPowerStateInit(PowerStateStateTypedef desiredPowerState) {
 	modPowerStatePowerDownDesired = false;
 	modPowerStateButtonPressedVar = false;

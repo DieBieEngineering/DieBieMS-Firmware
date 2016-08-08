@@ -7,6 +7,8 @@ History
 *.TMP
 *.zip
 *.rar
+*.o
+*.d
 *Preview
 *.Annotation
 *.LOG

@@ -99,12 +99,18 @@ void modOperationalStateTask(void) {
 			break;
 	};
 	
-	if(modPowerStatePowerdownRequest()){											// Power button is pressed long thus power down is desired:
+	// Check for power button longpress -> if so power down BMS
+	if(modPowerStatePowerdownRequest()){
 		modOperationalStateSetAllStates(OP_STATE_POWER_DOWN);
 		modDisplayShowInfo(DISP_MODE_POWEROFF);
 	};
 	
-	modDisplayTask();																					// Handle subtask display
+	// In case of extreme cellvoltages goto error state
+	if(packStateOperationalStatehandle->packOperationalState == PACK_STATE_ERROR_HARD_CELLVOLTAGE)
+		modOperationalStateSetAllStates(OP_STATE_ERROR);
+	
+	// Handle subtask display to update display content
+	modDisplayTask();
 };
 
 void modOperationalStateUpdateStates(void) {

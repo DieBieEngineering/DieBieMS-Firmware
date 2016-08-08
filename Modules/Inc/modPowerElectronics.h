@@ -6,9 +6,10 @@
 #include "driverSWLTC6803.h"
 #include "driverHWSwitches.h"
 #include "modDelay.h"
+#include "modConfig.h"
 #include "stdbool.h"
 
-#define NoOfCells 							12
+#define NoOfCellsPossibleOnChip	12
 #define PRECHARGE_PERCENTAGE 		0.75f
 #define TotalLTCICs							1
 
@@ -26,7 +27,7 @@ typedef struct {
 	float cellVoltageHigh;
 	float cellVoltageLow;
 	float cellVoltageAverage;
-	float cellVoltagesIndividual[TotalLTCICs][NoOfCells];
+	float cellVoltagesIndividual[TotalLTCICs][NoOfCellsPossibleOnChip];
 	bool preChargeDesired;
 	bool disChargeDesired;
 	bool disChargeAllowed;
@@ -37,7 +38,7 @@ typedef struct {
 
 // Todo make variable that contains pack config for example uv ov max balancing resistors active and noOfCells
 
-void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState);
+void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
 void modPowerElectronicsTask(void);
 void modPowerElectronicsSetPreCharge(bool newState);
 bool modPowerElectronicsSetDisCharge(bool newState);
