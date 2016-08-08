@@ -3,7 +3,7 @@
 <title>Static Call Graph - [DieBieMS\DieBieMS.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image DieBieMS\DieBieMS.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060183: Last Updated: Mon Aug 08 19:11:50 2016
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060183: Last Updated: Mon Aug 08 23:55:34 2016
 <BR><P>
 <H3>Maximum Stack Usage =        288 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1137,8 +1137,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;driverSWLTC6803ReadVoltageFlags
 </UL>
 
-<P><STRONG><a name="[b8]"></a>driverSWLTC6803ReadVoltageFlags</STRONG> (Thumb, 116 bytes, Stack size 24 bytes, driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags))
-<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = driverSWLTC6803ReadVoltageFlags &rArr; driverSWLTC6803ReadFlagRegisters &rArr; driverSWLTC6803WriteRead &rArr; driverHWSPI1WriteRead &rArr; HAL_SPI_TransmitReceive &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
+<P><STRONG><a name="[b8]"></a>driverSWLTC6803ReadVoltageFlags</STRONG> (Thumb, 136 bytes, Stack size 40 bytes, driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags))
+<BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = driverSWLTC6803ReadVoltageFlags &rArr; driverSWLTC6803ReadFlagRegisters &rArr; driverSWLTC6803WriteRead &rArr; driverHWSPI1WriteRead &rArr; HAL_SPI_TransmitReceive &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;driverSWLTC6803ReadFlagRegisters
 </UL>
@@ -1610,8 +1610,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;modOperationalStateTask
 </UL>
 
-<P><STRONG><a name="[f3]"></a>modPowerElectronicsSubTaskVoltageWatch</STRONG> (Thumb, 212 bytes, Stack size 16 bytes, modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch))
-<BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = modPowerElectronicsSubTaskVoltageWatch &rArr; driverSWLTC6803ReadVoltageFlags &rArr; driverSWLTC6803ReadFlagRegisters &rArr; driverSWLTC6803WriteRead &rArr; driverHWSPI1WriteRead &rArr; HAL_SPI_TransmitReceive &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
+<P><STRONG><a name="[f3]"></a>modPowerElectronicsSubTaskVoltageWatch</STRONG> (Thumb, 220 bytes, Stack size 16 bytes, modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch))
+<BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = modPowerElectronicsSubTaskVoltageWatch &rArr; driverSWLTC6803ReadVoltageFlags &rArr; driverSWLTC6803ReadFlagRegisters &rArr; driverSWLTC6803WriteRead &rArr; driverHWSPI1WriteRead &rArr; HAL_SPI_TransmitReceive &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;driverSWLTC6803ReadVoltageFlags
 <LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;modPowerElectronicsUpdateSwitches
@@ -1621,7 +1621,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[d7]"></a>modPowerElectronicsTask</STRONG> (Thumb, 130 bytes, Stack size 32 bytes, modpowerelectronics.o(i.modPowerElectronicsTask))
-<BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = modPowerElectronicsTask &rArr; modPowerElectronicsSubTaskVoltageWatch &rArr; driverSWLTC6803ReadVoltageFlags &rArr; driverSWLTC6803ReadFlagRegisters &rArr; driverSWLTC6803WriteRead &rArr; driverHWSPI1WriteRead &rArr; HAL_SPI_TransmitReceive &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
+<BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = modPowerElectronicsTask &rArr; modPowerElectronicsSubTaskVoltageWatch &rArr; driverSWLTC6803ReadVoltageFlags &rArr; driverSWLTC6803ReadFlagRegisters &rArr; driverSWLTC6803WriteRead &rArr; driverHWSPI1WriteRead &rArr; HAL_SPI_TransmitReceive &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;driverSWLTC6803StartCellVoltageConversion
 <LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;driverSWLTC6803ResetCellVoltageRegisters

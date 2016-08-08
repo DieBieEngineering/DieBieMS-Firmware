@@ -25,7 +25,7 @@ void modOperationalStateTask(void) {
 			}else if(modPowerStateButtonPressedOnTurnon()) {												// Check if button was pressen on turn-on
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
-			}else if (modOperationalStateNewState == OP_STATE_INIT){																																	// USB or CAN origin of turn-on
+			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
 				modOperationalStateSetNewState(OP_STATE_EXTERNAL);										// Serve external forces
 			}
 			

@@ -582,6 +582,7 @@ Section Cross References
     driverswltc6803.o(i.driverSWLTC6803ReadTempVoltages) refers to driverswltc6803.o(i.driverSWLTC6803WriteRead) for driverSWLTC6803WriteRead
     driverswltc6803.o(i.driverSWLTC6803ReadTempVoltages) refers to malloc.o(i.free) for free
     driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags) refers to driverswltc6803.o(i.driverSWLTC6803ReadFlagRegisters) for driverSWLTC6803ReadFlagRegisters
+    driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags) refers to driverswltc6803.o(.data) for .data
     driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags) refers to driverswltc6803.o(.bss) for .bss
     driverswltc6803.o(i.driverSWLTC6803ResetCellVoltageRegisters) refers to driverswltc6803.o(i.driverSWLTC6803SendCommand) for driverSWLTC6803SendCommand
     driverswltc6803.o(i.driverSWLTC6803SendCommand) refers to driverswltc6803.o(i.driverSWLTC6803CalcPEC) for driverSWLTC6803CalcPEC
@@ -1488,24 +1489,24 @@ Image Symbol Table
     ../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c 0x00000000   Number         0  stm32f3xx_hal_uart.o ABSOLUTE
     ../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c 0x00000000   Number         0  stm32f3xx_hal_uart_ex.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
-    ../clib/microlib/longlong.c              0x00000000   Number         0  llshl.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
     ../clib/microlib/longlong.c              0x00000000   Number         0  llushr.o ABSOLUTE
-    ../clib/microlib/malloc/malloc.c         0x00000000   Number         0  malloca.o ABSOLUTE
-    ../clib/microlib/malloc/malloc.c         0x00000000   Number         0  mallocra.o ABSOLUTE
+    ../clib/microlib/longlong.c              0x00000000   Number         0  llshl.o ABSOLUTE
     ../clib/microlib/malloc/malloc.c         0x00000000   Number         0  malloc.o ABSOLUTE
     ../clib/microlib/malloc/malloc.c         0x00000000   Number         0  mallocr.o ABSOLUTE
+    ../clib/microlib/malloc/malloc.c         0x00000000   Number         0  malloca.o ABSOLUTE
+    ../clib/microlib/malloc/malloc.c         0x00000000   Number         0  mallocra.o ABSOLUTE
     ../clib/microlib/malloc/mvars.c          0x00000000   Number         0  mvars.o ABSOLUTE
     ../clib/microlib/string/memcmp.c         0x00000000   Number         0  memcmp.o ABSOLUTE
     ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpyb.o ABSOLUTE
@@ -1515,8 +1516,8 @@ Image Symbol Table
     ../fplib/microlib/d2f.c                  0x00000000   Number         0  d2f.o ABSOLUTE
     ../fplib/microlib/f2d.c                  0x00000000   Number         0  f2d.o ABSOLUTE
     ../fplib/microlib/fpdiv.c                0x00000000   Number         0  ddiv.o ABSOLUTE
-    ../fplib/microlib/fpepilogue.c           0x00000000   Number         0  depilogue.o ABSOLUTE
     ../fplib/microlib/fpepilogue.c           0x00000000   Number         0  fepilogue.o ABSOLUTE
+    ../fplib/microlib/fpepilogue.c           0x00000000   Number         0  depilogue.o ABSOLUTE
     ../fplib/microlib/fpfix.c                0x00000000   Number         0  dfixui.o ABSOLUTE
     ../fplib/microlib/fpflt.c                0x00000000   Number         0  dfltui.o ABSOLUTE
     ../fplib/microlib/fpmul.c                0x00000000   Number         0  dmul.o ABSOLUTE
@@ -1729,131 +1730,133 @@ Image Symbol Table
     i.driverSWLTC6803ReadCellVoltages        0x0800369c   Section        0  driverswltc6803.o(i.driverSWLTC6803ReadCellVoltages)
     i.driverSWLTC6803ReadFlagRegisters       0x0800374c   Section        0  driverswltc6803.o(i.driverSWLTC6803ReadFlagRegisters)
     i.driverSWLTC6803ReadVoltageFlags        0x080037ec   Section        0  driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags)
-    i.driverSWLTC6803ResetCellVoltageRegisters 0x08003868   Section        0  driverswltc6803.o(i.driverSWLTC6803ResetCellVoltageRegisters)
-    i.driverSWLTC6803SendCommand             0x0800386e   Section        0  driverswltc6803.o(i.driverSWLTC6803SendCommand)
-    i.driverSWLTC6803StartCellVoltageConversion 0x08003890   Section        0  driverswltc6803.o(i.driverSWLTC6803StartCellVoltageConversion)
-    i.driverSWLTC6803Write                   0x0800389c   Section        0  driverswltc6803.o(i.driverSWLTC6803Write)
-    i.driverSWLTC6803WriteConfig             0x080038a0   Section        0  driverswltc6803.o(i.driverSWLTC6803WriteConfig)
-    i.driverSWLTC6803WriteConfigRegisters    0x08003954   Section        0  driverswltc6803.o(i.driverSWLTC6803WriteConfigRegisters)
-    i.driverSWLTC6803WriteRead               0x080039c6   Section        0  driverswltc6803.o(i.driverSWLTC6803WriteRead)
-    i.driverSWSSD1306ClearDisplay            0x080039cc   Section        0  driverswssd1306.o(i.driverSWSSD1306ClearDisplay)
-    i.driverSWSSD1306Command                 0x080039f0   Section        0  driverswssd1306.o(i.driverSWSSD1306Command)
-    i.driverSWSSD1306DisplayAsyncEfficient   0x08003a10   Section        0  driverswssd1306.o(i.driverSWSSD1306DisplayAsyncEfficient)
-    i.driverSWSSD1306DrawPixel               0x08003aa0   Section        0  driverswssd1306.o(i.driverSWSSD1306DrawPixel)
-    i.driverSWSSD1306FillBuffer              0x08003b70   Section        0  driverswssd1306.o(i.driverSWSSD1306FillBuffer)
-    i.driverSWSSD1306Init                    0x08003b80   Section        0  driverswssd1306.o(i.driverSWSSD1306Init)
-    i.free                                   0x08003c54   Section        0  malloc.o(i.free)
-    i.libGraphicsDrawChar                    0x08003ca4   Section        0  libgraphics.o(i.libGraphicsDrawChar)
-    i.libGraphicsDrawFastVLine               0x08003e2c   Section        0  libgraphics.o(i.libGraphicsDrawFastVLine)
-    i.libGraphicsDrawLine                    0x08003e3e   Section        0  libgraphics.o(i.libGraphicsDrawLine)
-    i.libGraphicsDrawPixel                   0x08003ede   Section        0  libgraphics.o(i.libGraphicsDrawPixel)
-    i.libGraphicsFillRect                    0x08003ee2   Section        0  libgraphics.o(i.libGraphicsFillRect)
-    i.libGraphicsGetRotation                 0x08003f0c   Section        0  libgraphics.o(i.libGraphicsGetRotation)
-    i.libGraphicsHeight                      0x08003f18   Section        0  libgraphics.o(i.libGraphicsHeight)
-    i.libGraphicsInit                        0x08003f24   Section        0  libgraphics.o(i.libGraphicsInit)
-    i.libGraphicsSetCursor                   0x08003f50   Section        0  libgraphics.o(i.libGraphicsSetCursor)
-    i.libGraphicsSetTextColor_0              0x08003f5c   Section        0  libgraphics.o(i.libGraphicsSetTextColor_0)
-    i.libGraphicsSetTextSize                 0x08003f68   Section        0  libgraphics.o(i.libGraphicsSetTextSize)
-    i.libGraphicsWidth                       0x08003f78   Section        0  libgraphics.o(i.libGraphicsWidth)
-    i.libGraphicsWrite                       0x08003f84   Section        0  libgraphics.o(i.libGraphicsWrite)
-    i.main                                   0x080040a0   Section        0  main.o(i.main)
-    i.malloc                                 0x080040fc   Section        0  malloc.o(i.malloc)
-    i.modConfigInit                          0x08004168   Section        0  modconfig.o(i.modConfigInit)
-    i.modConfigLoadConfig                    0x08004174   Section        0  modconfig.o(i.modConfigLoadConfig)
-    i.modDelayInit                           0x08004204   Section        0  moddelay.o(i.modDelayInit)
-    i.modDelayTick100ms                      0x0800422c   Section        0  moddelay.o(i.modDelayTick100ms)
-    i.modDelayTick1ms                        0x08004260   Section        0  moddelay.o(i.modDelayTick1ms)
-    i.modDisplayInit                         0x08004280   Section        0  moddisplay.o(i.modDisplayInit)
-    i.modDisplayShowInfo                     0x080042b8   Section        0  moddisplay.o(i.modDisplayShowInfo)
-    i.modDisplayTask                         0x080043c8   Section        0  moddisplay.o(i.modDisplayTask)
-    i.modEffectChangeState                   0x080043cc   Section        0  modeffect.o(i.modEffectChangeState)
-    i.modEffectInit                          0x080043f4   Section        0  modeffect.o(i.modEffectInit)
-    i.modEffectTask                          0x08004404   Section        0  modeffect.o(i.modEffectTask)
-    i.modEffectTaskBlinkLong                 0x08004460   Section        0  modeffect.o(i.modEffectTaskBlinkLong)
-    i.modEffectTaskBlinkShort                0x080044ac   Section        0  modeffect.o(i.modEffectTaskBlinkShort)
-    i.modEffectTaskFlash                     0x080044f8   Section        0  modeffect.o(i.modEffectTaskFlash)
-    i.modEffectTaskFlashFast                 0x0800451c   Section        0  modeffect.o(i.modEffectTaskFlashFast)
-    i.modOperationalStateInit                0x08004540   Section        0  modoperationalstate.o(i.modOperationalStateInit)
-    i.modOperationalStateSetAllStates        0x08004560   Section        0  modoperationalstate.o(i.modOperationalStateSetAllStates)
-    i.modOperationalStateTask                0x08004570   Section        0  modoperationalstate.o(i.modOperationalStateTask)
-    i.modOperationalStateUpdateStates        0x080046f0   Section        0  modoperationalstate.o(i.modOperationalStateUpdateStates)
-    i.modPowerElectronicsCalculateCellStats  0x08004700   Section        0  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
-    i.modPowerElectronicsDisableAll          0x08004778   Section        0  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
-    i.modPowerElectronicsInit                0x080047a4   Section        0  modpowerelectronics.o(i.modPowerElectronicsInit)
-    i.modPowerElectronicsSetCharge           0x0800485c   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
-    i.modPowerElectronicsSetDisCharge        0x08004888   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
-    i.modPowerElectronicsSetPreCharge        0x080048d4   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
-    i.modPowerElectronicsSubTaskVoltageWatch 0x08004900   Section        0  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
-    i.modPowerElectronicsTask                0x080049d8   Section        0  modpowerelectronics.o(i.modPowerElectronicsTask)
-    i.modPowerElectronicsUpdateSwitches      0x08004a6c   Section        0  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
-    i.modPowerStateButtonPressedOnTurnon     0x08004ac8   Section        0  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
-    i.modPowerStateChargerDetected           0x08004ad4   Section        0  modpowerstate.o(i.modPowerStateChargerDetected)
-    i.modPowerStateInit                      0x08004adc   Section        0  modpowerstate.o(i.modPowerStateInit)
-    i.modPowerStatePowerdownRequest          0x08004b08   Section        0  modpowerstate.o(i.modPowerStatePowerdownRequest)
-    i.modPowerStateSetState                  0x08004b14   Section        0  modpowerstate.o(i.modPowerStateSetState)
-    i.modPowerStateTask                      0x08004b1c   Section        0  modpowerstate.o(i.modPowerStateTask)
-    .constdata                               0x08004b74   Section       32  stm32f3xx_hal_rcc.o(.constdata)
-    .constdata                               0x08004b94   Section       24  driverhwadc.o(.constdata)
-    .constdata                               0x08004bac   Section       48  driverhwi2c1.o(.constdata)
-    .constdata                               0x08004bdc   Section       72  driverhwi2c2.o(.constdata)
-    .constdata                               0x08004c24   Section       60  driverhwpowerstate.o(.constdata)
-    .constdata                               0x08004c60   Section       36  driverhwstatus.o(.constdata)
-    .constdata                               0x08004c84   Section       80  driverhwswitches.o(.constdata)
-    .constdata                               0x08004cd4   Section     1280  libglcdfont.o(.constdata)
-    .constdata                               0x080051d4   Section     3072  liblogos.o(.constdata)
-    .constdata                               0x08005dd4   Section       16  system_stm32f3xx_1.o(.constdata)
-    .constdata                               0x08005de4   Section        8  system_stm32f3xx_1.o(.constdata)
+    i.driverSWLTC6803ResetCellVoltageRegisters 0x08003884   Section        0  driverswltc6803.o(i.driverSWLTC6803ResetCellVoltageRegisters)
+    i.driverSWLTC6803SendCommand             0x0800388a   Section        0  driverswltc6803.o(i.driverSWLTC6803SendCommand)
+    i.driverSWLTC6803StartCellVoltageConversion 0x080038ac   Section        0  driverswltc6803.o(i.driverSWLTC6803StartCellVoltageConversion)
+    i.driverSWLTC6803Write                   0x080038b8   Section        0  driverswltc6803.o(i.driverSWLTC6803Write)
+    i.driverSWLTC6803WriteConfig             0x080038bc   Section        0  driverswltc6803.o(i.driverSWLTC6803WriteConfig)
+    i.driverSWLTC6803WriteConfigRegisters    0x08003970   Section        0  driverswltc6803.o(i.driverSWLTC6803WriteConfigRegisters)
+    i.driverSWLTC6803WriteRead               0x080039e2   Section        0  driverswltc6803.o(i.driverSWLTC6803WriteRead)
+    i.driverSWSSD1306ClearDisplay            0x080039e8   Section        0  driverswssd1306.o(i.driverSWSSD1306ClearDisplay)
+    i.driverSWSSD1306Command                 0x08003a0c   Section        0  driverswssd1306.o(i.driverSWSSD1306Command)
+    i.driverSWSSD1306DisplayAsyncEfficient   0x08003a2c   Section        0  driverswssd1306.o(i.driverSWSSD1306DisplayAsyncEfficient)
+    i.driverSWSSD1306DrawPixel               0x08003abc   Section        0  driverswssd1306.o(i.driverSWSSD1306DrawPixel)
+    i.driverSWSSD1306FillBuffer              0x08003b8c   Section        0  driverswssd1306.o(i.driverSWSSD1306FillBuffer)
+    i.driverSWSSD1306Init                    0x08003b9c   Section        0  driverswssd1306.o(i.driverSWSSD1306Init)
+    i.free                                   0x08003c70   Section        0  malloc.o(i.free)
+    i.libGraphicsDrawChar                    0x08003cc0   Section        0  libgraphics.o(i.libGraphicsDrawChar)
+    i.libGraphicsDrawFastVLine               0x08003e48   Section        0  libgraphics.o(i.libGraphicsDrawFastVLine)
+    i.libGraphicsDrawLine                    0x08003e5a   Section        0  libgraphics.o(i.libGraphicsDrawLine)
+    i.libGraphicsDrawPixel                   0x08003efa   Section        0  libgraphics.o(i.libGraphicsDrawPixel)
+    i.libGraphicsFillRect                    0x08003efe   Section        0  libgraphics.o(i.libGraphicsFillRect)
+    i.libGraphicsGetRotation                 0x08003f28   Section        0  libgraphics.o(i.libGraphicsGetRotation)
+    i.libGraphicsHeight                      0x08003f34   Section        0  libgraphics.o(i.libGraphicsHeight)
+    i.libGraphicsInit                        0x08003f40   Section        0  libgraphics.o(i.libGraphicsInit)
+    i.libGraphicsSetCursor                   0x08003f6c   Section        0  libgraphics.o(i.libGraphicsSetCursor)
+    i.libGraphicsSetTextColor_0              0x08003f78   Section        0  libgraphics.o(i.libGraphicsSetTextColor_0)
+    i.libGraphicsSetTextSize                 0x08003f84   Section        0  libgraphics.o(i.libGraphicsSetTextSize)
+    i.libGraphicsWidth                       0x08003f94   Section        0  libgraphics.o(i.libGraphicsWidth)
+    i.libGraphicsWrite                       0x08003fa0   Section        0  libgraphics.o(i.libGraphicsWrite)
+    i.main                                   0x080040bc   Section        0  main.o(i.main)
+    i.malloc                                 0x08004118   Section        0  malloc.o(i.malloc)
+    i.modConfigInit                          0x08004184   Section        0  modconfig.o(i.modConfigInit)
+    i.modConfigLoadConfig                    0x08004190   Section        0  modconfig.o(i.modConfigLoadConfig)
+    i.modDelayInit                           0x0800421c   Section        0  moddelay.o(i.modDelayInit)
+    i.modDelayTick100ms                      0x08004244   Section        0  moddelay.o(i.modDelayTick100ms)
+    i.modDelayTick1ms                        0x08004278   Section        0  moddelay.o(i.modDelayTick1ms)
+    i.modDisplayInit                         0x08004298   Section        0  moddisplay.o(i.modDisplayInit)
+    i.modDisplayShowInfo                     0x080042d0   Section        0  moddisplay.o(i.modDisplayShowInfo)
+    i.modDisplayTask                         0x080043e0   Section        0  moddisplay.o(i.modDisplayTask)
+    i.modEffectChangeState                   0x080043e4   Section        0  modeffect.o(i.modEffectChangeState)
+    i.modEffectInit                          0x0800440c   Section        0  modeffect.o(i.modEffectInit)
+    i.modEffectTask                          0x0800441c   Section        0  modeffect.o(i.modEffectTask)
+    i.modEffectTaskBlinkLong                 0x08004478   Section        0  modeffect.o(i.modEffectTaskBlinkLong)
+    i.modEffectTaskBlinkShort                0x080044c4   Section        0  modeffect.o(i.modEffectTaskBlinkShort)
+    i.modEffectTaskFlash                     0x08004510   Section        0  modeffect.o(i.modEffectTaskFlash)
+    i.modEffectTaskFlashFast                 0x08004534   Section        0  modeffect.o(i.modEffectTaskFlashFast)
+    i.modOperationalStateInit                0x08004558   Section        0  modoperationalstate.o(i.modOperationalStateInit)
+    i.modOperationalStateSetAllStates        0x08004578   Section        0  modoperationalstate.o(i.modOperationalStateSetAllStates)
+    i.modOperationalStateTask                0x08004588   Section        0  modoperationalstate.o(i.modOperationalStateTask)
+    i.modOperationalStateUpdateStates        0x08004708   Section        0  modoperationalstate.o(i.modOperationalStateUpdateStates)
+    i.modPowerElectronicsCalculateCellStats  0x08004718   Section        0  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
+    i.modPowerElectronicsDisableAll          0x08004790   Section        0  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
+    i.modPowerElectronicsInit                0x080047bc   Section        0  modpowerelectronics.o(i.modPowerElectronicsInit)
+    i.modPowerElectronicsSetCharge           0x08004874   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
+    i.modPowerElectronicsSetDisCharge        0x080048a0   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
+    i.modPowerElectronicsSetPreCharge        0x080048ec   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
+    i.modPowerElectronicsSubTaskVoltageWatch 0x08004918   Section        0  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
+    i.modPowerElectronicsTask                0x080049f8   Section        0  modpowerelectronics.o(i.modPowerElectronicsTask)
+    i.modPowerElectronicsUpdateSwitches      0x08004a8c   Section        0  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
+    i.modPowerStateButtonPressedOnTurnon     0x08004ae8   Section        0  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
+    i.modPowerStateChargerDetected           0x08004af4   Section        0  modpowerstate.o(i.modPowerStateChargerDetected)
+    i.modPowerStateInit                      0x08004afc   Section        0  modpowerstate.o(i.modPowerStateInit)
+    i.modPowerStatePowerdownRequest          0x08004b28   Section        0  modpowerstate.o(i.modPowerStatePowerdownRequest)
+    i.modPowerStateSetState                  0x08004b34   Section        0  modpowerstate.o(i.modPowerStateSetState)
+    i.modPowerStateTask                      0x08004b3c   Section        0  modpowerstate.o(i.modPowerStateTask)
+    .constdata                               0x08004b94   Section       32  stm32f3xx_hal_rcc.o(.constdata)
+    .constdata                               0x08004bb4   Section       24  driverhwadc.o(.constdata)
+    .constdata                               0x08004bcc   Section       48  driverhwi2c1.o(.constdata)
+    .constdata                               0x08004bfc   Section       72  driverhwi2c2.o(.constdata)
+    .constdata                               0x08004c44   Section       60  driverhwpowerstate.o(.constdata)
+    .constdata                               0x08004c80   Section       36  driverhwstatus.o(.constdata)
+    .constdata                               0x08004ca4   Section       80  driverhwswitches.o(.constdata)
+    .constdata                               0x08004cf4   Section     1280  libglcdfont.o(.constdata)
+    .constdata                               0x080051f4   Section     3072  liblogos.o(.constdata)
+    .constdata                               0x08005df4   Section       16  system_stm32f3xx_1.o(.constdata)
+    .constdata                               0x08005e04   Section        8  system_stm32f3xx_1.o(.constdata)
     .data                                    0x20000000   Section        4  stm32f3xx_hal.o(.data)
     .data                                    0x20000004   Section        8  driverhwadc.o(.data)
-    .data                                    0x2000000c   Section        5  driverswltc6803.o(.data)
+    .data                                    0x2000000c   Section       16  driverswltc6803.o(.data)
     data_pec                                 0x2000000d   Data           1  driverswltc6803.o(.data)
     received_pec                             0x2000000e   Data           1  driverswltc6803.o(.data)
     data_pec                                 0x2000000f   Data           1  driverswltc6803.o(.data)
     received_pec                             0x20000010   Data           1  driverswltc6803.o(.data)
-    .data                                    0x20000012   Section        6  driverswssd1306.o(.data)
-    pixelByte                                0x20000014   Data           2  driverswssd1306.o(.data)
-    pixelByte                                0x20000016   Data           2  driverswssd1306.o(.data)
-    .data                                    0x20000018   Section        8  moddelay.o(.data)
-    hmsCnt                                   0x20000018   Data           4  moddelay.o(.data)
-    msTicks                                  0x2000001c   Data           4  moddelay.o(.data)
-    .data                                    0x20000020   Section       12  moddisplay.o(.data)
-    .data                                    0x2000002c   Section       44  modeffect.o(.data)
-    LEDOnState                               0x2000002c   Data           1  modeffect.o(.data)
-    LEDOnState                               0x2000002d   Data           1  modeffect.o(.data)
-    LEDOnState                               0x2000002e   Data           1  modeffect.o(.data)
-    LEDOnState                               0x2000002f   Data           1  modeffect.o(.data)
-    lastTick                                 0x20000030   Data           4  modeffect.o(.data)
-    lastTick                                 0x20000034   Data           4  modeffect.o(.data)
-    lastTick                                 0x20000038   Data           4  modeffect.o(.data)
+    registersCombined                        0x20000014   Data           4  driverswltc6803.o(.data)
+    registersCombinedTemp                    0x20000018   Data           4  driverswltc6803.o(.data)
+    .data                                    0x2000001c   Section        6  driverswssd1306.o(.data)
+    pixelByte                                0x2000001e   Data           2  driverswssd1306.o(.data)
+    pixelByte                                0x20000020   Data           2  driverswssd1306.o(.data)
+    .data                                    0x20000024   Section        8  moddelay.o(.data)
+    hmsCnt                                   0x20000024   Data           4  moddelay.o(.data)
+    msTicks                                  0x20000028   Data           4  moddelay.o(.data)
+    .data                                    0x2000002c   Section       12  moddisplay.o(.data)
+    .data                                    0x20000038   Section       44  modeffect.o(.data)
+    LEDOnState                               0x20000038   Data           1  modeffect.o(.data)
+    LEDOnState                               0x20000039   Data           1  modeffect.o(.data)
+    LEDOnState                               0x2000003a   Data           1  modeffect.o(.data)
+    LEDOnState                               0x2000003b   Data           1  modeffect.o(.data)
     lastTick                                 0x2000003c   Data           4  modeffect.o(.data)
-    .data                                    0x20000058   Section       20  modoperationalstate.o(.data)
-    .data                                    0x2000006c   Section       20  modpowerelectronics.o(.data)
-    preChargeLastState                       0x2000006c   Data           1  modpowerelectronics.o(.data)
-    dischargeLastState                       0x2000006d   Data           1  modpowerelectronics.o(.data)
-    chargeLastState                          0x2000006e   Data           1  modpowerelectronics.o(.data)
-    lastDischargeAllowed                     0x2000006f   Data           1  modpowerelectronics.o(.data)
-    lastChargeAllowed                        0x20000070   Data           1  modpowerelectronics.o(.data)
-    .data                                    0x20000080   Section       12  modpowerstate.o(.data)
-    .data                                    0x2000008c   Section       24  libgraphics.o(.data)
-    .data                                    0x200000a4   Section        4  system_stm32f3xx_1.o(.data)
-    .data                                    0x200000a8   Section        4  main.o(.data)
-    .data                                    0x200000ac   Section        4  mvars.o(.data)
-    .data                                    0x200000b0   Section        4  mvars.o(.data)
-    .bss                                     0x200000b4   Section       84  driverhwadc.o(.bss)
-    .bss                                     0x20000108   Section       76  driverhwi2c1.o(.bss)
-    .bss                                     0x20000154   Section       76  driverhwi2c2.o(.bss)
-    .bss                                     0x200001a0   Section      100  driverhwspi1.o(.bss)
-    .bss                                     0x20000204   Section       20  driverswltc6803.o(.bss)
-    .bss                                     0x20000218   Section     2082  driverswssd1306.o(.bss)
-    writeData                                0x20000218   Data          17  driverswssd1306.o(.bss)
-    writeData                                0x20000229   Data          17  driverswssd1306.o(.bss)
-    displayBufferReal                        0x2000023a   Data        1024  driverswssd1306.o(.bss)
-    displayBufferDesired                     0x2000063a   Data        1024  driverswssd1306.o(.bss)
-    .bss                                     0x20000a3c   Section       64  modconfig.o(.bss)
-    .bss                                     0x20000a7c   Section       24  modpowerelectronics.o(.bss)
-    .bss                                     0x20000a94   Section      356  main.o(.bss)
-    HEAP                                     0x20000bf8   Section      512  startup_stm32f303xc.o(HEAP)
-    STACK                                    0x20000df8   Section     1024  startup_stm32f303xc.o(STACK)
+    lastTick                                 0x20000040   Data           4  modeffect.o(.data)
+    lastTick                                 0x20000044   Data           4  modeffect.o(.data)
+    lastTick                                 0x20000048   Data           4  modeffect.o(.data)
+    .data                                    0x20000064   Section       20  modoperationalstate.o(.data)
+    .data                                    0x20000078   Section       20  modpowerelectronics.o(.data)
+    preChargeLastState                       0x20000078   Data           1  modpowerelectronics.o(.data)
+    dischargeLastState                       0x20000079   Data           1  modpowerelectronics.o(.data)
+    chargeLastState                          0x2000007a   Data           1  modpowerelectronics.o(.data)
+    lastDischargeAllowed                     0x2000007b   Data           1  modpowerelectronics.o(.data)
+    lastChargeAllowed                        0x2000007c   Data           1  modpowerelectronics.o(.data)
+    .data                                    0x2000008c   Section       12  modpowerstate.o(.data)
+    .data                                    0x20000098   Section       24  libgraphics.o(.data)
+    .data                                    0x200000b0   Section        4  system_stm32f3xx_1.o(.data)
+    .data                                    0x200000b4   Section        4  main.o(.data)
+    .data                                    0x200000b8   Section        4  mvars.o(.data)
+    .data                                    0x200000bc   Section        4  mvars.o(.data)
+    .bss                                     0x200000c0   Section       84  driverhwadc.o(.bss)
+    .bss                                     0x20000114   Section       76  driverhwi2c1.o(.bss)
+    .bss                                     0x20000160   Section       76  driverhwi2c2.o(.bss)
+    .bss                                     0x200001ac   Section      100  driverhwspi1.o(.bss)
+    .bss                                     0x20000210   Section       20  driverswltc6803.o(.bss)
+    .bss                                     0x20000224   Section     2082  driverswssd1306.o(.bss)
+    writeData                                0x20000224   Data          17  driverswssd1306.o(.bss)
+    writeData                                0x20000235   Data          17  driverswssd1306.o(.bss)
+    displayBufferReal                        0x20000246   Data        1024  driverswssd1306.o(.bss)
+    displayBufferDesired                     0x20000646   Data        1024  driverswssd1306.o(.bss)
+    .bss                                     0x20000a48   Section       64  modconfig.o(.bss)
+    .bss                                     0x20000a88   Section       24  modpowerelectronics.o(.bss)
+    .bss                                     0x20000aa0   Section      356  main.o(.bss)
+    HEAP                                     0x20000c08   Section      512  startup_stm32f303xc.o(HEAP)
+    STACK                                    0x20000e08   Section     1024  startup_stm32f303xc.o(STACK)
 
     Global Symbols
 
@@ -2055,141 +2058,141 @@ Image Symbol Table
     driverSWLTC6803Init                      0x08003669   Thumb Code    42  driverswltc6803.o(i.driverSWLTC6803Init)
     driverSWLTC6803ReadCellVoltages          0x0800369d   Thumb Code   174  driverswltc6803.o(i.driverSWLTC6803ReadCellVoltages)
     driverSWLTC6803ReadFlagRegisters         0x0800374d   Thumb Code   154  driverswltc6803.o(i.driverSWLTC6803ReadFlagRegisters)
-    driverSWLTC6803ReadVoltageFlags          0x080037ed   Thumb Code   116  driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags)
-    driverSWLTC6803ResetCellVoltageRegisters 0x08003869   Thumb Code     6  driverswltc6803.o(i.driverSWLTC6803ResetCellVoltageRegisters)
-    driverSWLTC6803SendCommand               0x0800386f   Thumb Code    34  driverswltc6803.o(i.driverSWLTC6803SendCommand)
-    driverSWLTC6803StartCellVoltageConversion 0x08003891   Thumb Code     8  driverswltc6803.o(i.driverSWLTC6803StartCellVoltageConversion)
-    driverSWLTC6803Write                     0x0800389d   Thumb Code     4  driverswltc6803.o(i.driverSWLTC6803Write)
-    driverSWLTC6803WriteConfig               0x080038a1   Thumb Code   164  driverswltc6803.o(i.driverSWLTC6803WriteConfig)
-    driverSWLTC6803WriteConfigRegisters      0x08003955   Thumb Code   114  driverswltc6803.o(i.driverSWLTC6803WriteConfigRegisters)
-    driverSWLTC6803WriteRead                 0x080039c7   Thumb Code     4  driverswltc6803.o(i.driverSWLTC6803WriteRead)
-    driverSWSSD1306ClearDisplay              0x080039cd   Thumb Code    28  driverswssd1306.o(i.driverSWSSD1306ClearDisplay)
-    driverSWSSD1306Command                   0x080039f1   Thumb Code    28  driverswssd1306.o(i.driverSWSSD1306Command)
-    driverSWSSD1306DisplayAsyncEfficient     0x08003a11   Thumb Code   130  driverswssd1306.o(i.driverSWSSD1306DisplayAsyncEfficient)
-    driverSWSSD1306DrawPixel                 0x08003aa1   Thumb Code   202  driverswssd1306.o(i.driverSWSSD1306DrawPixel)
-    driverSWSSD1306FillBuffer                0x08003b71   Thumb Code    10  driverswssd1306.o(i.driverSWSSD1306FillBuffer)
-    driverSWSSD1306Init                      0x08003b81   Thumb Code   208  driverswssd1306.o(i.driverSWSSD1306Init)
-    free                                     0x08003c55   Thumb Code    76  malloc.o(i.free)
-    libGraphicsDrawChar                      0x08003ca5   Thumb Code   382  libgraphics.o(i.libGraphicsDrawChar)
-    libGraphicsDrawFastVLine                 0x08003e2d   Thumb Code    18  libgraphics.o(i.libGraphicsDrawFastVLine)
-    libGraphicsDrawLine                      0x08003e3f   Thumb Code   160  libgraphics.o(i.libGraphicsDrawLine)
-    libGraphicsDrawPixel                     0x08003edf   Thumb Code     4  libgraphics.o(i.libGraphicsDrawPixel)
-    libGraphicsFillRect                      0x08003ee3   Thumb Code    40  libgraphics.o(i.libGraphicsFillRect)
-    libGraphicsGetRotation                   0x08003f0d   Thumb Code     6  libgraphics.o(i.libGraphicsGetRotation)
-    libGraphicsHeight                        0x08003f19   Thumb Code     8  libgraphics.o(i.libGraphicsHeight)
-    libGraphicsInit                          0x08003f25   Thumb Code    38  libgraphics.o(i.libGraphicsInit)
-    libGraphicsSetCursor                     0x08003f51   Thumb Code     8  libgraphics.o(i.libGraphicsSetCursor)
-    libGraphicsSetTextColor_0                0x08003f5d   Thumb Code     8  libgraphics.o(i.libGraphicsSetTextColor_0)
-    libGraphicsSetTextSize                   0x08003f69   Thumb Code    10  libgraphics.o(i.libGraphicsSetTextSize)
-    libGraphicsWidth                         0x08003f79   Thumb Code     8  libgraphics.o(i.libGraphicsWidth)
-    libGraphicsWrite                         0x08003f85   Thumb Code   278  libgraphics.o(i.libGraphicsWrite)
-    main                                     0x080040a1   Thumb Code    82  main.o(i.main)
-    malloc                                   0x080040fd   Thumb Code    92  malloc.o(i.malloc)
-    modConfigInit                            0x08004169   Thumb Code     8  modconfig.o(i.modConfigInit)
-    modConfigLoadConfig                      0x08004175   Thumb Code   106  modconfig.o(i.modConfigLoadConfig)
-    modDelayInit                             0x08004205   Thumb Code    32  moddelay.o(i.modDelayInit)
-    modDelayTick100ms                        0x0800422d   Thumb Code    46  moddelay.o(i.modDelayTick100ms)
-    modDelayTick1ms                          0x08004261   Thumb Code    32  moddelay.o(i.modDelayTick1ms)
-    modDisplayInit                           0x08004281   Thumb Code    52  moddisplay.o(i.modDisplayInit)
-    modDisplayShowInfo                       0x080042b9   Thumb Code   254  moddisplay.o(i.modDisplayShowInfo)
-    modDisplayTask                           0x080043c9   Thumb Code     4  moddisplay.o(i.modDisplayTask)
-    modEffectChangeState                     0x080043cd   Thumb Code    34  modeffect.o(i.modEffectChangeState)
-    modEffectInit                            0x080043f5   Thumb Code    14  modeffect.o(i.modEffectInit)
-    modEffectTask                            0x08004405   Thumb Code    88  modeffect.o(i.modEffectTask)
-    modEffectTaskBlinkLong                   0x08004461   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkLong)
-    modEffectTaskBlinkShort                  0x080044ad   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkShort)
-    modEffectTaskFlash                       0x080044f9   Thumb Code    32  modeffect.o(i.modEffectTaskFlash)
-    modEffectTaskFlashFast                   0x0800451d   Thumb Code    32  modeffect.o(i.modEffectTaskFlashFast)
-    modOperationalStateInit                  0x08004541   Thumb Code    26  modoperationalstate.o(i.modOperationalStateInit)
-    modOperationalStateSetAllStates          0x08004561   Thumb Code    10  modoperationalstate.o(i.modOperationalStateSetAllStates)
-    modOperationalStateTask                  0x08004571   Thumb Code   374  modoperationalstate.o(i.modOperationalStateTask)
-    modOperationalStateUpdateStates          0x080046f1   Thumb Code    12  modoperationalstate.o(i.modOperationalStateUpdateStates)
-    modPowerElectronicsCalculateCellStats    0x08004701   Thumb Code   110  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
-    modPowerElectronicsDisableAll            0x08004779   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
-    modPowerElectronicsInit                  0x080047a5   Thumb Code   174  modpowerelectronics.o(i.modPowerElectronicsInit)
-    modPowerElectronicsSetCharge             0x0800485d   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
-    modPowerElectronicsSetDisCharge          0x08004889   Thumb Code    70  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
-    modPowerElectronicsSetPreCharge          0x080048d5   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
-    modPowerElectronicsSubTaskVoltageWatch   0x08004901   Thumb Code   212  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
-    modPowerElectronicsTask                  0x080049d9   Thumb Code   130  modpowerelectronics.o(i.modPowerElectronicsTask)
-    modPowerElectronicsUpdateSwitches        0x08004a6d   Thumb Code    86  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
-    modPowerStateButtonPressedOnTurnon       0x08004ac9   Thumb Code     6  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
-    modPowerStateChargerDetected             0x08004ad5   Thumb Code     6  modpowerstate.o(i.modPowerStateChargerDetected)
-    modPowerStateInit                        0x08004add   Thumb Code    40  modpowerstate.o(i.modPowerStateInit)
-    modPowerStatePowerdownRequest            0x08004b09   Thumb Code     6  modpowerstate.o(i.modPowerStatePowerdownRequest)
-    modPowerStateSetState                    0x08004b15   Thumb Code     8  modpowerstate.o(i.modPowerStateSetState)
-    modPowerStateTask                        0x08004b1d   Thumb Code    84  modpowerstate.o(i.modPowerStateTask)
-    aPLLMULFactorTable                       0x08004b74   Data          16  stm32f3xx_hal_rcc.o(.constdata)
-    aPredivFactorTable                       0x08004b84   Data          16  stm32f3xx_hal_rcc.o(.constdata)
-    driverHWADCPorts                         0x08004b94   Data          24  driverhwadc.o(.constdata)
-    driverHWI2C1Ports                        0x08004bac   Data          48  driverhwi2c1.o(.constdata)
-    driverHWI2C2Ports                        0x08004bdc   Data          72  driverhwi2c2.o(.constdata)
-    driverHWPorts                            0x08004c24   Data          60  driverhwpowerstate.o(.constdata)
-    STATPorts                                0x08004c60   Data          36  driverhwstatus.o(.constdata)
-    driverHWSwitchesPorts                    0x08004c84   Data          80  driverhwswitches.o(.constdata)
-    font                                     0x08004cd4   Data        1280  libglcdfont.o(.constdata)
-    libLogos                                 0x080051d4   Data        3072  liblogos.o(.constdata)
-    AHBPrescTable                            0x08005dd4   Data          16  system_stm32f3xx_1.o(.constdata)
-    APBPrescTable                            0x08005de4   Data           8  system_stm32f3xx_1.o(.constdata)
-    Region$$Table$$Base                      0x08005dec   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08005e0c   Number         0  anon$$obj.o(Region$$Table)
+    driverSWLTC6803ReadVoltageFlags          0x080037ed   Thumb Code   136  driverswltc6803.o(i.driverSWLTC6803ReadVoltageFlags)
+    driverSWLTC6803ResetCellVoltageRegisters 0x08003885   Thumb Code     6  driverswltc6803.o(i.driverSWLTC6803ResetCellVoltageRegisters)
+    driverSWLTC6803SendCommand               0x0800388b   Thumb Code    34  driverswltc6803.o(i.driverSWLTC6803SendCommand)
+    driverSWLTC6803StartCellVoltageConversion 0x080038ad   Thumb Code     8  driverswltc6803.o(i.driverSWLTC6803StartCellVoltageConversion)
+    driverSWLTC6803Write                     0x080038b9   Thumb Code     4  driverswltc6803.o(i.driverSWLTC6803Write)
+    driverSWLTC6803WriteConfig               0x080038bd   Thumb Code   164  driverswltc6803.o(i.driverSWLTC6803WriteConfig)
+    driverSWLTC6803WriteConfigRegisters      0x08003971   Thumb Code   114  driverswltc6803.o(i.driverSWLTC6803WriteConfigRegisters)
+    driverSWLTC6803WriteRead                 0x080039e3   Thumb Code     4  driverswltc6803.o(i.driverSWLTC6803WriteRead)
+    driverSWSSD1306ClearDisplay              0x080039e9   Thumb Code    28  driverswssd1306.o(i.driverSWSSD1306ClearDisplay)
+    driverSWSSD1306Command                   0x08003a0d   Thumb Code    28  driverswssd1306.o(i.driverSWSSD1306Command)
+    driverSWSSD1306DisplayAsyncEfficient     0x08003a2d   Thumb Code   130  driverswssd1306.o(i.driverSWSSD1306DisplayAsyncEfficient)
+    driverSWSSD1306DrawPixel                 0x08003abd   Thumb Code   202  driverswssd1306.o(i.driverSWSSD1306DrawPixel)
+    driverSWSSD1306FillBuffer                0x08003b8d   Thumb Code    10  driverswssd1306.o(i.driverSWSSD1306FillBuffer)
+    driverSWSSD1306Init                      0x08003b9d   Thumb Code   208  driverswssd1306.o(i.driverSWSSD1306Init)
+    free                                     0x08003c71   Thumb Code    76  malloc.o(i.free)
+    libGraphicsDrawChar                      0x08003cc1   Thumb Code   382  libgraphics.o(i.libGraphicsDrawChar)
+    libGraphicsDrawFastVLine                 0x08003e49   Thumb Code    18  libgraphics.o(i.libGraphicsDrawFastVLine)
+    libGraphicsDrawLine                      0x08003e5b   Thumb Code   160  libgraphics.o(i.libGraphicsDrawLine)
+    libGraphicsDrawPixel                     0x08003efb   Thumb Code     4  libgraphics.o(i.libGraphicsDrawPixel)
+    libGraphicsFillRect                      0x08003eff   Thumb Code    40  libgraphics.o(i.libGraphicsFillRect)
+    libGraphicsGetRotation                   0x08003f29   Thumb Code     6  libgraphics.o(i.libGraphicsGetRotation)
+    libGraphicsHeight                        0x08003f35   Thumb Code     8  libgraphics.o(i.libGraphicsHeight)
+    libGraphicsInit                          0x08003f41   Thumb Code    38  libgraphics.o(i.libGraphicsInit)
+    libGraphicsSetCursor                     0x08003f6d   Thumb Code     8  libgraphics.o(i.libGraphicsSetCursor)
+    libGraphicsSetTextColor_0                0x08003f79   Thumb Code     8  libgraphics.o(i.libGraphicsSetTextColor_0)
+    libGraphicsSetTextSize                   0x08003f85   Thumb Code    10  libgraphics.o(i.libGraphicsSetTextSize)
+    libGraphicsWidth                         0x08003f95   Thumb Code     8  libgraphics.o(i.libGraphicsWidth)
+    libGraphicsWrite                         0x08003fa1   Thumb Code   278  libgraphics.o(i.libGraphicsWrite)
+    main                                     0x080040bd   Thumb Code    82  main.o(i.main)
+    malloc                                   0x08004119   Thumb Code    92  malloc.o(i.malloc)
+    modConfigInit                            0x08004185   Thumb Code     8  modconfig.o(i.modConfigInit)
+    modConfigLoadConfig                      0x08004191   Thumb Code   106  modconfig.o(i.modConfigLoadConfig)
+    modDelayInit                             0x0800421d   Thumb Code    32  moddelay.o(i.modDelayInit)
+    modDelayTick100ms                        0x08004245   Thumb Code    46  moddelay.o(i.modDelayTick100ms)
+    modDelayTick1ms                          0x08004279   Thumb Code    32  moddelay.o(i.modDelayTick1ms)
+    modDisplayInit                           0x08004299   Thumb Code    52  moddisplay.o(i.modDisplayInit)
+    modDisplayShowInfo                       0x080042d1   Thumb Code   254  moddisplay.o(i.modDisplayShowInfo)
+    modDisplayTask                           0x080043e1   Thumb Code     4  moddisplay.o(i.modDisplayTask)
+    modEffectChangeState                     0x080043e5   Thumb Code    34  modeffect.o(i.modEffectChangeState)
+    modEffectInit                            0x0800440d   Thumb Code    14  modeffect.o(i.modEffectInit)
+    modEffectTask                            0x0800441d   Thumb Code    88  modeffect.o(i.modEffectTask)
+    modEffectTaskBlinkLong                   0x08004479   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkLong)
+    modEffectTaskBlinkShort                  0x080044c5   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkShort)
+    modEffectTaskFlash                       0x08004511   Thumb Code    32  modeffect.o(i.modEffectTaskFlash)
+    modEffectTaskFlashFast                   0x08004535   Thumb Code    32  modeffect.o(i.modEffectTaskFlashFast)
+    modOperationalStateInit                  0x08004559   Thumb Code    26  modoperationalstate.o(i.modOperationalStateInit)
+    modOperationalStateSetAllStates          0x08004579   Thumb Code    10  modoperationalstate.o(i.modOperationalStateSetAllStates)
+    modOperationalStateTask                  0x08004589   Thumb Code   374  modoperationalstate.o(i.modOperationalStateTask)
+    modOperationalStateUpdateStates          0x08004709   Thumb Code    12  modoperationalstate.o(i.modOperationalStateUpdateStates)
+    modPowerElectronicsCalculateCellStats    0x08004719   Thumb Code   110  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
+    modPowerElectronicsDisableAll            0x08004791   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
+    modPowerElectronicsInit                  0x080047bd   Thumb Code   174  modpowerelectronics.o(i.modPowerElectronicsInit)
+    modPowerElectronicsSetCharge             0x08004875   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
+    modPowerElectronicsSetDisCharge          0x080048a1   Thumb Code    70  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
+    modPowerElectronicsSetPreCharge          0x080048ed   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
+    modPowerElectronicsSubTaskVoltageWatch   0x08004919   Thumb Code   220  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
+    modPowerElectronicsTask                  0x080049f9   Thumb Code   130  modpowerelectronics.o(i.modPowerElectronicsTask)
+    modPowerElectronicsUpdateSwitches        0x08004a8d   Thumb Code    86  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
+    modPowerStateButtonPressedOnTurnon       0x08004ae9   Thumb Code     6  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
+    modPowerStateChargerDetected             0x08004af5   Thumb Code     6  modpowerstate.o(i.modPowerStateChargerDetected)
+    modPowerStateInit                        0x08004afd   Thumb Code    40  modpowerstate.o(i.modPowerStateInit)
+    modPowerStatePowerdownRequest            0x08004b29   Thumb Code     6  modpowerstate.o(i.modPowerStatePowerdownRequest)
+    modPowerStateSetState                    0x08004b35   Thumb Code     8  modpowerstate.o(i.modPowerStateSetState)
+    modPowerStateTask                        0x08004b3d   Thumb Code    84  modpowerstate.o(i.modPowerStateTask)
+    aPLLMULFactorTable                       0x08004b94   Data          16  stm32f3xx_hal_rcc.o(.constdata)
+    aPredivFactorTable                       0x08004ba4   Data          16  stm32f3xx_hal_rcc.o(.constdata)
+    driverHWADCPorts                         0x08004bb4   Data          24  driverhwadc.o(.constdata)
+    driverHWI2C1Ports                        0x08004bcc   Data          48  driverhwi2c1.o(.constdata)
+    driverHWI2C2Ports                        0x08004bfc   Data          72  driverhwi2c2.o(.constdata)
+    driverHWPorts                            0x08004c44   Data          60  driverhwpowerstate.o(.constdata)
+    STATPorts                                0x08004c80   Data          36  driverhwstatus.o(.constdata)
+    driverHWSwitchesPorts                    0x08004ca4   Data          80  driverhwswitches.o(.constdata)
+    font                                     0x08004cf4   Data        1280  libglcdfont.o(.constdata)
+    libLogos                                 0x080051f4   Data        3072  liblogos.o(.constdata)
+    AHBPrescTable                            0x08005df4   Data          16  system_stm32f3xx_1.o(.constdata)
+    APBPrescTable                            0x08005e04   Data           8  system_stm32f3xx_1.o(.constdata)
+    Region$$Table$$Base                      0x08005e0c   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08005e2c   Number         0  anon$$obj.o(Region$$Table)
     uwTick                                   0x20000000   Data           4  stm32f3xx_hal.o(.data)
     driverHWADCAverageCount                  0x20000004   Data           1  driverhwadc.o(.data)
     driverHWADCAverageSum                    0x20000008   Data           4  driverhwadc.o(.data)
     driverSWLTC6803TotalNumerOfICs           0x2000000c   Data           1  driverswltc6803.o(.data)
-    _i2caddr                                 0x20000012   Data           1  driverswssd1306.o(.data)
-    _vccstate                                0x20000013   Data           1  driverswssd1306.o(.data)
-    modDisplayCurrentState                   0x20000020   Data           1  moddisplay.o(.data)
-    modDisplayLastRefresh                    0x20000024   Data           4  moddisplay.o(.data)
-    modDisplayStartupDelay                   0x20000028   Data           4  moddisplay.o(.data)
-    STATStatuses                             0x20000040   Data          24  modeffect.o(.data)
-    modOperationalStateLastState             0x20000058   Data           1  modoperationalstate.o(.data)
-    modOperationalStateCurrentState          0x20000059   Data           1  modoperationalstate.o(.data)
-    modOperationalStateNewState              0x2000005a   Data           1  modoperationalstate.o(.data)
-    packStateOperationalStatehandle          0x2000005c   Data           4  modoperationalstate.o(.data)
-    modOperationalStateChargerTimout         0x20000060   Data           4  modoperationalstate.o(.data)
-    modOperationalStatePreChargeTimout       0x20000064   Data           4  modoperationalstate.o(.data)
-    modOperationalStateStartupDelay          0x20000068   Data           4  modoperationalstate.o(.data)
-    modPowerElectronicsPackStateHandle       0x20000074   Data           4  modpowerelectronics.o(.data)
-    modPowerElectronicsGeneralConfigHandle   0x20000078   Data           4  modpowerelectronics.o(.data)
-    modPowerElectronicsISLIntervalLastTick   0x2000007c   Data           4  modpowerelectronics.o(.data)
-    modPowerStatePowerDownDesired            0x20000080   Data           1  modpowerstate.o(.data)
-    modPowerStateButtonPressedVar            0x20000081   Data           1  modpowerstate.o(.data)
-    modPowerStateLastButtonPressedVar        0x20000082   Data           1  modpowerstate.o(.data)
-    modPowerStateLastButtonFirstPress        0x20000083   Data           1  modpowerstate.o(.data)
-    modPowerStateButtonPressedDuration       0x20000084   Data           4  modpowerstate.o(.data)
-    modPowerStateButtonPressedTimeStamp      0x20000088   Data           4  modpowerstate.o(.data)
-    textsize                                 0x2000008c   Data           1  libgraphics.o(.data)
-    rotation                                 0x2000008d   Data           1  libgraphics.o(.data)
-    wrap                                     0x2000008e   Data           1  libgraphics.o(.data)
-    _cp437                                   0x2000008f   Data           1  libgraphics.o(.data)
-    WIDTH                                    0x20000090   Data           2  libgraphics.o(.data)
-    HEIGHT                                   0x20000092   Data           2  libgraphics.o(.data)
-    _width                                   0x20000094   Data           2  libgraphics.o(.data)
-    _height                                  0x20000096   Data           2  libgraphics.o(.data)
-    cursor_x                                 0x20000098   Data           2  libgraphics.o(.data)
-    cursor_y                                 0x2000009a   Data           2  libgraphics.o(.data)
-    textcolor                                0x2000009c   Data           2  libgraphics.o(.data)
-    textbgcolor                              0x2000009e   Data           2  libgraphics.o(.data)
-    gfxFont                                  0x200000a0   Data           4  libgraphics.o(.data)
-    SystemCoreClock                          0x200000a4   Data           4  system_stm32f3xx_1.o(.data)
-    generalConfig                            0x200000a8   Data           4  main.o(.data)
-    __microlib_freelist                      0x200000ac   Data           4  mvars.o(.data)
-    __microlib_freelist_initialised          0x200000b0   Data           4  mvars.o(.data)
-    hadc1                                    0x200000b4   Data          84  driverhwadc.o(.bss)
-    driverHWI2C1                             0x20000108   Data          76  driverhwi2c1.o(.bss)
-    driverHWI2C2                             0x20000154   Data          76  driverhwi2c2.o(.bss)
-    driverHWSPI1Handle                       0x200001a0   Data         100  driverhwspi1.o(.bss)
-    driverSWLTC6803ConfigStruct              0x20000204   Data          20  driverswltc6803.o(.bss)
-    modConfigGeneralConfig                   0x20000a3c   Data          64  modconfig.o(.bss)
-    cell_codes                               0x20000a7c   Data          24  modpowerelectronics.o(.bss)
-    hcan                                     0x20000a94   Data          64  main.o(.bss)
-    hspi2                                    0x20000ad4   Data         100  main.o(.bss)
-    huart2                                   0x20000b38   Data         112  main.o(.bss)
-    packState                                0x20000ba8   Data          80  main.o(.bss)
-    __heap_base                              0x20000bf8   Data           0  startup_stm32f303xc.o(HEAP)
-    __heap_limit                             0x20000df8   Data           0  startup_stm32f303xc.o(HEAP)
-    __initial_sp                             0x200011f8   Data           0  startup_stm32f303xc.o(STACK)
+    _i2caddr                                 0x2000001c   Data           1  driverswssd1306.o(.data)
+    _vccstate                                0x2000001d   Data           1  driverswssd1306.o(.data)
+    modDisplayCurrentState                   0x2000002c   Data           1  moddisplay.o(.data)
+    modDisplayLastRefresh                    0x20000030   Data           4  moddisplay.o(.data)
+    modDisplayStartupDelay                   0x20000034   Data           4  moddisplay.o(.data)
+    STATStatuses                             0x2000004c   Data          24  modeffect.o(.data)
+    modOperationalStateLastState             0x20000064   Data           1  modoperationalstate.o(.data)
+    modOperationalStateCurrentState          0x20000065   Data           1  modoperationalstate.o(.data)
+    modOperationalStateNewState              0x20000066   Data           1  modoperationalstate.o(.data)
+    packStateOperationalStatehandle          0x20000068   Data           4  modoperationalstate.o(.data)
+    modOperationalStateChargerTimout         0x2000006c   Data           4  modoperationalstate.o(.data)
+    modOperationalStatePreChargeTimout       0x20000070   Data           4  modoperationalstate.o(.data)
+    modOperationalStateStartupDelay          0x20000074   Data           4  modoperationalstate.o(.data)
+    modPowerElectronicsPackStateHandle       0x20000080   Data           4  modpowerelectronics.o(.data)
+    modPowerElectronicsGeneralConfigHandle   0x20000084   Data           4  modpowerelectronics.o(.data)
+    modPowerElectronicsISLIntervalLastTick   0x20000088   Data           4  modpowerelectronics.o(.data)
+    modPowerStatePowerDownDesired            0x2000008c   Data           1  modpowerstate.o(.data)
+    modPowerStateButtonPressedVar            0x2000008d   Data           1  modpowerstate.o(.data)
+    modPowerStateLastButtonPressedVar        0x2000008e   Data           1  modpowerstate.o(.data)
+    modPowerStateLastButtonFirstPress        0x2000008f   Data           1  modpowerstate.o(.data)
+    modPowerStateButtonPressedDuration       0x20000090   Data           4  modpowerstate.o(.data)
+    modPowerStateButtonPressedTimeStamp      0x20000094   Data           4  modpowerstate.o(.data)
+    textsize                                 0x20000098   Data           1  libgraphics.o(.data)
+    rotation                                 0x20000099   Data           1  libgraphics.o(.data)
+    wrap                                     0x2000009a   Data           1  libgraphics.o(.data)
+    _cp437                                   0x2000009b   Data           1  libgraphics.o(.data)
+    WIDTH                                    0x2000009c   Data           2  libgraphics.o(.data)
+    HEIGHT                                   0x2000009e   Data           2  libgraphics.o(.data)
+    _width                                   0x200000a0   Data           2  libgraphics.o(.data)
+    _height                                  0x200000a2   Data           2  libgraphics.o(.data)
+    cursor_x                                 0x200000a4   Data           2  libgraphics.o(.data)
+    cursor_y                                 0x200000a6   Data           2  libgraphics.o(.data)
+    textcolor                                0x200000a8   Data           2  libgraphics.o(.data)
+    textbgcolor                              0x200000aa   Data           2  libgraphics.o(.data)
+    gfxFont                                  0x200000ac   Data           4  libgraphics.o(.data)
+    SystemCoreClock                          0x200000b0   Data           4  system_stm32f3xx_1.o(.data)
+    generalConfig                            0x200000b4   Data           4  main.o(.data)
+    __microlib_freelist                      0x200000b8   Data           4  mvars.o(.data)
+    __microlib_freelist_initialised          0x200000bc   Data           4  mvars.o(.data)
+    hadc1                                    0x200000c0   Data          84  driverhwadc.o(.bss)
+    driverHWI2C1                             0x20000114   Data          76  driverhwi2c1.o(.bss)
+    driverHWI2C2                             0x20000160   Data          76  driverhwi2c2.o(.bss)
+    driverHWSPI1Handle                       0x200001ac   Data         100  driverhwspi1.o(.bss)
+    driverSWLTC6803ConfigStruct              0x20000210   Data          20  driverswltc6803.o(.bss)
+    modConfigGeneralConfig                   0x20000a48   Data          64  modconfig.o(.bss)
+    cell_codes                               0x20000a88   Data          24  modpowerelectronics.o(.bss)
+    hcan                                     0x20000aa0   Data          64  main.o(.bss)
+    hspi2                                    0x20000ae0   Data         100  main.o(.bss)
+    huart2                                   0x20000b44   Data         112  main.o(.bss)
+    packState                                0x20000bb4   Data          80  main.o(.bss)
+    __heap_base                              0x20000c08   Data           0  startup_stm32f303xc.o(HEAP)
+    __heap_limit                             0x20000e08   Data           0  startup_stm32f303xc.o(HEAP)
+    __initial_sp                             0x20001208   Data           0  startup_stm32f303xc.o(STACK)
 
 
 
@@ -2199,9 +2202,9 @@ Memory Map of the image
 
   Image Entry point : 0x08000189
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00005ec0, Max: 0x00040000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00005eec, Max: 0x00040000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x00005e0c, Max: 0x00040000, ABSOLUTE)
+    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x00005e2c, Max: 0x00040000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -2337,120 +2340,121 @@ Memory Map of the image
     0x0800369c   0x000000ae   Code   RO         3056    i.driverSWLTC6803ReadCellVoltages  driverswltc6803.o
     0x0800374a   0x00000002   PAD
     0x0800374c   0x000000a0   Code   RO         3058    i.driverSWLTC6803ReadFlagRegisters  driverswltc6803.o
-    0x080037ec   0x0000007c   Code   RO         3061    i.driverSWLTC6803ReadVoltageFlags  driverswltc6803.o
-    0x08003868   0x00000006   Code   RO         3062    i.driverSWLTC6803ResetCellVoltageRegisters  driverswltc6803.o
-    0x0800386e   0x00000022   Code   RO         3063    i.driverSWLTC6803SendCommand  driverswltc6803.o
-    0x08003890   0x0000000c   Code   RO         3064    i.driverSWLTC6803StartCellVoltageConversion  driverswltc6803.o
-    0x0800389c   0x00000004   Code   RO         3066    i.driverSWLTC6803Write  driverswltc6803.o
-    0x080038a0   0x000000b4   Code   RO         3067    i.driverSWLTC6803WriteConfig  driverswltc6803.o
-    0x08003954   0x00000072   Code   RO         3068    i.driverSWLTC6803WriteConfigRegisters  driverswltc6803.o
-    0x080039c6   0x00000004   Code   RO         3069    i.driverSWLTC6803WriteRead  driverswltc6803.o
-    0x080039ca   0x00000002   PAD
-    0x080039cc   0x00000024   Code   RO         3178    i.driverSWSSD1306ClearDisplay  driverswssd1306.o
-    0x080039f0   0x00000020   Code   RO         3179    i.driverSWSSD1306Command  driverswssd1306.o
-    0x08003a10   0x00000090   Code   RO         3183    i.driverSWSSD1306DisplayAsyncEfficient  driverswssd1306.o
-    0x08003aa0   0x000000d0   Code   RO         3186    i.driverSWSSD1306DrawPixel  driverswssd1306.o
-    0x08003b70   0x00000010   Code   RO         3187    i.driverSWSSD1306FillBuffer  driverswssd1306.o
-    0x08003b80   0x000000d4   Code   RO         3188    i.driverSWSSD1306Init  driverswssd1306.o
-    0x08003c54   0x00000050   Code   RO         4283    i.free              mc_w.l(malloc.o)
-    0x08003ca4   0x00000188   Code   RO         3766    i.libGraphicsDrawChar  libgraphics.o
-    0x08003e2c   0x00000012   Code   RO         3770    i.libGraphicsDrawFastVLine  libgraphics.o
-    0x08003e3e   0x000000a0   Code   RO         3771    i.libGraphicsDrawLine  libgraphics.o
-    0x08003ede   0x00000004   Code   RO         3772    i.libGraphicsDrawPixel  libgraphics.o
-    0x08003ee2   0x00000028   Code   RO         3779    i.libGraphicsFillRect  libgraphics.o
-    0x08003f0a   0x00000002   PAD
-    0x08003f0c   0x0000000c   Code   RO         3785    i.libGraphicsGetRotation  libgraphics.o
-    0x08003f18   0x0000000c   Code   RO         3787    i.libGraphicsHeight  libgraphics.o
-    0x08003f24   0x0000002c   Code   RO         3788    i.libGraphicsInit   libgraphics.o
-    0x08003f50   0x0000000c   Code   RO         3790    i.libGraphicsSetCursor  libgraphics.o
-    0x08003f5c   0x0000000c   Code   RO         3793    i.libGraphicsSetTextColor_0  libgraphics.o
-    0x08003f68   0x00000010   Code   RO         3795    i.libGraphicsSetTextSize  libgraphics.o
-    0x08003f78   0x0000000c   Code   RO         3797    i.libGraphicsWidth  libgraphics.o
-    0x08003f84   0x0000011c   Code   RO         3798    i.libGraphicsWrite  libgraphics.o
-    0x080040a0   0x0000005c   Code   RO         4209    i.main              main.o
-    0x080040fc   0x0000006c   Code   RO         4284    i.malloc            mc_w.l(malloc.o)
-    0x08004168   0x0000000c   Code   RO         3328    i.modConfigInit     modconfig.o
-    0x08004174   0x00000090   Code   RO         3329    i.modConfigLoadConfig  modconfig.o
-    0x08004204   0x00000028   Code   RO         3361    i.modDelayInit      moddelay.o
-    0x0800422c   0x00000034   Code   RO         3362    i.modDelayTick100ms  moddelay.o
-    0x08004260   0x00000020   Code   RO         3363    i.modDelayTick1ms   moddelay.o
-    0x08004280   0x00000038   Code   RO         3403    i.modDisplayInit    moddisplay.o
-    0x080042b8   0x00000110   Code   RO         3404    i.modDisplayShowInfo  moddisplay.o
-    0x080043c8   0x00000004   Code   RO         3405    i.modDisplayTask    moddisplay.o
-    0x080043cc   0x00000028   Code   RO         3456    i.modEffectChangeState  modeffect.o
-    0x080043f4   0x0000000e   Code   RO         3457    i.modEffectInit     modeffect.o
-    0x08004402   0x00000002   PAD
-    0x08004404   0x0000005c   Code   RO         3458    i.modEffectTask     modeffect.o
-    0x08004460   0x0000004c   Code   RO         3459    i.modEffectTaskBlinkLong  modeffect.o
-    0x080044ac   0x0000004c   Code   RO         3460    i.modEffectTaskBlinkShort  modeffect.o
-    0x080044f8   0x00000024   Code   RO         3461    i.modEffectTaskFlash  modeffect.o
-    0x0800451c   0x00000024   Code   RO         3462    i.modEffectTaskFlashFast  modeffect.o
-    0x08004540   0x00000020   Code   RO         3529    i.modOperationalStateInit  modoperationalstate.o
-    0x08004560   0x00000010   Code   RO         3530    i.modOperationalStateSetAllStates  modoperationalstate.o
-    0x08004570   0x00000180   Code   RO         3532    i.modOperationalStateTask  modoperationalstate.o
-    0x080046f0   0x00000010   Code   RO         3533    i.modOperationalStateUpdateStates  modoperationalstate.o
-    0x08004700   0x00000078   Code   RO         3601    i.modPowerElectronicsCalculateCellStats  modpowerelectronics.o
-    0x08004778   0x0000002c   Code   RO         3602    i.modPowerElectronicsDisableAll  modpowerelectronics.o
-    0x080047a4   0x000000b8   Code   RO         3603    i.modPowerElectronicsInit  modpowerelectronics.o
-    0x0800485c   0x0000002c   Code   RO         3604    i.modPowerElectronicsSetCharge  modpowerelectronics.o
-    0x08004888   0x0000004c   Code   RO         3605    i.modPowerElectronicsSetDisCharge  modpowerelectronics.o
-    0x080048d4   0x0000002c   Code   RO         3606    i.modPowerElectronicsSetPreCharge  modpowerelectronics.o
-    0x08004900   0x000000d8   Code   RO         3608    i.modPowerElectronicsSubTaskVoltageWatch  modpowerelectronics.o
-    0x080049d8   0x00000094   Code   RO         3609    i.modPowerElectronicsTask  modpowerelectronics.o
-    0x08004a6c   0x0000005c   Code   RO         3610    i.modPowerElectronicsUpdateSwitches  modpowerelectronics.o
-    0x08004ac8   0x0000000c   Code   RO         3684    i.modPowerStateButtonPressedOnTurnon  modpowerstate.o
-    0x08004ad4   0x00000006   Code   RO         3685    i.modPowerStateChargerDetected  modpowerstate.o
-    0x08004ada   0x00000002   PAD
-    0x08004adc   0x0000002c   Code   RO         3686    i.modPowerStateInit  modpowerstate.o
-    0x08004b08   0x0000000c   Code   RO         3687    i.modPowerStatePowerdownRequest  modpowerstate.o
-    0x08004b14   0x00000008   Code   RO         3688    i.modPowerStateSetState  modpowerstate.o
-    0x08004b1c   0x00000058   Code   RO         3689    i.modPowerStateTask  modpowerstate.o
-    0x08004b74   0x00000020   Data   RO         2199    .constdata          stm32f3xx_hal_rcc.o
-    0x08004b94   0x00000018   Data   RO         2713    .constdata          driverhwadc.o
-    0x08004bac   0x00000030   Data   RO         2755    .constdata          driverhwi2c1.o
-    0x08004bdc   0x00000048   Data   RO         2798    .constdata          driverhwi2c2.o
-    0x08004c24   0x0000003c   Data   RO         2840    .constdata          driverhwpowerstate.o
-    0x08004c60   0x00000024   Data   RO         2929    .constdata          driverhwstatus.o
-    0x08004c84   0x00000050   Data   RO         2970    .constdata          driverhwswitches.o
-    0x08004cd4   0x00000500   Data   RO         3743    .constdata          libglcdfont.o
-    0x080051d4   0x00000c00   Data   RO         4017    .constdata          liblogos.o
-    0x08005dd4   0x00000010   Data   RO         4167    .constdata          system_stm32f3xx_1.o
-    0x08005de4   0x00000008   Data   RO         4168    .constdata          system_stm32f3xx_1.o
-    0x08005dec   0x00000020   Data   RO         4348    Region$$Table       anon$$obj.o
+    0x080037ec   0x00000098   Code   RO         3061    i.driverSWLTC6803ReadVoltageFlags  driverswltc6803.o
+    0x08003884   0x00000006   Code   RO         3062    i.driverSWLTC6803ResetCellVoltageRegisters  driverswltc6803.o
+    0x0800388a   0x00000022   Code   RO         3063    i.driverSWLTC6803SendCommand  driverswltc6803.o
+    0x080038ac   0x0000000c   Code   RO         3064    i.driverSWLTC6803StartCellVoltageConversion  driverswltc6803.o
+    0x080038b8   0x00000004   Code   RO         3066    i.driverSWLTC6803Write  driverswltc6803.o
+    0x080038bc   0x000000b4   Code   RO         3067    i.driverSWLTC6803WriteConfig  driverswltc6803.o
+    0x08003970   0x00000072   Code   RO         3068    i.driverSWLTC6803WriteConfigRegisters  driverswltc6803.o
+    0x080039e2   0x00000004   Code   RO         3069    i.driverSWLTC6803WriteRead  driverswltc6803.o
+    0x080039e6   0x00000002   PAD
+    0x080039e8   0x00000024   Code   RO         3178    i.driverSWSSD1306ClearDisplay  driverswssd1306.o
+    0x08003a0c   0x00000020   Code   RO         3179    i.driverSWSSD1306Command  driverswssd1306.o
+    0x08003a2c   0x00000090   Code   RO         3183    i.driverSWSSD1306DisplayAsyncEfficient  driverswssd1306.o
+    0x08003abc   0x000000d0   Code   RO         3186    i.driverSWSSD1306DrawPixel  driverswssd1306.o
+    0x08003b8c   0x00000010   Code   RO         3187    i.driverSWSSD1306FillBuffer  driverswssd1306.o
+    0x08003b9c   0x000000d4   Code   RO         3188    i.driverSWSSD1306Init  driverswssd1306.o
+    0x08003c70   0x00000050   Code   RO         4283    i.free              mc_w.l(malloc.o)
+    0x08003cc0   0x00000188   Code   RO         3766    i.libGraphicsDrawChar  libgraphics.o
+    0x08003e48   0x00000012   Code   RO         3770    i.libGraphicsDrawFastVLine  libgraphics.o
+    0x08003e5a   0x000000a0   Code   RO         3771    i.libGraphicsDrawLine  libgraphics.o
+    0x08003efa   0x00000004   Code   RO         3772    i.libGraphicsDrawPixel  libgraphics.o
+    0x08003efe   0x00000028   Code   RO         3779    i.libGraphicsFillRect  libgraphics.o
+    0x08003f26   0x00000002   PAD
+    0x08003f28   0x0000000c   Code   RO         3785    i.libGraphicsGetRotation  libgraphics.o
+    0x08003f34   0x0000000c   Code   RO         3787    i.libGraphicsHeight  libgraphics.o
+    0x08003f40   0x0000002c   Code   RO         3788    i.libGraphicsInit   libgraphics.o
+    0x08003f6c   0x0000000c   Code   RO         3790    i.libGraphicsSetCursor  libgraphics.o
+    0x08003f78   0x0000000c   Code   RO         3793    i.libGraphicsSetTextColor_0  libgraphics.o
+    0x08003f84   0x00000010   Code   RO         3795    i.libGraphicsSetTextSize  libgraphics.o
+    0x08003f94   0x0000000c   Code   RO         3797    i.libGraphicsWidth  libgraphics.o
+    0x08003fa0   0x0000011c   Code   RO         3798    i.libGraphicsWrite  libgraphics.o
+    0x080040bc   0x0000005c   Code   RO         4209    i.main              main.o
+    0x08004118   0x0000006c   Code   RO         4284    i.malloc            mc_w.l(malloc.o)
+    0x08004184   0x0000000c   Code   RO         3328    i.modConfigInit     modconfig.o
+    0x08004190   0x0000008c   Code   RO         3329    i.modConfigLoadConfig  modconfig.o
+    0x0800421c   0x00000028   Code   RO         3361    i.modDelayInit      moddelay.o
+    0x08004244   0x00000034   Code   RO         3362    i.modDelayTick100ms  moddelay.o
+    0x08004278   0x00000020   Code   RO         3363    i.modDelayTick1ms   moddelay.o
+    0x08004298   0x00000038   Code   RO         3403    i.modDisplayInit    moddisplay.o
+    0x080042d0   0x00000110   Code   RO         3404    i.modDisplayShowInfo  moddisplay.o
+    0x080043e0   0x00000004   Code   RO         3405    i.modDisplayTask    moddisplay.o
+    0x080043e4   0x00000028   Code   RO         3456    i.modEffectChangeState  modeffect.o
+    0x0800440c   0x0000000e   Code   RO         3457    i.modEffectInit     modeffect.o
+    0x0800441a   0x00000002   PAD
+    0x0800441c   0x0000005c   Code   RO         3458    i.modEffectTask     modeffect.o
+    0x08004478   0x0000004c   Code   RO         3459    i.modEffectTaskBlinkLong  modeffect.o
+    0x080044c4   0x0000004c   Code   RO         3460    i.modEffectTaskBlinkShort  modeffect.o
+    0x08004510   0x00000024   Code   RO         3461    i.modEffectTaskFlash  modeffect.o
+    0x08004534   0x00000024   Code   RO         3462    i.modEffectTaskFlashFast  modeffect.o
+    0x08004558   0x00000020   Code   RO         3529    i.modOperationalStateInit  modoperationalstate.o
+    0x08004578   0x00000010   Code   RO         3530    i.modOperationalStateSetAllStates  modoperationalstate.o
+    0x08004588   0x00000180   Code   RO         3532    i.modOperationalStateTask  modoperationalstate.o
+    0x08004708   0x00000010   Code   RO         3533    i.modOperationalStateUpdateStates  modoperationalstate.o
+    0x08004718   0x00000078   Code   RO         3601    i.modPowerElectronicsCalculateCellStats  modpowerelectronics.o
+    0x08004790   0x0000002c   Code   RO         3602    i.modPowerElectronicsDisableAll  modpowerelectronics.o
+    0x080047bc   0x000000b8   Code   RO         3603    i.modPowerElectronicsInit  modpowerelectronics.o
+    0x08004874   0x0000002c   Code   RO         3604    i.modPowerElectronicsSetCharge  modpowerelectronics.o
+    0x080048a0   0x0000004c   Code   RO         3605    i.modPowerElectronicsSetDisCharge  modpowerelectronics.o
+    0x080048ec   0x0000002c   Code   RO         3606    i.modPowerElectronicsSetPreCharge  modpowerelectronics.o
+    0x08004918   0x000000e0   Code   RO         3608    i.modPowerElectronicsSubTaskVoltageWatch  modpowerelectronics.o
+    0x080049f8   0x00000094   Code   RO         3609    i.modPowerElectronicsTask  modpowerelectronics.o
+    0x08004a8c   0x0000005c   Code   RO         3610    i.modPowerElectronicsUpdateSwitches  modpowerelectronics.o
+    0x08004ae8   0x0000000c   Code   RO         3684    i.modPowerStateButtonPressedOnTurnon  modpowerstate.o
+    0x08004af4   0x00000006   Code   RO         3685    i.modPowerStateChargerDetected  modpowerstate.o
+    0x08004afa   0x00000002   PAD
+    0x08004afc   0x0000002c   Code   RO         3686    i.modPowerStateInit  modpowerstate.o
+    0x08004b28   0x0000000c   Code   RO         3687    i.modPowerStatePowerdownRequest  modpowerstate.o
+    0x08004b34   0x00000008   Code   RO         3688    i.modPowerStateSetState  modpowerstate.o
+    0x08004b3c   0x00000058   Code   RO         3689    i.modPowerStateTask  modpowerstate.o
+    0x08004b94   0x00000020   Data   RO         2199    .constdata          stm32f3xx_hal_rcc.o
+    0x08004bb4   0x00000018   Data   RO         2713    .constdata          driverhwadc.o
+    0x08004bcc   0x00000030   Data   RO         2755    .constdata          driverhwi2c1.o
+    0x08004bfc   0x00000048   Data   RO         2798    .constdata          driverhwi2c2.o
+    0x08004c44   0x0000003c   Data   RO         2840    .constdata          driverhwpowerstate.o
+    0x08004c80   0x00000024   Data   RO         2929    .constdata          driverhwstatus.o
+    0x08004ca4   0x00000050   Data   RO         2970    .constdata          driverhwswitches.o
+    0x08004cf4   0x00000500   Data   RO         3743    .constdata          libglcdfont.o
+    0x080051f4   0x00000c00   Data   RO         4017    .constdata          liblogos.o
+    0x08005df4   0x00000010   Data   RO         4167    .constdata          system_stm32f3xx_1.o
+    0x08005e04   0x00000008   Data   RO         4168    .constdata          system_stm32f3xx_1.o
+    0x08005e0c   0x00000020   Data   RO         4348    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x000011f8, Max: 0x0000c000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00001208, Max: 0x0000c000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x20000000   0x00000004   Data   RW         1942    .data               stm32f3xx_hal.o
     0x20000004   0x00000008   Data   RW         2714    .data               driverhwadc.o
-    0x2000000c   0x00000005   Data   RW         3071    .data               driverswltc6803.o
-    0x20000011   0x00000001   PAD
-    0x20000012   0x00000006   Data   RW         3196    .data               driverswssd1306.o
-    0x20000018   0x00000008   Data   RW         3364    .data               moddelay.o
-    0x20000020   0x0000000c   Data   RW         3406    .data               moddisplay.o
-    0x2000002c   0x0000002c   Data   RW         3463    .data               modeffect.o
-    0x20000058   0x00000014   Data   RW         3534    .data               modoperationalstate.o
-    0x2000006c   0x00000014   Data   RW         3612    .data               modpowerelectronics.o
-    0x20000080   0x0000000c   Data   RW         3690    .data               modpowerstate.o
-    0x2000008c   0x00000018   Data   RW         3799    .data               libgraphics.o
-    0x200000a4   0x00000004   Data   RW         4169    .data               system_stm32f3xx_1.o
-    0x200000a8   0x00000004   Data   RW         4211    .data               main.o
-    0x200000ac   0x00000004   Data   RW         4337    .data               mc_w.l(mvars.o)
-    0x200000b0   0x00000004   Data   RW         4338    .data               mc_w.l(mvars.o)
-    0x200000b4   0x00000054   Zero   RW         2712    .bss                driverhwadc.o
-    0x20000108   0x0000004c   Zero   RW         2754    .bss                driverhwi2c1.o
-    0x20000154   0x0000004c   Zero   RW         2797    .bss                driverhwi2c2.o
-    0x200001a0   0x00000064   Zero   RW         2882    .bss                driverhwspi1.o
-    0x20000204   0x00000014   Zero   RW         3070    .bss                driverswltc6803.o
-    0x20000218   0x00000822   Zero   RW         3195    .bss                driverswssd1306.o
-    0x20000a3a   0x00000002   PAD
-    0x20000a3c   0x00000040   Zero   RW         3331    .bss                modconfig.o
-    0x20000a7c   0x00000018   Zero   RW         3611    .bss                modpowerelectronics.o
-    0x20000a94   0x00000164   Zero   RW         4210    .bss                main.o
-    0x20000bf8   0x00000200   Zero   RW         4033    HEAP                startup_stm32f303xc.o
-    0x20000df8   0x00000400   Zero   RW         4032    STACK               startup_stm32f303xc.o
+    0x2000000c   0x00000010   Data   RW         3071    .data               driverswltc6803.o
+    0x2000001c   0x00000006   Data   RW         3196    .data               driverswssd1306.o
+    0x20000022   0x00000002   PAD
+    0x20000024   0x00000008   Data   RW         3364    .data               moddelay.o
+    0x2000002c   0x0000000c   Data   RW         3406    .data               moddisplay.o
+    0x20000038   0x0000002c   Data   RW         3463    .data               modeffect.o
+    0x20000064   0x00000014   Data   RW         3534    .data               modoperationalstate.o
+    0x20000078   0x00000014   Data   RW         3612    .data               modpowerelectronics.o
+    0x2000008c   0x0000000c   Data   RW         3690    .data               modpowerstate.o
+    0x20000098   0x00000018   Data   RW         3799    .data               libgraphics.o
+    0x200000b0   0x00000004   Data   RW         4169    .data               system_stm32f3xx_1.o
+    0x200000b4   0x00000004   Data   RW         4211    .data               main.o
+    0x200000b8   0x00000004   Data   RW         4337    .data               mc_w.l(mvars.o)
+    0x200000bc   0x00000004   Data   RW         4338    .data               mc_w.l(mvars.o)
+    0x200000c0   0x00000054   Zero   RW         2712    .bss                driverhwadc.o
+    0x20000114   0x0000004c   Zero   RW         2754    .bss                driverhwi2c1.o
+    0x20000160   0x0000004c   Zero   RW         2797    .bss                driverhwi2c2.o
+    0x200001ac   0x00000064   Zero   RW         2882    .bss                driverhwspi1.o
+    0x20000210   0x00000014   Zero   RW         3070    .bss                driverswltc6803.o
+    0x20000224   0x00000822   Zero   RW         3195    .bss                driverswssd1306.o
+    0x20000a46   0x00000002   PAD
+    0x20000a48   0x00000040   Zero   RW         3331    .bss                modconfig.o
+    0x20000a88   0x00000018   Zero   RW         3611    .bss                modpowerelectronics.o
+    0x20000aa0   0x00000164   Zero   RW         4210    .bss                main.o
+    0x20000c04   0x00000004   PAD
+    0x20000c08   0x00000200   Zero   RW         4033    HEAP                startup_stm32f303xc.o
+    0x20000e08   0x00000400   Zero   RW         4032    STACK               startup_stm32f303xc.o
 
 
 ==============================================================================
@@ -2468,18 +2472,18 @@ Image component sizes
        112         14         36          0          0       2761   driverhwstatus.o
        144         16         80          0          0       3281   driverhwswitches.o
        192         24          0          0          0       3559   driverswisl28022.o
-       914         44          0          5         20      15632   driverswltc6803.o
+       942         52          0         16         20      15636   driverswltc6803.o
        648         42          0          6       2082       5592   driverswssd1306.o
          0          0       1280          0          0        559   libglcdfont.o
       1018         50          0         24          0      11234   libgraphics.o
          0          0       3072          0          0        535   liblogos.o
        592         48          0          4        356       4341   main.o
-       156         42          0          0         64       2499   modconfig.o
+       152         38          0          0         64       2499   modconfig.o
        124         14          0          8          0      29152   moddelay.o
        332         30          0         12          0       3400   moddisplay.o
        370         34          0         44          0       5959   modeffect.o
        448         34          0         20          0       6544   modoperationalstate.o
-       968         66          0         20         24       7527   modpowerelectronics.o
+       976         66          0         20         24       7531   modpowerelectronics.o
        170         20          0         12          0       4433   modpowerstate.o
         36          8        392          0       1536        836   startup_stm32f303xc.o
        104         22          0          4          0       3251   stm32f3xx_hal.o
@@ -2499,9 +2503,9 @@ Image component sizes
        216         44         24          4          0       2203   system_stm32f3xx_1.o
 
     ----------------------------------------------------------------------
-     17570       1048       5152        172       4420     813862   Object Totals
+     17602       1052       5152        184       4424     813870   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        30          0          0          1          2          0   (incl. Padding)
+        30          0          0          2          6          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -2555,15 +2559,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     18924       1084       5152        180       4420     800658   Grand Totals
-     18924       1084       5152        180       4420     800658   ELF Image Totals
-     18924       1084       5152        180          0          0   ROM Totals
+     18956       1088       5152        192       4424     800666   Grand Totals
+     18956       1088       5152        192       4424     800666   ELF Image Totals
+     18956       1088       5152        192          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                24076 (  23.51kB)
-    Total RW  Size (RW Data + ZI Data)              4600 (   4.49kB)
-    Total ROM Size (Code + RO Data + RW Data)      24256 (  23.69kB)
+    Total RO  Size (Code + RO Data)                24108 (  23.54kB)
+    Total RW  Size (RW Data + ZI Data)              4616 (   4.51kB)
+    Total ROM Size (Code + RO Data + RW Data)      24300 (  23.73kB)
 
 ==============================================================================
 

@@ -28,11 +28,11 @@ typedef struct {
 	float cellVoltageLow;
 	float cellVoltageAverage;
 	float cellVoltagesIndividual[TotalLTCICs][NoOfCellsPossibleOnChip];
-	bool preChargeDesired;
-	bool disChargeDesired;
-	bool disChargeAllowed;
-	bool chargeDesired;
-	bool chargeAllowed;
+	uint8_t preChargeDesired;
+	uint8_t disChargeDesired;
+	uint8_t disChargeAllowed;
+	uint8_t chargeDesired;
+	uint8_t chargeAllowed;
 	modPowerElectronicsPackOperationalStatesTypedef packOperationalState;
 } modPowerElectricsPackStateTypedef;
 

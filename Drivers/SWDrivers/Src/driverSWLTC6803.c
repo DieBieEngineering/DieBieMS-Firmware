@@ -237,7 +237,8 @@ bool driverSWLTC6803ReadFlagRegisters(uint8_t total_ic, uint8_t flagRegisters[][
 bool driverSWLTC6803ReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags) {
 	bool returnVal = false;
 	uint8_t flagRegisters[1][4];
-	uint32_t registersCombined, registersCombinedTemp;
+	static uint32_t registersCombined = 0;
+	static uint32_t registersCombinedTemp = 0;
 	*underVoltageFlags = 0;
 	*overVoltageFlags = 0;
 	
@@ -249,10 +250,11 @@ bool driverSWLTC6803ReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *over
 	for(int bitPointer = 0; bitPointer < driverSWLTC6803ConfigStruct.noOfCells; bitPointer++)
 		*underVoltageFlags |= (registersCombinedTemp & (1 << bitPointer*2)) ? (1 << bitPointer) : 0;			// Shift undervoltage bits closer together and stote them in *underVoltageFlags
 	
+	registersCombinedTemp = registersCombined & 0x00AAAAAA;																							// Filter out only the overvoltage bits
 	registersCombinedTemp = registersCombinedTemp >> 1;																									// Move everything one bit to the right
 
 	for(int bitPointer = 0; bitPointer < driverSWLTC6803ConfigStruct.noOfCells; bitPointer++)
-		*overVoltageFlags |= (registersCombinedTemp & (1 << bitPointer*2)) ? (1 << bitPointer) : 0;			// And do the same for the overvoltage bits
+		*overVoltageFlags |= (registersCombinedTemp & (1 << bitPointer*2)) ? (1 << bitPointer) : 0;				// And do the same for the overvoltage bits
 	
 	return returnVal;
 };

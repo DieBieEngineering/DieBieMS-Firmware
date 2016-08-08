@@ -14,7 +14,7 @@ bool modConfigStoreConfig(void) {
 
 bool modConfigLoadConfig(void) {
 	// The config should be loaded from memory here (instead of statically defined):
-	modConfigGeneralConfig.noOfCells 												=	 12;									// 12 Cells in series
+	modConfigGeneralConfig.noOfCells 												=	12;									// 12 Cells in series
 	modConfigGeneralConfig.cellHardUnderVoltage							= 2.80f;								// Worst case 2.8V as lowest cell voltage
 	modConfigGeneralConfig.cellHardOverVoltage							= 4.20f;								// Worst case 4.2V as highest cell voltage
 	modConfigGeneralConfig.cellSoftUnderVoltage							= 3.00f;								// Normal lowest cell voltage 3V
