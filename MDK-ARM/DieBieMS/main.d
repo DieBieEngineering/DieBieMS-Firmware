@@ -72,3 +72,5 @@ diebiems\main.o: ..\Libraries\Inc\libGraphics.h
 diebiems\main.o: ..\Libraries\Inc\libGLCDFont.h
 diebiems\main.o: ..\Libraries\Inc\libLogos.h
 diebiems\main.o: ..\Modules\Inc\modDelay.h
+diebiems\main.o: ..\Drivers\SWDrivers\Inc\driverSWUART2.h
+diebiems\main.o: ..\Drivers\HWDrivers\Inc\driverHWUART2.h

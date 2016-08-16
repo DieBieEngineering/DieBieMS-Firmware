@@ -6,14 +6,13 @@
 #include "modPowerElectronics.h"
 #include "modConfig.h"
 
+#include "driverSWUART2.h"
+
 CAN_HandleTypeDef hcan;
 SPI_HandleTypeDef hspi2;
-UART_HandleTypeDef huart2;
 
 modConfigGeneralConfigStructTypedef *generalConfig;
 modPowerElectricsPackStateTypedef packState; 
-
-uint32_t temp;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -21,7 +20,6 @@ void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_SPI2_Init(void);
-static void MX_USART2_UART_Init(void);
 
 int main(void)
 {
@@ -34,20 +32,22 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN_Init();
   MX_SPI2_Init();
-  MX_USART2_UART_Init();
 	
-	generalConfig = modConfigInit();												// Load config from flash memory
+	driverSWUART2Init();																	// Configure the UART driver
+	generalConfig = modConfigInit();											// Load config from flash memory
 	modEffectInit();																			// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);			// Set Debug LED to blinking mode
 	modPowerStateInit(P_STAT_SET);												// Enable power supply to keep operational
 	modPowerElectronicsInit(&packState,generalConfig);		// Will measure all voltages and store them in packState
-	modOperationalStateInit(&packState,generalConfig);									// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
-
+	modOperationalStateInit(&packState,generalConfig);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
+	
   while(true) {
 		modEffectTask();
 		modPowerStateTask();
 		modOperationalStateTask();
 		modPowerElectronicsTask();
+		
+		driverSWUART2Task();
   }
 }
 
@@ -140,27 +140,6 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
   hspi2.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
   if (HAL_SPI_Init(&hspi2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-}
-
-/* USART2 init function */
-static void MX_USART2_UART_Init(void)
-{
-
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
   }
