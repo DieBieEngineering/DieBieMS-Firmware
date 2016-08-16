@@ -52,9 +52,11 @@ void modDisplayShowInfo(modDisplayInfoType newState) {
 				break;
 			case DISP_MODE_ERROR:
 				driverSWSSD1306ClearDisplay();
+				driverSWSSD1306FillBuffer(libLogos[LOGO_ERROR],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);  // Error logo uses half of the screen
+			
 				libGraphicsSetTextSize(1);
 				libGraphicsSetTextColor_0(WHITE);
-				libGraphicsSetCursor(0,0);
+				libGraphicsSetCursor(68,0);																						// Display text on the other side of the screen
 			
 				libGraphicsWrite('E');  
 				libGraphicsWrite('R');  
@@ -71,6 +73,10 @@ void modDisplayShowInfo(modDisplayInfoType newState) {
 				libGraphicsWrite('E');  
 				libGraphicsWrite('x');  
 				libGraphicsWrite('t');  
+				break;
+			case DISP_MODE_BATTERY_DEAD:
+				driverSWSSD1306ClearDisplay();
+				driverSWSSD1306FillBuffer(libLogos[LOGO_BATTERY_DEAD],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);  
 				break;
 			default:
 				break;

@@ -27,7 +27,7 @@ typedef struct {
 	float cellVoltageHigh;
 	float cellVoltageLow;
 	float cellVoltageAverage;
-	float cellVoltagesIndividual[TotalLTCICs][NoOfCellsPossibleOnChip];
+	driverLTC6803CellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnChip];
 	uint8_t preChargeDesired;
 	uint8_t disChargeDesired;
 	uint8_t disChargeAllowed;
@@ -35,8 +35,6 @@ typedef struct {
 	uint8_t chargeAllowed;
 	modPowerElectronicsPackOperationalStatesTypedef packOperationalState;
 } modPowerElectricsPackStateTypedef;
-
-// Todo make variable that contains pack config for example uv ov max balancing resistors active and noOfCells
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
 void modPowerElectronicsTask(void);
@@ -48,5 +46,6 @@ void modPowerElectronicsCalculateCellStats(void);
 void modPowerElectronicsSubTaskBalaning(void);
 void modPowerElectronicsSubTaskVoltageWatch(void);
 void modPowerElectronicsUpdateSwitches(void);
+void modPowerElectronicsSortCells(driverLTC6803CellsTypedef cells[12]);
 
 #endif

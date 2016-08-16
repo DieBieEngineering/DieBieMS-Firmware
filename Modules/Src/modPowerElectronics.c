@@ -1,18 +1,16 @@
 #include "modPowerElectronics.h"
 
-// TEMP FOR EVALUATION
-uint16_t cell_codes[TotalLTCICs][12]; 
-/*!< 
-  The cell codes will be stored in the cell_codes[][12] array in the following format:
-  
-  |  cell_codes[0][0]| cell_codes[0][1] |  cell_codes[0][2]|    .....     |  cell_codes[0][11]|  cell_codes[1][0] | cell_codes[1][1]|  .....   |
-  |------------------|------------------|------------------|--------------|-------------------|-------------------|-----------------|----------|
-  |IC1 Cell 1        |IC1 Cell 2        |IC1 Cell 3        |    .....     |  IC1 Cell 12      |IC2 Cell 1         |IC2 Cell 2       | .....    |
-****/
-
 modPowerElectricsPackStateTypedef *modPowerElectronicsPackStateHandle;
 modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
 uint32_t modPowerElectronicsISLIntervalLastTick;
+
+uint32_t modPowerElectronicsChargeRetryLastTick;
+uint32_t modPowerElectronicsDisChargeRetryLastTick;
+uint32_t modPowerElectronicsCellBalanceUpdateLastTick;
+
+uint16_t balanceResistorMask;
+
+float cellVoltagesTemp[12];
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
@@ -66,14 +64,12 @@ void modPowerElectronicsTask(void) {
 		driverSWISL28022GetBusVoltage(&modPowerElectronicsPackStateHandle->packVoltage);
 		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loadVoltage);
 		
-		driverSWLTC6803ReadCellVoltages(TotalLTCICs,cell_codes); // Clean up this bit
-		for(int i=0; i < modPowerElectronicsGeneralConfigHandle->noOfCells; i++)
-			modPowerElectronicsPackStateHandle->cellVoltagesIndividual[0][i] = cell_codes[0][i]*0.0015; // <-- this mess
+		driverSWLTC6803ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+		modPowerElectronicsSubTaskBalaning();
 		
 		driverSWLTC6803StartCellVoltageConversion();
 		driverSWLTC6803ResetCellVoltageRegisters();
 		
-		modPowerElectronicsSubTaskBalaning();
 		modPowerElectronicsSubTaskVoltageWatch();
 	}
 };
@@ -99,17 +95,15 @@ bool modPowerElectronicsSetDisCharge(bool newState) {
 		if(newState)
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET); 
 		
-		if((modPowerElectronicsPackStateHandle->loadVoltage < PRECHARGE_PERCENTAGE*(modPowerElectronicsPackStateHandle->packVoltage)) && newState) {// Prevent turn on with to low output voltage
-			return false;																																						// Load voltage to low (output not precharged enough)
-		}
-		
 		modPowerElectronicsPackStateHandle->disChargeDesired = newState;
 		modPowerElectronicsUpdateSwitches();
 		dischargeLastState = newState;
-		return true;
 	}
 	
-	return true;
+	if(modPowerElectronicsPackStateHandle->loadVoltage < PRECHARGE_PERCENTAGE*(modPowerElectronicsPackStateHandle->packVoltage)) // Prevent turn on with to low output voltage
+		return false;																																						// Load voltage to low (output not precharged enough)
+	else
+		return true;
 };
 
 void modPowerElectronicsSetCharge(bool newState) {
@@ -141,20 +135,47 @@ void modPowerElectronicsCalculateCellStats(void) {
 	modPowerElectronicsPackStateHandle->cellVoltageLow = 10.0f;
 	
 	for(uint8_t cellPointer = 0; cellPointer < modPowerElectronicsGeneralConfigHandle->noOfCells; cellPointer++) {
-		cellVoltagesSummed += modPowerElectronicsPackStateHandle->cellVoltagesIndividual[0][cellPointer];
+		cellVoltagesSummed += modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage;
 		
-		if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[0][cellPointer] > modPowerElectronicsPackStateHandle->cellVoltageHigh)
-			modPowerElectronicsPackStateHandle->cellVoltageHigh = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[0][cellPointer];
+		if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage > modPowerElectronicsPackStateHandle->cellVoltageHigh)
+			modPowerElectronicsPackStateHandle->cellVoltageHigh = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage;
 		
-		if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[0][cellPointer] < modPowerElectronicsPackStateHandle->cellVoltageLow)
-			modPowerElectronicsPackStateHandle->cellVoltageLow = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[0][cellPointer];		
+		if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage < modPowerElectronicsPackStateHandle->cellVoltageLow)
+			modPowerElectronicsPackStateHandle->cellVoltageLow = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage;		
 	}
 	
 	modPowerElectronicsPackStateHandle->cellVoltageAverage = cellVoltagesSummed/modPowerElectronicsGeneralConfigHandle->noOfCells;
 };
 
 void modPowerElectronicsSubTaskBalaning(void) {
+	static uint32_t delayTimeHolder = 100;
+	static bool delaytoggle = false;
+	uint16_t cellBalanceMaskEnableRegister = 0;
 	
+	if(modDelayTick1ms(&modPowerElectronicsCellBalanceUpdateLastTick,delayTimeHolder)) {
+		delaytoggle ^= true;
+		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 500;
+		
+		if(delaytoggle) {
+			for(int k=0; k<12; k++)
+				cellVoltagesTemp[k] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[k].cellVoltage;
+			
+			modPowerElectronicsSortCells(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+			
+			if(modPowerElectronicsPackStateHandle->chargeDesired) {
+				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
+					if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
+						// This cell voltage should be lowered if the voltage is above threshold:
+						if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart)
+							cellBalanceMaskEnableRegister |= (1 << modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellNumber);
+					};
+				}
+			}
+		}
+		
+		balanceResistorMask = cellBalanceMaskEnableRegister;
+		driverSWLTC6803EnableBalanceResistors(cellBalanceMaskEnableRegister);
+	}
 };
 
 void modPowerElectronicsSubTaskVoltageWatch(void) {
@@ -169,18 +190,22 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 		// Handle soft cell voltage limits
 		if(modPowerElectronicsPackStateHandle->cellVoltageLow <= modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage) {
 			modPowerElectronicsPackStateHandle->disChargeAllowed = false;
+			modPowerElectronicsDisChargeRetryLastTick = HAL_GetTick();
 		}
 		
 		if(modPowerElectronicsPackStateHandle->cellVoltageHigh >= modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage) {
 			modPowerElectronicsPackStateHandle->chargeAllowed = false;
+			modPowerElectronicsChargeRetryLastTick = HAL_GetTick();
 		}
 		
-		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisCharge)) {
-			modPowerElectronicsPackStateHandle->disChargeAllowed = true;
+		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisDischarge)) {
+			if(modDelayTick1ms(&modPowerElectronicsDisChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timoutDischargeRetry))
+				modPowerElectronicsPackStateHandle->disChargeAllowed = true;
 		}
 		
 		if(modPowerElectronicsPackStateHandle->cellVoltageHigh <= (modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->hysteresisCharge)) {
-			modPowerElectronicsPackStateHandle->chargeAllowed = true;
+			if(modDelayTick1ms(&modPowerElectronicsChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timoutChargeRetry))
+				modPowerElectronicsPackStateHandle->chargeAllowed = true;
 		}
 		
 		if(modPowerElectronicsPackStateHandle->chargeAllowed && modPowerElectronicsPackStateHandle->disChargeAllowed)
@@ -227,3 +252,17 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 };
 
+void modPowerElectronicsSortCells(driverLTC6803CellsTypedef cells[12]) {
+	int i,j;
+	driverLTC6803CellsTypedef value;
+
+	for(i=0;i<12-1;i++) {
+		for(j=0;j<12-i-1;j++) {
+				if(cells[j].cellVoltage < cells[j+1].cellVoltage) {
+						value = cells[j+1];
+						cells[j+1] = cells[j];
+						cells[j] = value;
+				}
+		}
+	}
+};

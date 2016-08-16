@@ -28,7 +28,53 @@ void driverSWLTC6803ResetCellVoltageRegisters(void) {
 	driverSWLTC6803SendCommand(LTC6803StartCellVoltageADCConversionClear);
 };
 
-bool driverSWLTC6803ReadCellVoltages(uint8_t total_ic, uint16_t cellDataHolder[][12]) {
+bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12]) {
+	uint16_t cellRegisters[12]; 
+  int data_counter = 0;
+  bool pec_error = true;
+  uint8_t data_pec = 0;
+  uint8_t received_pec = 0;
+  uint8_t *rx_data;
+  uint8_t cmd[4];
+	
+  rx_data = (uint8_t *) malloc((19)*sizeof(uint8_t));
+	
+	cmd[0] = LTC6803_BASEADDRES;
+	cmd[1] = driverSWLTC6803CalcPEC(1,cmd);
+	cmd[2] = LTC6803ReadAllCellVoltageGroup;
+	cmd[3] = driverSWLTC6803CalcPEC(1,cmd+2);
+	
+	driverSWLTC6803WriteRead(cmd, 4,rx_data,19);
+
+	received_pec =  rx_data[18];
+	data_pec = driverSWLTC6803CalcPEC(18, &rx_data[0]);
+	if (received_pec != data_pec) {
+		pec_error = false;
+	}
+	
+	data_counter = 0;
+	uint16_t temp,temp2;
+
+	for (int k = 0; k<12; k=k+2) {
+		temp = rx_data[data_counter++];
+		temp2 = (uint16_t)(rx_data[data_counter]&0x0F)<<8;
+		cellRegisters[k] = temp + temp2 -512;
+		temp2 = (rx_data[data_counter++])>>4;
+		temp =  (rx_data[data_counter++])<<4;
+		cellRegisters[k+1] = temp+temp2 -512;
+	}
+	
+	for(uint8_t j=0; j<12 ; j++) {
+		cellVoltages[j].cellVoltage = cellRegisters[j]*0.0015;
+		cellVoltages[j].cellNumber = j;
+	}
+		
+  free(rx_data);
+	
+  return pec_error;
+};
+
+bool driverSWLTC6803ReadCellVoltagesOld(uint8_t total_ic, uint16_t cellDataHolder[][12]) {
   int data_counter = 0;
   bool pec_error = true;
   uint8_t data_pec = 0;
@@ -237,8 +283,8 @@ bool driverSWLTC6803ReadFlagRegisters(uint8_t total_ic, uint8_t flagRegisters[][
 bool driverSWLTC6803ReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags) {
 	bool returnVal = false;
 	uint8_t flagRegisters[1][4];
-	static uint32_t registersCombined = 0;
-	static uint32_t registersCombinedTemp = 0;
+	uint32_t registersCombined;
+	uint32_t registersCombinedTemp;
 	*underVoltageFlags = 0;
 	*overVoltageFlags = 0;
 	
