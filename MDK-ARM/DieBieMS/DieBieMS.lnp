@@ -39,6 +39,7 @@
 "diebiems\modoperationalstate.o"
 "diebiems\modpowerelectronics.o"
 "diebiems\modpowerstate.o"
+"diebiems\libfilestream.o"
 "diebiems\libglcdfont.o"
 "diebiems\libgraphics.o"
 "diebiems\liblogos.o"

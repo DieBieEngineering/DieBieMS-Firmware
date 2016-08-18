@@ -73,4 +73,7 @@ diebiems\main.o: ..\Libraries\Inc\libGLCDFont.h
 diebiems\main.o: ..\Libraries\Inc\libLogos.h
 diebiems\main.o: ..\Modules\Inc\modDelay.h
 diebiems\main.o: ..\Drivers\SWDrivers\Inc\driverSWUART2.h
+diebiems\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 diebiems\main.o: ..\Drivers\HWDrivers\Inc\driverHWUART2.h
+diebiems\main.o: ..\Libraries\Inc\libRingBuffer.h
+diebiems\main.o: ..\Libraries\Inc\libFileStream.h

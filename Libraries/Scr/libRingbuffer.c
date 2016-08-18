@@ -1,21 +1,21 @@
 #include "libRingbuffer.h"
 
-RingBuf *RingBuf_new(int size, int len) {
-  RingBuf *self = (RingBuf *)malloc(sizeof(RingBuf));
+libRingBufferTypedef *libRingBufferNew(int size, int len) {
+  libRingBufferTypedef *self = (libRingBufferTypedef *)malloc(sizeof(libRingBufferTypedef));
 	
   if (!self)
 		return NULL;
 	
-  memset(self, 0, sizeof(RingBuf));
+  memset(self, 0, sizeof(libRingBufferTypedef));
 	
-  if (RingBuf_init(self, size, len) < 0) {
+  if (libRingBufferInit(self, size, len) < 0) {
     free(self);
     return NULL;
   }
   return self;
 };
 
-int RingBuf_init(RingBuf *self, int size, int len) {
+int libRingBufferInit(libRingBufferTypedef *self, int size, int len) {
   self->buf = (unsigned char *)malloc(size*len);
   if (!self->buf) return -1;
   memset(self->buf, 0, size*len);
@@ -26,19 +26,19 @@ int RingBuf_init(RingBuf *self, int size, int len) {
   self->end = 0;
   self->elements = 0;
 
-  self->next_end_index = &RingBufNextEndIndex;
-  self->incr_end_index = &RingBufIncrEnd;
-  self->incr_start_index = &RingBufIncrStart;
-  self->isFull = &RingBufIsFull;
-  self->isEmpty = &RingBufIsEmpty;
-  self->add = &RingBufAdd;
-  self->numElements = &RingBufNumElements;
-  self->peek = &RingBufPeek;
-  self->pull = &RingBufPull;
+  self->next_end_index = &libRingBufferNextEndIndex;
+  self->incr_end_index = &libRingBufferIncrEnd;
+  self->incr_start_index = &libRingBufferIncrStart;
+  self->isFull = &libRingBufferIsFull;
+  self->isEmpty = &libRingBufferIsEmpty;
+  self->add = &libRingBufferAdd;
+  self->numElements = &libRingBufferNumElements;
+  self->peek = &libRingBufferPeek;
+  self->pull = &libRingBufferPull;
   return 0;
 };
 
-int RingBuf_delete(RingBuf *self) {
+int libRingBufferDelete(libRingBufferTypedef *self) {
   free(self->buf);
   free(self);
   return 0;
@@ -46,7 +46,7 @@ int RingBuf_delete(RingBuf *self) {
 
 /////// PRIVATE METHODS //////////
 // get next empty index
-int RingBufNextEndIndex(RingBuf *self) {
+int libRingBufferNextEndIndex(libRingBufferTypedef *self) {
   //buffer is full
   if (self->isFull(self)) return -1;
   //if empty dont incriment
@@ -54,21 +54,21 @@ int RingBufNextEndIndex(RingBuf *self) {
 };
 
 // incriment index of RingBuf struct, only call if safe to do so
-int RingBufIncrEnd(RingBuf *self) {
+int libRingBufferIncrEnd(libRingBufferTypedef *self) {
   self->end = (self->end+1)%self->len;
   return self->end;
 };
 
 
 // incriment index of RingBuf struct, only call if safe to do so
-int RingBufIncrStart(RingBuf *self) {
+int libRingBufferIncrStart(libRingBufferTypedef *self) {
   self->start = (self->start+1)%self->len;
   return self->start;
 };
 
 /////// PUBLIC METHODS //////////
 // Add an object struct to RingBuf
-int RingBufAdd(RingBuf *self, const void *object) {
+int libRingBufferAdd(libRingBufferTypedef *self, const void *object) {
   int index;
   // Perform all atomic opertaions
 	index = self->next_end_index(self);
@@ -83,7 +83,7 @@ int RingBufAdd(RingBuf *self, const void *object) {
 }
 
 // Return pointer to num element, return null on empty or num out of bounds
-void *RingBufPeek(RingBuf *self, unsigned int num) {
+void *libRingBufferPeek(libRingBufferTypedef *self, unsigned int num) {
   void *ret = NULL;
 
   //empty or out of bounds
@@ -96,7 +96,7 @@ void *RingBufPeek(RingBuf *self, unsigned int num) {
 }
 
 // Returns and removes first buffer element
-void *RingBufPull(RingBuf *self, void *object) {
+void *libRingBufferPull(libRingBufferTypedef *self, void *object) {
   void *ret = NULL;
 
 	if (self->isEmpty(self))
@@ -113,7 +113,7 @@ void *RingBufPull(RingBuf *self, void *object) {
 }
 
 // Returns number of elemnts in buffer
-unsigned int RingBufNumElements(RingBuf *self) {
+unsigned int libRingBufferNumElements(libRingBufferTypedef *self) {
   unsigned int elements;
 
   elements = self->elements;
@@ -122,7 +122,7 @@ unsigned int RingBufNumElements(RingBuf *self) {
 }
 
 // Returns true if buffer is full
-bool RingBufIsFull(RingBuf *self) {
+bool libRingBufferIsFull(libRingBufferTypedef *self) {
   bool ret;
 
   ret = self->elements == self->len;  
@@ -131,7 +131,7 @@ bool RingBufIsFull(RingBuf *self) {
 }
 
 // Returns true if buffer is empty
-bool RingBufIsEmpty(RingBuf *self) {
+bool libRingBufferIsEmpty(libRingBufferTypedef *self) {
   bool ret;
 
   ret = !self->elements;

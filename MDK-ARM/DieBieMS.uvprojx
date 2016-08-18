@@ -522,6 +522,11 @@
               <FileType>1</FileType>
               <FilePath>..\Drivers\HWDrivers\Src\driverHWSwitches.c</FilePath>
             </File>
+            <File>
+              <FileName>driverHWUART2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HWDrivers\Src\driverHWUART2.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -541,6 +546,11 @@
               <FileName>driverSWSSD1306.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\SWDrivers\Src\driverSWSSD1306.c</FilePath>
+            </File>
+            <File>
+              <FileName>driverSWUART2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWUART2.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -588,6 +598,11 @@
           <GroupName>Libraries</GroupName>
           <Files>
             <File>
+              <FileName>libFileStream.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Libraries\Scr\libFileStream.c</FilePath>
+            </File>
+            <File>
               <FileName>libGLCDFont.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Libraries\Scr\libGLCDFont.c</FilePath>
@@ -601,6 +616,11 @@
               <FileName>libLogos.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Libraries\Scr\libLogos.c</FilePath>
+            </File>
+            <File>
+              <FileName>libRingbuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Libraries\Scr\libRingbuffer.c</FilePath>
             </File>
           </Files>
         </Group>

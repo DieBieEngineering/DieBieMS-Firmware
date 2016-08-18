@@ -41,6 +41,9 @@ int main(void)
 	modPowerElectronicsInit(&packState,generalConfig);		// Will measure all voltages and store them in packState
 	modOperationalStateInit(&packState,generalConfig);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
+	//driverSWUART2Printf("Temp: %d\r\n",5);
+	fprintf(&driverSWUART2IOStream,"TestVariable: %d\r\n",5);
+	
   while(true) {
 		modEffectTask();
 		modPowerStateTask();

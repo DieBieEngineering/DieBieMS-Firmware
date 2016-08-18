@@ -40,6 +40,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern UART_HandleTypeDef driverHWUART2Handle;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -92,6 +93,20 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f3xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
+*/
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&driverHWUART2Handle);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

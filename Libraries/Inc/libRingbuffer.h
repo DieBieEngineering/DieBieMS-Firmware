@@ -9,49 +9,47 @@
 
 //https://github.com/wizard97/ArduinoRingBuffer
 
-typedef struct RingBuf RingBuf;
+typedef struct libRingBufferTypedef libRingBufferTypedef;
 
-typedef struct RingBuf {
+typedef struct libRingBufferTypedef {
   // Invariant: end and start is always in bounds
   unsigned char *buf;
   unsigned int len, size, start, end, elements;
 
   // Private:
-  int (*next_end_index) (RingBuf*);
-  int (*incr_end_index) (RingBuf*);
+  int (*next_end_index) (libRingBufferTypedef*);
+  int (*incr_end_index) (libRingBufferTypedef*);
 
-  int (*incr_start_index) (RingBuf*);
+  int (*incr_start_index) (libRingBufferTypedef*);
 
   //public:
   // Returns true if full
-  bool (*isFull) (RingBuf*);
+  bool (*isFull) (libRingBufferTypedef*);
   // Returns true if empty
-  bool (*isEmpty) (RingBuf*);
+  bool (*isEmpty) (libRingBufferTypedef*);
   // Returns number of elemnts in buffer
-  unsigned int (*numElements)(RingBuf*);
+  unsigned int (*numElements)(libRingBufferTypedef*);
   // Add Event, Returns index where added in buffer, -1 on full buffer
-  int (*add) (RingBuf*, const void*);
+  int (*add) (libRingBufferTypedef*, const void*);
   // Returns pointer to nth element, NULL when nth element is empty
-  void *(*peek) (RingBuf*, unsigned int);
+  void *(*peek) (libRingBufferTypedef*, unsigned int);
   // Removes element and copies it to location pointed to by void *
   // Returns pointer passed in, NULL on empty buffer
-  void *(*pull) (RingBuf*, void *);
+  void *(*pull) (libRingBufferTypedef*, void *);
 
-} RingBuf;
+} libRingBufferTypedef;
 
-RingBuf *RingBuf_new(int size, int len);
-int RingBuf_init(RingBuf *self, int size, int len);
-int RingBuf_delete(RingBuf *self);
-
-int RingBufNextEndIndex(RingBuf *self);
-int RingBufIncrEnd(RingBuf *self);
-int RingBufIncrStart(RingBuf *self);
-int RingBufAdd(RingBuf *self, const void *object);
-void *RingBufPeek(RingBuf *self, unsigned int num);
-void *RingBufPull(RingBuf *self, void *object);
-bool RingBufIsFull(RingBuf *self);
-bool RingBufIsEmpty(RingBuf *self);
-unsigned int RingBufNumElements(RingBuf *self);
-
+libRingBufferTypedef *libRingBufferNew(int size, int len);
+int libRingBufferInit(libRingBufferTypedef *self, int size, int len);
+int libRingBufferDelete(libRingBufferTypedef *self);
+int libRingBufferNextEndIndex(libRingBufferTypedef *self);
+int libRingBufferIncrEnd(libRingBufferTypedef *self);
+int libRingBufferIncrStart(libRingBufferTypedef *self);
+int libRingBufferAdd(libRingBufferTypedef *self, const void *object);
+void *libRingBufferPeek(libRingBufferTypedef *self, unsigned int num);
+void *libRingBufferPull(libRingBufferTypedef *self, void *object);
+bool libRingBufferIsFull(libRingBufferTypedef *self);
+bool libRingBufferIsEmpty(libRingBufferTypedef *self);
+unsigned int libRingBufferNumElements(libRingBufferTypedef *self);
 
 #endif
