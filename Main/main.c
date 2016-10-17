@@ -9,17 +9,17 @@
 #include "driverSWUART2.h"
 
 CAN_HandleTypeDef hcan;
-SPI_HandleTypeDef hspi2;
 
 modConfigGeneralConfigStructTypedef *generalConfig;
 modPowerElectricsPackStateTypedef packState; 
+
+uint32_t consoleStatusLastTick;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
-static void MX_SPI2_Init(void);
 
 int main(void)
 {
@@ -31,7 +31,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_CAN_Init();
-  MX_SPI2_Init();
 	
 	driverSWUART2Init();																	// Configure the UART driver
 	generalConfig = modConfigInit();											// Load config from flash memory
@@ -41,9 +40,6 @@ int main(void)
 	modPowerElectronicsInit(&packState,generalConfig);		// Will measure all voltages and store them in packState
 	modOperationalStateInit(&packState,generalConfig);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
-	//driverSWUART2Printf("Temp: %d\r\n",5);
-	fprintf(&driverSWUART2IOStream,"TestVariable: %d\r\n",5);
-	
   while(true) {
 		modEffectTask();
 		modPowerStateTask();
@@ -51,6 +47,9 @@ int main(void)
 		modPowerElectronicsTask();
 		
 		driverSWUART2Task();
+		
+		if(modDelayTick1ms(&consoleStatusLastTick,2000))
+			fprintf(&driverSWUART2IOStream,"CVLow: %1.3fV, CVHigh: %1.3fV, VPack: %.3fV\r\n",packState.cellVoltageLow,packState.cellVoltageHigh,packState.packVoltage);
   }
 }
 
@@ -124,31 +123,6 @@ static void MX_CAN_Init(void)
 
 }
 
-/* SPI2 init function */
-static void MX_SPI2_Init(void)
-{
-
-  hspi2.Instance = SPI2;
-  hspi2.Init.Mode = SPI_MODE_MASTER;
-  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi2.Init.DataSize = SPI_DATASIZE_4BIT;
-  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi2.Init.NSS = SPI_NSS_HARD_OUTPUT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi2.Init.CRCPolynomial = 7;
-  hspi2.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi2.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
-  if (HAL_SPI_Init(&hspi2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-}
-
 /** Configure pins as 
         * Analog 
         * Input 
@@ -203,10 +177,6 @@ static void MX_GPIO_Init(void)
 
 }
 
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
@@ -241,13 +211,3 @@ void assert_failed(uint8_t* file, uint32_t line)
 }
 
 #endif
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-*/ 
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

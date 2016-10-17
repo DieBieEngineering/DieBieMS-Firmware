@@ -1,5 +1,7 @@
 #include "modPowerElectronics.h"
 
+#include "modEffect.h"
+
 modPowerElectricsPackStateTypedef *modPowerElectronicsPackStateHandle;
 modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
 uint32_t modPowerElectronicsISLIntervalLastTick;
@@ -8,13 +10,18 @@ uint32_t modPowerElectronicsChargeRetryLastTick;
 uint32_t modPowerElectronicsDisChargeRetryLastTick;
 uint32_t modPowerElectronicsCellBalanceUpdateLastTick;
 
+uint8_t modPowerElectronicsUnderAndOverVoltageErrorCount;
+
 uint16_t balanceResistorMask;
+
+driverLTC6803ConfigStructTypedef configStruct; // Temp -> delete this
 
 float cellVoltagesTemp[12];
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
 	modPowerElectronicsPackStateHandle = packState;
+	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
 	
 	// Init pack status
 	modPowerElectronicsPackStateHandle->packVoltage = 0.0f;
@@ -28,7 +35,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->preChargeDesired = false;
 	modPowerElectronicsPackStateHandle->chargeDesired = false;
 	modPowerElectronicsPackStateHandle->chargeAllowed = true;
-	modPowerElectronicsPackStateHandle->packOperationalState = PACK_STATE_NORMAL;
+	modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
 	
 	// Init BUS monitor
 	driverSWISL28022InitStruct ISLInitStruct;
@@ -43,19 +50,19 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	driverHWSwitchesInit();
 	
 	// Init battery stack monitor
-	driverLTC6803ConfigStructTypedef configStruckt;
-	configStruckt.WatchDogFlag = true;																												// Don't change watchdog
-	configStruckt.GPIO1 = true;
-	configStruckt.GPIO2 = true;
-	configStruckt.LevelPolling = true;																												// This wil make the LTC SDO high (and low when adc is busy) instead of toggling when polling for ADC ready and AD conversion finished.
-	configStruckt.CDCMode = 2;																																// Comperator period = 13ms, Vres powerdown = no.
-	configStruckt.DisChargeEnableMask = 0x0000;																								// Disable all discharge resistors
-	configStruckt.noOfCells = modPowerElectronicsGeneralConfigHandle->noOfCells;																				// Number of cells that can cause interrupt
-	configStruckt.CellVoltageConversionMode = LTC6803StartCellVoltageADCConversionAll;				// Use normal cell conversion mode, in the future -> check for lose wires on initial startup.
-  configStruckt.CellUnderVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage;								// Set under limit to 3V	-> This should cause error state
-	configStruckt.CellOverVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;									// Set upper limit to 4.25V  -> This should cause error state
+	driverLTC6803ConfigStructTypedef configStruct;
+	configStruct.WatchDogFlag = false;																												// Don't change watchdog
+	configStruct.GPIO1 = false;
+	configStruct.GPIO2 = true;
+	configStruct.LevelPolling = true;																												// This wil make the LTC SDO high (and low when adc is busy) instead of toggling when polling for ADC ready and AD conversion finished.
+	configStruct.CDCMode = 2;																																// Comperator period = 13ms, Vres powerdown = no.
+	configStruct.DisChargeEnableMask = 0x0000;																							// Disable all discharge resistors
+	configStruct.noOfCells = modPowerElectronicsGeneralConfigHandle->noOfCells;							// Number of cells that can cause interrupt
+	configStruct.CellVoltageConversionMode = LTC6803StartCellVoltageADCConversionAll;				// Use normal cell conversion mode, in the future -> check for lose wires on initial startup.
+  configStruct.CellUnderVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage;	// Set under limit to 3V	-> This should cause error state
+	configStruct.CellOverVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;		// Set upper limit to 4.25V  -> This should cause error state
 	
-	driverSWLTC6803Init(configStruckt,TotalLTCICs);																						// Config the LTC6803 and start measuring
+	driverSWLTC6803Init(configStruct,TotalLTCICs);																					// Config the LTC6803 and start measuring
 };
 
 void modPowerElectronicsTask(void) {
@@ -64,7 +71,17 @@ void modPowerElectronicsTask(void) {
 		driverSWISL28022GetBusVoltage(&modPowerElectronicsPackStateHandle->packVoltage);
 		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loadVoltage);
 		
-		driverSWLTC6803ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+		// Check if LTC is still running
+		driverSWLTC6803ReadConfig(&configStruct);
+		if(!configStruct.CDCMode)
+			driverSWLTC6803ReInit();																														// Something went wrong, reinit the battery stack monitor.
+		else
+			driverSWLTC6803ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+		
+		// Check if LTC has discharge resistor enabled while not charging
+		if(!modPowerElectronicsPackStateHandle->chargeDesired && configStruct.DisChargeEnableMask)
+			driverSWLTC6803ReInit();																														// Something went wrong, reinit the battery stack monitor.
+		
 		modPowerElectronicsSubTaskBalaning();
 		
 		driverSWLTC6803StartCellVoltageConversion();
@@ -145,24 +162,29 @@ void modPowerElectronicsCalculateCellStats(void) {
 	}
 	
 	modPowerElectronicsPackStateHandle->cellVoltageAverage = cellVoltagesSummed/modPowerElectronicsGeneralConfigHandle->noOfCells;
+	modPowerElectronicsPackStateHandle->cellVoltageMisMatch = modPowerElectronicsPackStateHandle->cellVoltageHigh - modPowerElectronicsPackStateHandle->cellVoltageLow;
+	
+	//if(modPowerElectronicsPackStateHandle->cellVoltageHigh > 5.0f)
+	//	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);
 };
 
 void modPowerElectronicsSubTaskBalaning(void) {
 	static uint32_t delayTimeHolder = 100;
+	static uint16_t lastCellBalanceRegister = 0;
 	static bool delaytoggle = false;
 	uint16_t cellBalanceMaskEnableRegister = 0;
 	
 	if(modDelayTick1ms(&modPowerElectronicsCellBalanceUpdateLastTick,delayTimeHolder)) {
 		delaytoggle ^= true;
-		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 500;
+		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 200;
 		
 		if(delaytoggle) {
 			for(int k=0; k<12; k++)
-				cellVoltagesTemp[k] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[k].cellVoltage;
+				cellVoltagesTemp[k] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[k].cellVoltage;	// This will contain the voltages that are unloaded by balance resistors
 			
 			modPowerElectronicsSortCells(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
 			
-			if(modPowerElectronicsPackStateHandle->chargeDesired) {
+			if(modPowerElectronicsPackStateHandle->chargeDesired) {																// Check if charging is desired
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
 					if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
 						// This cell voltage should be lowered if the voltage is above threshold:
@@ -174,7 +196,10 @@ void modPowerElectronicsSubTaskBalaning(void) {
 		}
 		
 		balanceResistorMask = cellBalanceMaskEnableRegister;
-		driverSWLTC6803EnableBalanceResistors(cellBalanceMaskEnableRegister);
+		
+		if(lastCellBalanceRegister != cellBalanceMaskEnableRegister)
+			driverSWLTC6803EnableBalanceResistors(cellBalanceMaskEnableRegister);
+		lastCellBalanceRegister = cellBalanceMaskEnableRegister;
 	}
 };
 
@@ -186,7 +211,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	driverSWLTC6803ReadVoltageFlags(&hardUnderVoltageFlags,&hardOverVoltageFlags);
 	modPowerElectronicsCalculateCellStats();
 	
-	if(modPowerElectronicsPackStateHandle->packOperationalState != PACK_STATE_ERROR_HARD_CELLVOLTAGE) {
+	if(modPowerElectronicsPackStateHandle->packOperationalCellState != PACK_STATE_ERROR_HARD_CELLVOLTAGE) {
 		// Handle soft cell voltage limits
 		if(modPowerElectronicsPackStateHandle->cellVoltageLow <= modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage) {
 			modPowerElectronicsPackStateHandle->disChargeAllowed = false;
@@ -209,17 +234,20 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 		}
 		
 		if(modPowerElectronicsPackStateHandle->chargeAllowed && modPowerElectronicsPackStateHandle->disChargeAllowed)
-			modPowerElectronicsPackStateHandle->packOperationalState = PACK_STATE_NORMAL;
+			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
 		else
-			modPowerElectronicsPackStateHandle->packOperationalState = PACK_STATE_ERROR_SOFT_CELLVOLTAGE;
+			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_ERROR_SOFT_CELLVOLTAGE;
 	}
 	
 	// Handle hard cell voltage limits
-	if(hardUnderVoltageFlags || hardOverVoltageFlags) {
-		modPowerElectronicsPackStateHandle->packOperationalState = PACK_STATE_ERROR_HARD_CELLVOLTAGE;
+	if(hardUnderVoltageFlags || hardOverVoltageFlags || (modPowerElectronicsPackStateHandle->packVoltage > modPowerElectronicsGeneralConfigHandle->noOfCells*modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage)) {
+		if(modPowerElectronicsUnderAndOverVoltageErrorCount++ > modPowerElectronicsGeneralConfigHandle->maxUnderAndOverVoltageErrorCount)
+			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_ERROR_HARD_CELLVOLTAGE;
 		modPowerElectronicsPackStateHandle->disChargeAllowed = false;
 		modPowerElectronicsPackStateHandle->chargeAllowed = false;
-	}
+	}else
+		modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
+	
 	
 	// update outputs directly if needed
 	if((lastChargeAllowed != modPowerElectronicsPackStateHandle->chargeAllowed) || (lastDischargeAllowed != modPowerElectronicsPackStateHandle->disChargeAllowed)) {

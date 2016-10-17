@@ -78,6 +78,26 @@ void modDisplayShowInfo(modDisplayInfoType newState) {
 				driverSWSSD1306ClearDisplay();
 				driverSWSSD1306FillBuffer(libLogos[LOGO_BATTERY_DEAD],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);  
 				break;
+			case DISP_MODE_BALANCING:
+				driverSWSSD1306ClearDisplay();
+				driverSWSSD1306FillBuffer(libLogos[LOGO_CHARGING],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);
+				libGraphicsSetTextSize(0);
+				libGraphicsSetTextColor_0(INVERSE);
+				libGraphicsSetCursor(35,0);
+			
+				libGraphicsWrite('B');  
+				libGraphicsWrite('A');  
+				libGraphicsWrite('L'); 
+				libGraphicsWrite('A');  
+				libGraphicsWrite('N');  
+				libGraphicsWrite('C'); 
+				libGraphicsWrite('I');  
+				libGraphicsWrite('N');  
+				libGraphicsWrite('G'); 
+				break;
+			case DISP_MODE_CHARGED:
+				driverSWSSD1306ClearDisplay();
+				driverSWSSD1306FillBuffer(libLogos[LOGO_BATTERY_FULL],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8); 
 			default:
 				break;
 		};

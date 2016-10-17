@@ -100,6 +100,7 @@ typedef struct {
 } driverLTC6803ConfigStructTypedef;
 
 void driverSWLTC6803Init(driverLTC6803ConfigStructTypedef configStruct, uint8_t totalNumberOfLTCs);
+void driverSWLTC6803ReInit(void);
 void driverSWLTC6803ReadInit(driverLTC6803ConfigStructTypedef *configStruct, uint8_t totalNumberOfLTCs);
 void driverSWLTC6803StartCellVoltageConversion(void);
 void driverSWLTC6803StartTemperatureVoltageConversion(void);
@@ -108,7 +109,8 @@ bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12])
 bool driverSWLTC6803ReadTempVoltages(uint8_t total_ic, uint16_t temp_codes[][3]);
 void driverSWLTC6803WriteConfigRegisters(uint8_t total_ic, uint8_t config[][6]);
 void driverSWLTC6803WriteConfig(driverLTC6803ConfigStructTypedef configStruct);
-bool driverSWLTC6803ReadConfig(uint8_t total_ic, uint8_t r_config[][7]);
+bool driverSWLTC6803ReadConfigRegisters(uint8_t total_ic, uint8_t r_config[][7]);
+bool driverSWLTC6803ReadConfig(driverLTC6803ConfigStructTypedef *configStruct);
 bool driverSWLTC6803ReadFlagRegisters(uint8_t total_ic, uint8_t flagRegisters[][4]);
 bool driverSWLTC6803ReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags);
 void driverSWLTC6803EnableBalanceResistors(uint16_t balanceEnableMask);

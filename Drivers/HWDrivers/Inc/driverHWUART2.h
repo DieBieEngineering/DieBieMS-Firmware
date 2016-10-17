@@ -1,8 +1,11 @@
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
+#include "string.h"
+
+#define RX_BUFFER_SIZE					64
 
 extern FILE driverSWUART2IOStream;
 
-void driverHWUART2Init(void (*receiveCallBack)(UART_HandleTypeDef*));
+void driverHWUART2Init(void);
 void driverHWUART2SendChar(uint8_t character);
-uint8_t driverHWUART2GetChar(void);
+bool driverHWUART2GetChar(char *character);

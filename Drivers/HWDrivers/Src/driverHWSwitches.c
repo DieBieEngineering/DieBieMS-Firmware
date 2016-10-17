@@ -36,3 +36,9 @@ void driverHWSwitchesDisableAll(void) {
 bool driverHWSwitchesGetMonitorEnabledState(void) {
 	return (bool) HAL_GPIO_ReadPin(driverHWSwitchesPorts[SWITCH_DRIVER].Port,driverHWSwitchesPorts[SWITCH_DRIVER].Pin);
 };
+
+bool driverHWSwitchesGetSwitchState(driverHWSwitchesIDTypedef switchID) {
+	return (bool) HAL_GPIO_ReadPin(driverHWSwitchesPorts[switchID].Port,driverHWSwitchesPorts[switchID].Pin); // Set desired pin to desired state 
+};
+
+

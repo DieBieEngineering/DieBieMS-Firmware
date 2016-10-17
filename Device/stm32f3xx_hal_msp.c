@@ -34,6 +34,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
 
+extern DMA_HandleTypeDef hdma_usart2_rx;
+
 extern void Error_Handler(void);
 /* USER CODE BEGIN 0 */
 
@@ -414,8 +416,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */

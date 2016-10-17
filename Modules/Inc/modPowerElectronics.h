@@ -18,7 +18,7 @@ typedef enum {
 	PACK_STATE_ERROR_SOFT_CELLVOLTAGE,
 	PACK_STATE_ERROR_OVER_CURRENT,
 	PACK_STATE_NORMAL,
-} modPowerElectronicsPackOperationalStatesTypedef;
+} modPowerElectronicsPackOperationalCellStatesTypedef;
 
 typedef struct {
 	float packVoltage;
@@ -27,13 +27,14 @@ typedef struct {
 	float cellVoltageHigh;
 	float cellVoltageLow;
 	float cellVoltageAverage;
+	float cellVoltageMisMatch;	
 	driverLTC6803CellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnChip];
 	uint8_t preChargeDesired;
 	uint8_t disChargeDesired;
 	uint8_t disChargeAllowed;
 	uint8_t chargeDesired;
 	uint8_t chargeAllowed;
-	modPowerElectronicsPackOperationalStatesTypedef packOperationalState;
+	modPowerElectronicsPackOperationalCellStatesTypedef packOperationalCellState;
 } modPowerElectricsPackStateTypedef;
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);

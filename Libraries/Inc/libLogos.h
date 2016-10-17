@@ -8,7 +8,7 @@
 #define LOGO_WIDTH                  128
 #define LOGO_HEIGHT                 64
 
-#define NoOfLogos 									5
+#define NoOfLogos 									6
 
 extern const uint8_t libLogos[NoOfLogos][LOGO_HEIGHT * LOGO_WIDTH / 8];
 
@@ -17,7 +17,8 @@ typedef enum {
 	LOGO_CHARGING,
 	LOGO_LOAD,
 	LOGO_BATTERY_DEAD,
-	LOGO_ERROR
+	LOGO_ERROR,
+	LOGO_BATTERY_FULL
 } libLogo;
 
 #endif

@@ -6,11 +6,6 @@
 #include "modDisplay.h"
 #include "modConfig.h"
 
-//#define OP_PRECHARGE_PERCENTAGE 0.80f																				// Output should reach at least 80% of VPack before enabling main current path
-//#define OP_PRECHARGE_TIMOUT			300																					// Output should reach precharge threshold within 2 seconds
-//#define OP_CHARGING_TIMOUT			10000																				// Wait for 10 seconds switching to turnof when no charger is detected
-//#define OP_BATTERY_DEAD_TIME		5000																				// Amount of miliseconds that the battery dead sign is shown
-
 typedef enum
 {
 	OP_STATE_INIT = 0,
@@ -21,6 +16,8 @@ typedef enum
 	OP_STATE_POWER_DOWN,
 	OP_STATE_EXTERNAL,	
 	OP_STATE_ERROR,
+	OP_STATE_BALANCING,
+	OP_STATE_CHARGED,
 } OperationalStateTypedef;
 
 void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
@@ -28,3 +25,4 @@ void modOperationalStateTask(void);
 void modOperationalStateUpdateStates(void);
 void modOperationalStateSetAllStates(OperationalStateTypedef newState);
 void modOperationalStateSetNewState(OperationalStateTypedef newState);
+void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState);

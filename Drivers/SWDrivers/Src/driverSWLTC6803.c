@@ -12,6 +12,10 @@ void driverSWLTC6803Init(driverLTC6803ConfigStructTypedef configStruct, uint8_t 
 	driverSWLTC6803WriteConfig(driverSWLTC6803ConfigStruct);
 };
 
+void driverSWLTC6803ReInit(void) {
+		driverSWLTC6803WriteConfig(driverSWLTC6803ConfigStruct);
+};
+
 void driverSWLTC6803ReadInit(driverLTC6803ConfigStructTypedef *configStruct, uint8_t totalNumberOfLTCs) {	
 	//driverSWLTC6803ReadConfig(driverSWLTC6803TotalNumerOfICs,configPointer);
 };
@@ -64,8 +68,9 @@ bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12])
 		cellRegisters[k+1] = temp+temp2 -512;
 	}
 	
-	for(uint8_t j=0; j<12 ; j++) {
-		cellVoltages[j].cellVoltage = cellRegisters[j]*0.0015;
+	for(uint8_t j=0; j<12 ; j++) {		
+		if(cellRegisters[j]*0.0015 < 10.0f) // Probably use pec error to catch this if any pec error?
+			cellVoltages[j].cellVoltage = cellRegisters[j]*0.0015;
 		cellVoltages[j].cellNumber = j;
 	}
 		
@@ -185,7 +190,6 @@ void driverSWLTC6803WriteConfigRegisters(uint8_t total_ic, uint8_t config[][6]) 
     cmd[cmd_index ] = (uint8_t)cfg_pec;
     cmd_index = cmd_index + 1;
 
-
 		driverSWLTC6803Write(cmd,CMD_LEN);
   }
 	
@@ -209,7 +213,7 @@ void driverSWLTC6803WriteConfig(driverLTC6803ConfigStructTypedef configStruct) {
 	driverSWLTC6803WriteConfigRegisters(driverSWLTC6803TotalNumerOfICs,configPointer);
 };
 
-bool driverSWLTC6803ReadConfig(uint8_t total_ic, uint8_t r_config[][7]) {
+bool driverSWLTC6803ReadConfigRegisters(uint8_t total_ic, uint8_t r_config[][7]) {
   uint8_t BYTES_IN_REG = 7;																											// 6 Register bytes + 1 PEC
   uint8_t cmd[4];
   uint8_t *rx_data;
@@ -245,6 +249,27 @@ bool driverSWLTC6803ReadConfig(uint8_t total_ic, uint8_t r_config[][7]) {
 	
   return pec_error;
 };
+
+bool driverSWLTC6803ReadConfig(driverLTC6803ConfigStructTypedef *configStruct) {
+	uint8_t configPointer[1][7];
+	bool returnval;
+	
+	returnval = driverSWLTC6803ReadConfigRegisters(driverSWLTC6803TotalNumerOfICs,configPointer);
+	
+	configStruct->WatchDogFlag = (configPointer[0][0] & 0x80) >> 7;
+	configStruct->GPIO1 = (configPointer[0][0] & 0x20) >> 5;
+	configStruct->GPIO2 = (configPointer[0][0] & 0x40) >> 6;
+	configStruct->LevelPolling = (configPointer[0][0] & 0x10) >> 4;
+	configStruct->CDCMode = (configPointer[0][0] & 0x07);
+	configStruct->DisChargeEnableMask = ((configPointer[0][2] & 0x0F) << 8) | configPointer[0][1];
+	configStruct->noOfCells = 0;
+	configStruct->CellVoltageConversionMode = 0;
+	configStruct->CellUnderVoltageLimit = ((configPointer[0][4]-31)*16*0.0015);
+	configStruct->CellOverVoltageLimit = ((configPointer[0][5]-32)*16*0.0015);
+
+	
+	return returnval;
+}
 
 bool driverSWLTC6803ReadFlagRegisters(uint8_t total_ic, uint8_t flagRegisters[][4]) {
   uint8_t BYTES_IN_REG = 4;																									// 3 Register bytes + 1 PEC

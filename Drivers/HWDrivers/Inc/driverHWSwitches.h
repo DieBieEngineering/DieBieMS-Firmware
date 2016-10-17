@@ -29,3 +29,4 @@ void driverHWSwitchesInit(void);
 void driverHWSwitchesSetSwitchState(driverHWSwitchesIDTypedef switchID, driverHWSwitchesStateTypedef newState);
 void driverHWSwitchesDisableAll(void);
 bool driverHWSwitchesGetMonitorEnabledState(void);
+bool driverHWSwitchesGetSwitchState(driverHWSwitchesIDTypedef switchID);
