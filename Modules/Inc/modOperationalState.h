@@ -5,6 +5,8 @@
 #include "modPowerElectronics.h"
 #include "modDisplay.h"
 #include "modConfig.h"
+#include "modStateOfCharge.h"
+#include "math.h"
 
 typedef enum
 {
@@ -20,7 +22,7 @@ typedef enum
 	OP_STATE_CHARGED,
 } OperationalStateTypedef;
 
-void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
+void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer,modStateOfChargeStructTypeDef *generalStateOfCharge);
 void modOperationalStateTask(void);
 void modOperationalStateUpdateStates(void);
 void modOperationalStateSetAllStates(OperationalStateTypedef newState);

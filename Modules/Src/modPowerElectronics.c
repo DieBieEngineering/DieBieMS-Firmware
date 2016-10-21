@@ -51,7 +51,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	
 	// Init battery stack monitor
 	driverLTC6803ConfigStructTypedef configStruct;
-	configStruct.WatchDogFlag = false;																												// Don't change watchdog
+	configStruct.WatchDogFlag = false;																											// Don't change watchdog
 	configStruct.GPIO1 = false;
 	configStruct.GPIO2 = true;
 	configStruct.LevelPolling = true;																												// This wil make the LTC SDO high (and low when adc is busy) instead of toggling when polling for ADC ready and AD conversion finished.
@@ -65,7 +65,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	driverSWLTC6803Init(configStruct,TotalLTCICs);																					// Config the LTC6803 and start measuring
 };
 
-void modPowerElectronicsTask(void) {
+bool modPowerElectronicsTask(void) {
 	if(modDelayTick1ms(&modPowerElectronicsISLIntervalLastTick,100)) {
 		driverSWISL28022GetBusCurrent(&modPowerElectronicsPackStateHandle->packCurrent);
 		driverSWISL28022GetBusVoltage(&modPowerElectronicsPackStateHandle->packVoltage);
@@ -88,7 +88,10 @@ void modPowerElectronicsTask(void) {
 		driverSWLTC6803ResetCellVoltageRegisters();
 		
 		modPowerElectronicsSubTaskVoltageWatch();
-	}
+		
+		return true;
+	}else
+		return false;
 };
 
 void modPowerElectronicsSetPreCharge(bool newState) {

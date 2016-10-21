@@ -6,6 +6,13 @@
 #define REFRESHTIMOUT	5000																	// Interval between complete sync between desired and actual display content					
 #define STARTUPDELAY	5																		// Startup delay, wait this amount of time before talking to the display
 
+typedef struct {
+	float StateOfCharge;
+	float LowestCellVoltage;
+	float HighestCellVoltage;
+	float AverageCellVoltage;
+} modDisplayDataTypedef;
+
 typedef enum {
 	DISP_MODE_OFF = 0,
 	DISP_MODE_SPLASH,	
@@ -20,5 +27,5 @@ typedef enum {
 } modDisplayInfoType;
 
 void modDisplayInit(void);
-void modDisplayShowInfo(modDisplayInfoType newState);
+void modDisplayShowInfo(modDisplayInfoType newState,modDisplayDataTypedef modDisplayData);
 void modDisplayTask(void);

@@ -56,6 +56,7 @@ diebiems\modoperationalstate.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 diebiems\modoperationalstate.o: ..\Drivers\HWDrivers\Inc\driverHWSwitches.h
 diebiems\modoperationalstate.o: ..\Modules\Inc\modDelay.h
 diebiems\modoperationalstate.o: ..\Modules\Inc\modConfig.h
+diebiems\modoperationalstate.o: ..\Drivers\HWDrivers\Inc\driverHWEEPROM.h
 diebiems\modoperationalstate.o: ..\Modules\Inc\modDisplay.h
 diebiems\modoperationalstate.o: ..\Drivers\SWDrivers\Inc\driverSWSSD1306.h
 diebiems\modoperationalstate.o: ..\Drivers\HWDrivers\Inc\driverHWI2C1.h
@@ -67,3 +68,5 @@ diebiems\modoperationalstate.o: ..\Modules\Inc\modDelay.h
 diebiems\modoperationalstate.o: ..\Libraries\Inc\libGraphics.h
 diebiems\modoperationalstate.o: ..\Libraries\Inc\libGLCDFont.h
 diebiems\modoperationalstate.o: ..\Libraries\Inc\libLogos.h
+diebiems\modoperationalstate.o: ..\Modules\Inc\modStateOfCharge.h
+diebiems\modoperationalstate.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h

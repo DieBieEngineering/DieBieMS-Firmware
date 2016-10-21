@@ -4,6 +4,8 @@ modDisplayInfoType modDisplayCurrentState;
 uint32_t modDisplayLastRefresh;
 uint32_t modDisplayStartupDelay;
 
+extern modDisplayDataTypedef modDisplayData;
+
 void modDisplayInit(void) {
 	modDisplayStartupDelay = HAL_GetTick();
 	libGraphicsInit(SSD1306_LCDWIDTH,SSD1306_LCDHEIGHT);
@@ -14,8 +16,11 @@ void modDisplayInit(void) {
 	modDisplayLastRefresh = HAL_GetTick();
 };
 
-void modDisplayShowInfo(modDisplayInfoType newState) {
-	if(modDisplayCurrentState != newState) {											// Different state than last state?
+void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDisplayData) {
+	static modDisplayDataTypedef modDisplayDataLast;
+	
+	if((modDisplayCurrentState != newState) || memcmp(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef))) {											// Different state than last state?
+		memcpy(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef));
 		switch(newState) {
 			case DISP_MODE_OFF:
 				driverSWSSD1306ClearDisplay();
@@ -26,15 +31,16 @@ void modDisplayShowInfo(modDisplayInfoType newState) {
 				libGraphicsSetTextSize(2);
 				libGraphicsSetTextColor_0(WHITE);
 				libGraphicsSetCursor(10,SSD1306_LCDHEIGHT/2+10);
-			
-				libGraphicsWrite('V');  
-				libGraphicsWrite('0');  
-				libGraphicsWrite('.');  
-				libGraphicsWrite('2');
+
+				libGraphicsWrite('V');
+				libGraphicsWrite('0');
+				libGraphicsWrite('.');
+				libGraphicsWrite('3');
 				break;
 			case DISP_MODE_LOAD:
 				driverSWSSD1306ClearDisplay();
-				driverSWSSD1306FillBuffer(libLogos[LOGO_LOAD],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);  
+				driverSWSSD1306FillBuffer(libLogos[LOGO_LOAD],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);
+				libGraphicsFillRect(7,7,(uint16_t)(modDisplayData.StateOfCharge/100*105),50,WHITE);
 				break;
 			case DISP_MODE_CHARGE:
 				driverSWSSD1306ClearDisplay();

@@ -3,8 +3,9 @@
 
 #include "stdint.h"
 #include "stdbool.h"
+#include "driverHWEEPROM.h"
 
-typedef struct{
+typedef struct {
 	uint8_t noOfCells;																														// Number of cells in series in pack
 	float cellHardUnderVoltage;																										// If the lowest cell is under this voltage -> Error situation, turn all off and power down
 	float cellHardOverVoltage;																										// If the upper cell is above this voltage -> Error situation, turn all off and power down
@@ -27,11 +28,15 @@ typedef struct{
 	uint32_t timoutPreCharge;																											// If threshold is not reached within this time in ms goto error state
 	float maxAllowedCurrent;																											// Max allowed current passing trough BMS, if limit is exceded disable output
 	uint32_t displayTimoutBatteryDead;																						// Duration of displaying battery dead symbol
+	uint32_t displayTimoutBatteryError;																						// Duration of displaying error symbol
 	uint32_t displayTimoutSplashScreen;																						// Duration of displaying splash screen + First few samples of ADC's
-	uint8_t maxUnderAndOverVoltageErrorCount;
+	uint8_t maxUnderAndOverVoltageErrorCount;																			// Threshold that defines max amount of hard over / under voltage errors
+	float notUsedCurrentThreshold;																								// Threshold that defines whether or not pack is in use.
+	uint32_t notUsedTimout;																												// Delay time that defines max amount of no operation on-time. When absolute battery curren < notUsedCurrentThreshold for longer than this amount of time -> the system is disabled
 } modConfigGeneralConfigStructTypedef;
 
 modConfigGeneralConfigStructTypedef* modConfigInit(void);
+bool modConfigStoreDefaultConfig(void);
 bool modConfigStoreConfig(void);
 bool modConfigLoadConfig(void);
 

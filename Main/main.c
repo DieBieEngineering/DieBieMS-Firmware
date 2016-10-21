@@ -5,24 +5,25 @@
 #include "modDelay.h"
 #include "modPowerElectronics.h"
 #include "modConfig.h"
+#include "modStateOfCharge.h"
 
 #include "driverSWUART2.h"
 
 CAN_HandleTypeDef hcan;
 
 modConfigGeneralConfigStructTypedef *generalConfig;
+modStateOfChargeStructTypeDef *generalStateOfCharge;
 modPowerElectricsPackStateTypedef packState; 
 
 uint32_t consoleStatusLastTick;
 
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 
 int main(void)
-{
+{		
   HAL_Init();
 
   /* Configure the system clock */
@@ -32,29 +33,30 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN_Init();
 	
-	driverSWUART2Init();																	// Configure the UART driver
-	generalConfig = modConfigInit();											// Load config from flash memory
-	modEffectInit();																			// Controls the effects on LEDs + buzzer
-	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);			// Set Debug LED to blinking mode
-	modPowerStateInit(P_STAT_SET);												// Enable power supply to keep operational
-	modPowerElectronicsInit(&packState,generalConfig);		// Will measure all voltages and store them in packState
-	modOperationalStateInit(&packState,generalConfig);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
+	driverSWUART2Init();																											// Configure the UART driver
+	generalConfig = modConfigInit();																					// Load config from flash memory
+	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Will keep track of state of charge
+	modEffectInit();																													// Controls the effects on LEDs + buzzer
+	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
+	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
+	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
+	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);												// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
   while(true) {
 		modEffectTask();
 		modPowerStateTask();
 		modOperationalStateTask();
-		modPowerElectronicsTask();
+		
+		if(modPowerElectronicsTask())																						// Handle power electronics task
+			modStateOfChargeTask();																								// If there is new data handle SoC estimation
 		
 		driverSWUART2Task();
-		
 		if(modDelayTick1ms(&consoleStatusLastTick,2000))
 			fprintf(&driverSWUART2IOStream,"CVLow: %1.3fV, CVHigh: %1.3fV, VPack: %.3fV\r\n",packState.cellVoltageLow,packState.cellVoltageHigh,packState.packVoltage);
   }
 }
 
-/** System Clock Configuration
-*/
+/* System Clock Configuration */
 void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -68,9 +70,8 @@ void SystemClock_Config(void) {
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     Error_Handler();
-  }
 
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -78,9 +79,8 @@ void SystemClock_Config(void) {
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     Error_Handler();
-  }
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1
                               |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_ADC12;
@@ -88,9 +88,8 @@ void SystemClock_Config(void) {
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_SYSCLK;
   PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_SYSCLK;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     Error_Handler();
-  }
 
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
@@ -101,8 +100,7 @@ void SystemClock_Config(void) {
 }
 
 /* CAN init function */
-static void MX_CAN_Init(void)
-{
+static void MX_CAN_Init(void) {
   hcan.Instance = CAN;
   hcan.Init.Prescaler = 48;
   hcan.Init.Mode = CAN_MODE_NORMAL;
@@ -117,10 +115,7 @@ static void MX_CAN_Init(void)
   hcan.Init.TXFP = DISABLE;
 	
   if (HAL_CAN_Init(&hcan) != HAL_OK)
-  {
     Error_Handler();
-  }
-
 }
 
 /** Configure pins as 
@@ -130,8 +125,7 @@ static void MX_CAN_Init(void)
         * EVENT_OUT
         * EXTI
 */
-static void MX_GPIO_Init(void)
-{
+static void MX_GPIO_Init(void) {
 
   GPIO_InitTypeDef GPIO_InitStruct;
 

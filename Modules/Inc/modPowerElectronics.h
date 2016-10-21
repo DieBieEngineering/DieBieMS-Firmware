@@ -38,7 +38,7 @@ typedef struct {
 } modPowerElectricsPackStateTypedef;
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
-void modPowerElectronicsTask(void);
+bool modPowerElectronicsTask(void);
 void modPowerElectronicsSetPreCharge(bool newState);
 bool modPowerElectronicsSetDisCharge(bool newState);
 void modPowerElectronicsSetCharge(bool newState);
