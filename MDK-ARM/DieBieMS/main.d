@@ -60,6 +60,7 @@ diebiems\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 diebiems\main.o: ..\Drivers\HWDrivers\Inc\driverHWSwitches.h
 diebiems\main.o: ..\Modules\Inc\modDelay.h
 diebiems\main.o: ..\Modules\Inc\modConfig.h
+diebiems\main.o: ..\Drivers\SWDrivers\Inc\driverSWStorageManager.h
 diebiems\main.o: ..\Drivers\HWDrivers\Inc\driverHWEEPROM.h
 diebiems\main.o: ..\Modules\Inc\modDisplay.h
 diebiems\main.o: ..\Drivers\SWDrivers\Inc\driverSWSSD1306.h

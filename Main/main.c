@@ -6,7 +6,7 @@
 #include "modPowerElectronics.h"
 #include "modConfig.h"
 #include "modStateOfCharge.h"
-
+#include "driverSWStorageManager.h"
 #include "driverSWUART2.h"
 
 CAN_HandleTypeDef hcan;
@@ -34,8 +34,12 @@ int main(void)
   MX_CAN_Init();
 	
 	driverSWUART2Init();																											// Configure the UART driver
+	
 	generalConfig = modConfigInit();																					// Load config from flash memory
 	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Will keep track of state of charge
+	driverSWStorageManagerInit();																							// Initializes EEPROM Memory
+	modConfigStoreAndLoadDefaultConfig();
+	
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational

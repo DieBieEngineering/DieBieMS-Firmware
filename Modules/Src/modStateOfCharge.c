@@ -1,7 +1,6 @@
 #include "modStateOfCharge.h"
 
 modStateOfChargeStructTypeDef modStateOfChargeGeneralStateOfCharge;
-
 modPowerElectricsPackStateTypedef *modStateStateOfChargeStatehandle;
 modConfigGeneralConfigStructTypedef *modStateOfChargeGeneralConfigHandle;
 

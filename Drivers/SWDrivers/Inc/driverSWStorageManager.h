@@ -3,9 +3,15 @@
 
 #include "stdint.h"
 #include "stdbool.h"
-#include "modConfig.h"
-#include "modStateOfCharge.h"
+#include "driverHWEEPROM.h"
+
+extern bool driverSWStorageManagerConfigEmpty;
+extern bool driverSWStorageManagerStateOfChargeEmpty;
+extern uint16_t driverSWStorageManagerConfigStructSize;
+extern uint16_t driverSWStorageManagerStateOfChargeStructSize;
 
 void driverSWStorageManagerInit(void);
+bool driverSWStorageManagerStoreConfigStruct(void *configStruct);
+bool driverSWStorageManagerGetConfigStruct(void *configStruct);
 
 #endif

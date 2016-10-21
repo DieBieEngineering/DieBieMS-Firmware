@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 #include "stdbool.h"
-#include "driverHWEEPROM.h"
+#include "driverSWStorageManager.h"
 
 typedef struct {
 	uint8_t noOfCells;																														// Number of cells in series in pack
@@ -36,7 +36,7 @@ typedef struct {
 } modConfigGeneralConfigStructTypedef;
 
 modConfigGeneralConfigStructTypedef* modConfigInit(void);
-bool modConfigStoreDefaultConfig(void);
+bool modConfigStoreAndLoadDefaultConfig(void);
 bool modConfigStoreConfig(void);
 bool modConfigLoadConfig(void);
 
