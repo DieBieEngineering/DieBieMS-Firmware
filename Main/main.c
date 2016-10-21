@@ -35,16 +35,17 @@ int main(void)
 	
 	driverSWUART2Init();																											// Configure the UART driver
 	
-	generalConfig = modConfigInit();																					// Load config from flash memory
-	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Will keep track of state of charge
+	generalConfig = modConfigInit();																					// Tell EEPROM the needed size for ConfigStruct
+	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Tell EEPROM the needed size for StatOfChargeStruct
 	driverSWStorageManagerInit();																							// Initializes EEPROM Memory
-	modConfigStoreAndLoadDefaultConfig();
+	modConfigStoreAndLoadDefaultConfig();																			// Store default config if needed -> load config from EEPROM
+	modStateOfChargeStoreAndLoadDefaultStateOfCharge();												// Determin SoC from cell voltage if needed -> load StateOfCharge from EEPROM
 	
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
-	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);												// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
+	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
   while(true) {
 		modEffectTask();
@@ -52,7 +53,7 @@ int main(void)
 		modOperationalStateTask();
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
-			modStateOfChargeTask();																								// If there is new data handle SoC estimation
+			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
 		
 		driverSWUART2Task();
 		if(modDelayTick1ms(&consoleStatusLastTick,2000))

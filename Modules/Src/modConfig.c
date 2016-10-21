@@ -40,17 +40,17 @@ bool modConfigStoreAndLoadDefaultConfig(void) {
 		defaultConfig.notUsedTimout															= 30*60*1000;										// If pack is not used for longer than 30 minutes disable pack
 		
 		driverSWStorageManagerConfigEmpty = false;
-		returnVal = driverSWStorageManagerStoreConfigStruct(&defaultConfig);
+		returnVal = driverSWStorageManagerStoreConfigStruct(&defaultConfig,STORAGE_CONFIG);
 	}
 	
 	modConfigLoadConfig();
 	return returnVal;
 };
 
-bool modConfigStoreConfig(void) {	
-	return driverSWStorageManagerStoreConfigStruct(&modConfigGeneralConfig);
+bool modConfigStoreConfig(void) {
+	return driverSWStorageManagerStoreConfigStruct(&modConfigGeneralConfig,STORAGE_CONFIG);
 };
 
-bool modConfigLoadConfig(void) {	
-	return driverSWStorageManagerGetConfigStruct(&modConfigGeneralConfig);
+bool modConfigLoadConfig(void) {
+	return driverSWStorageManagerGetConfigStruct(&modConfigGeneralConfig,STORAGE_CONFIG);
 };

@@ -8,8 +8,7 @@
 #include "modStateOfCharge.h"
 #include "math.h"
 
-typedef enum
-{
+typedef enum {
 	OP_STATE_INIT = 0,
 	OP_STATE_CHARGING,
 	OP_STATE_PRE_CHARGE,
@@ -28,3 +27,4 @@ void modOperationalStateUpdateStates(void);
 void modOperationalStateSetAllStates(OperationalStateTypedef newState);
 void modOperationalStateSetNewState(OperationalStateTypedef newState);
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState);
+void modOperationalStateTerminateOperation(void);

@@ -45,7 +45,7 @@ void modOperationalStateTask(void) {
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
 			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
-				if(!modOperationalStatePackStatehandle->disChargeAllowed) {							// If discharge is not allowed
+				if(!modOperationalStatePackStatehandle->disChargeAllowed) {						// If discharge is not allowed
 					modOperationalStateSetNewState(OP_STATE_BATTERY_DEAD);							// Then the battery is dead
 					modOperationalStateBatteryDeadDisplayTime = HAL_GetTick();
 				}
@@ -111,8 +111,8 @@ void modOperationalStateTask(void) {
 			
 			modOperationalStateUpdateStates();
 			
-			//modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
-			modOperationalStateDisplayData.StateOfCharge = fabs(modOperationalStatePackStatehandle->packCurrent)*20.0f;
+			modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
+			//modOperationalStateDisplayData.StateOfCharge = fabs(modOperationalStatePackStatehandle->packCurrent)*20.0f;
 
 			modDisplayShowInfo(DISP_MODE_LOAD,modOperationalStateDisplayData);
 			break;
@@ -126,7 +126,7 @@ void modOperationalStateTask(void) {
 			// disable balancing
 			modPowerElectronicsDisableAll();																				// Disable all power paths
 			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
-			modPowerStateSetState(P_STAT_RESET);																		// Turn off the power
+			modOperationalStateTerminateOperation();																// Disable psp and store SoC
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 			break;
@@ -222,3 +222,11 @@ void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState
 		}
 	}
 };
+
+void modOperationalStateTerminateOperation(void) {
+	// Disable the power supply
+	modPowerStateSetState(P_STAT_RESET);																				// Turn off the power
+	
+	// Store the state of charge data
+	modStateOfChargePowerDownSave();																						// Store the SoC data
+}

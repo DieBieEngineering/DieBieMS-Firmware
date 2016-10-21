@@ -14,7 +14,10 @@ typedef struct {
 } modStateOfChargeStructTypeDef;
 
 modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
-void modStateOfChargeTask(void);
-void modStateOfChargeStore(void);
+void modStateOfChargeProcess(void);
+bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void);
+bool modStateOfChargeStoreStateOfCharge(void);
+bool modStateOfChargeLoadStateOfCharge(void);
+bool modStateOfChargePowerDownSave(void);
 
 #endif
