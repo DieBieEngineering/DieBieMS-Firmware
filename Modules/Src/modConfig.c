@@ -15,7 +15,7 @@ bool modConfigStoreAndLoadDefaultConfig(void) {
 		defaultConfig.cellHardUnderVoltage											= 2.80f;												// Worst case 2.8V as lowest cell voltage
 		defaultConfig.cellHardOverVoltage												= 4.30f;												// Worst case 4.2V as highest cell voltage
 		defaultConfig.cellSoftUnderVoltage											= 3.00f;												// Normal lowest cell voltage 3V
-		defaultConfig.cellSoftOverVoltage												= 4.15f;												// Normal highest cell voltage 4.15V
+		defaultConfig.cellSoftOverVoltage												= 4.10f;												// Normal highest cell voltage 4.15V
 		defaultConfig.cellBalanceDifferenceThreshold						=	0.010f;												// Start balancing @ 10mV difference
 		defaultConfig.cellBalanceStart													= 3.80f;												// Start balancing above 3.9V
 		defaultConfig.cellBalanceUpdateInterval									= 4*1000;												// Keep calculated resistors enabled for this amount of time in miliseconds
@@ -25,8 +25,8 @@ bool modConfigStoreAndLoadDefaultConfig(void) {
 		defaultConfig.timoutChargeRetry													= 30*1000;											// Wait for 30 seconds before retrying to enable charger
 		defaultConfig.hysteresisCharge													= 0.01f;												// Highest cell should lower 10mV before input is re enabled
 		defaultConfig.timoutChargeCompleted											= 30*60*1000;										// Wait for 30 minutes before setting charge state to charged
-		defaultConfig.timoutChargingCompletedMinimalMismatch 		= 1*60*1000;										// If cell mismatch is under threshold and charging is not allowed timout this delay to determin charged state
-		defaultConfig.maxMismatchThreshold											= 0.04f;												// If mismatch is under this threshold for timoutChargingCompletedMinimalMismatch determin charged
+		defaultConfig.timoutChargingCompletedMinimalMismatch 		= 6*1000;												// If cell mismatch is under threshold and charging is not allowed timout this delay to determin charged state
+		defaultConfig.maxMismatchThreshold											= 0.015f;												// If mismatch is under this threshold for timoutChargingCompletedMinimalMismatch determin charged
 		defaultConfig.chargerEnabledThreshold										= 0.2f;													// If charge current > 0.2A stay in charging mode and dont power off
 		defaultConfig.timoutChargerDisconnected									= 2000;													// Wait for 2 seconds to respond to charger disconnect
 		defaultConfig.minimalPrechargePercentage								= 0.80f;												// output should be at a minimal of 85% of input voltage

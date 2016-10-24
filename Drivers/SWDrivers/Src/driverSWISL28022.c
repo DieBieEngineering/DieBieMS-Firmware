@@ -16,7 +16,7 @@ bool driverSWISL28022GetBusCurrent(float *busCurrent){
 	driverHWI2C2Write(ISL28022_ADDRES,false,writeDataC,1);
 	driverHWI2C2Read(ISL28022_ADDRES,readDataC,2);
 	busCurrentInt = (readDataC[0] << 9) | (readDataC[1] << 1);
-	*busCurrent = (-0.00485f)*busCurrentInt;
+	*busCurrent = (-0.004808f)*busCurrentInt;
 	
 	return false;
 };

@@ -4,14 +4,14 @@ libRingBufferTypedef *driverSWUART2OutputBuffer;
 
 FILE driverSWUART2IOStream = {0};
 
-void driverSWUART2Init(void) {
+void driverSWUART2Init(uint32_t baudRate) {
 	driverSWUART2OutputBuffer = libRingBufferNew(sizeof(uint8_t),RINGBUFFERSIZE);	// Make new output buffer	
-	driverSWUART2IOStream.outputFunctionPointer = driverSWUART2PutCharInOutputBuffer;		// couple output function pointer to stream output
+	driverSWUART2IOStream.outputFunctionPointer = driverSWUART2PutCharInOutputBuffer;// couple output function pointer to stream output
 	
 	if(!driverSWUART2OutputBuffer)																								// Check if buffer pointer is generated
 		while(true);																																// Out of memory error
 	
-	driverHWUART2Init();																													// Initialize serial port and pass function that should be called when a byte is received
+	driverHWUART2Init(baudRate);																								// Initialize serial port and pass function that should be called when a byte is received
 };
 
 char driverSWUART2PutCharInOutputBuffer(char character, FILE *stream) {
@@ -21,7 +21,7 @@ char driverSWUART2PutCharInOutputBuffer(char character, FILE *stream) {
 	return 0;
 };
 
-void driverSWUART2Task(void) {
+bool driverSWUART2Task(void) {
 	char outputChar;
 	char inputChar;
 	
@@ -32,4 +32,6 @@ void driverSWUART2Task(void) {
 	
 	if(driverHWUART2GetChar(&inputChar))
 		driverSWUART2PutCharInOutputBuffer(inputChar,&driverSWUART2IOStream);
+	
+	return !driverSWUART2OutputBuffer->isEmpty(driverSWUART2OutputBuffer);
 };

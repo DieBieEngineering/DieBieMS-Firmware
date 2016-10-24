@@ -1,21 +1,28 @@
 #include "modStateOfCharge.h"
 
 modStateOfChargeStructTypeDef modStateOfChargeGeneralStateOfCharge;
-modPowerElectricsPackStateTypedef *modStateStateOfChargeStatehandle;
+modPowerElectricsPackStateTypedef *modStateStateOfChargePackStatehandle;
 modConfigGeneralConfigStructTypedef *modStateOfChargeGeneralConfigHandle;
+uint32_t modStateOfChargeLargeCoulombTick;
 
 bool modStateOfChargePowerDownSavedFlag = false;
 
 modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
-	modStateStateOfChargeStatehandle = packState;
+	modStateStateOfChargePackStatehandle = packState;
 	modStateOfChargeGeneralConfigHandle = generalConfigPointer;
 	driverSWStorageManagerStateOfChargeStructSize = (sizeof(modStateOfChargeStructTypeDef)/sizeof(uint16_t)); // Calculate the space needed for the config struct in EEPROM
+	
+	modStateOfChargeLargeCoulombTick = HAL_GetTick();
+	
 	return &modStateOfChargeGeneralStateOfCharge;
 };
 
 void modStateOfChargeProcess(void){
-	modStateOfChargeGeneralStateOfCharge.generalStateOfCharge += 0.05f;
+	uint32_t dt = HAL_GetTick() - modStateOfChargeLargeCoulombTick;
+	modStateOfChargeLargeCoulombTick = HAL_GetTick();
+	modStateOfChargeGeneralStateOfCharge.remainingCapacityAh += dt*modStateStateOfChargePackStatehandle->packCurrent/(3600*1000);// (miliseconds * amps)/(3600*1000) accumulatedCharge in AmpHour.
 	
+	modStateOfChargeGeneralStateOfCharge.generalStateOfCharge += 0.0f;
 	if(modStateOfChargeGeneralStateOfCharge.generalStateOfCharge >= 100.0f)
 		modStateOfChargeGeneralStateOfCharge.generalStateOfCharge = 0.0f;
 };
@@ -26,10 +33,10 @@ bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){
 		// SoC manager is empy -> Determin SoC from voltage when voltages are available.
 		
 		modStateOfChargeStructTypeDef defaultStateOfCharge;
-		defaultStateOfCharge.generalStateOfCharge = 2.0f;
+		defaultStateOfCharge.generalStateOfCharge = 0.0f;
 		defaultStateOfCharge.generalStateOfHealth = 0.0f;
-		defaultStateOfCharge.remainingCapacitymAh = 0x1234;
-		defaultStateOfCharge.remainingCapacityWh = 0x4321;
+		defaultStateOfCharge.remainingCapacityAh = 0.0f;
+		defaultStateOfCharge.remainingCapacityWh = 0.0f;
 		
 		driverSWStorageManagerStateOfChargeEmpty = false;
 		driverSWStorageManagerStoreConfigStruct(&defaultStateOfCharge,STORAGE_STATEOFCHARGE);

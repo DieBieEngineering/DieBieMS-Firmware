@@ -58,6 +58,8 @@ diebiems\modoperationalstate.o: ..\Modules\Inc\modDelay.h
 diebiems\modoperationalstate.o: ..\Modules\Inc\modConfig.h
 diebiems\modoperationalstate.o: ..\Drivers\SWDrivers\Inc\driverSWStorageManager.h
 diebiems\modoperationalstate.o: ..\Drivers\HWDrivers\Inc\driverHWEEPROM.h
+diebiems\modoperationalstate.o: ..\Modules\Inc\modEffect.h
+diebiems\modoperationalstate.o: ..\Modules\Inc\modDelay.h
 diebiems\modoperationalstate.o: ..\Modules\Inc\modDisplay.h
 diebiems\modoperationalstate.o: ..\Drivers\SWDrivers\Inc\driverSWSSD1306.h
 diebiems\modoperationalstate.o: ..\Drivers\HWDrivers\Inc\driverHWI2C1.h
@@ -71,3 +73,10 @@ diebiems\modoperationalstate.o: ..\Libraries\Inc\libGLCDFont.h
 diebiems\modoperationalstate.o: ..\Libraries\Inc\libLogos.h
 diebiems\modoperationalstate.o: ..\Modules\Inc\modStateOfCharge.h
 diebiems\modoperationalstate.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+diebiems\modoperationalstate.o: ..\Modules\Inc\modMessage.h
+diebiems\modoperationalstate.o: ..\Drivers\SWDrivers\Inc\driverSWUART2.h
+diebiems\modoperationalstate.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+diebiems\modoperationalstate.o: ..\Drivers\HWDrivers\Inc\driverHWUART2.h
+diebiems\modoperationalstate.o: ..\Libraries\Inc\libRingBuffer.h
+diebiems\modoperationalstate.o: ..\Libraries\Inc\libFileStream.h
+diebiems\modoperationalstate.o: ..\Modules\Inc\modDelay.h

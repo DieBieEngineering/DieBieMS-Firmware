@@ -7,6 +7,7 @@
 #include "modConfig.h"
 #include "modStateOfCharge.h"
 #include "math.h"
+#include "modMessage.h"
 
 typedef enum {
 	OP_STATE_INIT = 0,

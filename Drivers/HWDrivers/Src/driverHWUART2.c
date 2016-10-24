@@ -6,7 +6,7 @@ uint8_t driverHWUART2ReceivedChar;
 
 uint8_t driverHWUART2ReceiveBuffer[RX_BUFFER_SIZE];															// Buffer that stored received chars
 
-void driverHWUART2Init(void) {
+void driverHWUART2Init(uint32_t baudRate) {
 	memset(driverHWUART2ReceiveBuffer,0,sizeof(driverHWUART2ReceiveBuffer)/sizeof(uint8_t));
 	
 	/* DMA controller clock enable */
@@ -29,7 +29,7 @@ void driverHWUART2Init(void) {
     __HAL_LINKDMA(&driverHWUART2Handle,hdmarx,driverHWUART2HDMAHandleRX);
 	
   driverHWUART2Handle.Instance = USART2;
-  driverHWUART2Handle.Init.BaudRate = 115200;
+  driverHWUART2Handle.Init.BaudRate = baudRate;
   driverHWUART2Handle.Init.WordLength = UART_WORDLENGTH_8B;
   driverHWUART2Handle.Init.StopBits = UART_STOPBITS_1;
   driverHWUART2Handle.Init.Parity = UART_PARITY_NONE;

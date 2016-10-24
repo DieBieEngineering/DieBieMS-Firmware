@@ -7,15 +7,14 @@
 #include "modConfig.h"
 #include "modStateOfCharge.h"
 #include "driverSWStorageManager.h"
-#include "driverSWUART2.h"
+#include "modMessage.h"
+
 
 CAN_HandleTypeDef hcan;
 
 modConfigGeneralConfigStructTypedef *generalConfig;
 modStateOfChargeStructTypeDef *generalStateOfCharge;
-modPowerElectricsPackStateTypedef packState; 
-
-uint32_t consoleStatusLastTick;
+modPowerElectricsPackStateTypedef packState;
 
 void SystemClock_Config(void);
 void Error_Handler(void);
@@ -33,31 +32,28 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN_Init();
 	
-	driverSWUART2Init();																											// Configure the UART driver
-	
 	generalConfig = modConfigInit();																					// Tell EEPROM the needed size for ConfigStruct
 	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Tell EEPROM the needed size for StatOfChargeStruct
 	driverSWStorageManagerInit();																							// Initializes EEPROM Memory
 	modConfigStoreAndLoadDefaultConfig();																			// Store default config if needed -> load config from EEPROM
 	modStateOfChargeStoreAndLoadDefaultStateOfCharge();												// Determin SoC from cell voltage if needed -> load StateOfCharge from EEPROM
-	
+	modMessageInit(&packState,generalConfig);																	// Will act on message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
+	modMessageQueMessage(MESSAGE_DEBUG,"Application started.\r\n");
+	
   while(true) {
 		modEffectTask();
 		modPowerStateTask();
 		modOperationalStateTask();
+		modMessageTask();
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
-		
-		driverSWUART2Task();
-		if(modDelayTick1ms(&consoleStatusLastTick,2000))
-			fprintf(&driverSWUART2IOStream,"CVLow: %1.3fV, CVHigh: %1.3fV, VPack: %.3fV\r\n",packState.cellVoltageLow,packState.cellVoltageHigh,packState.packVoltage);
   }
 }
 

@@ -8,6 +8,7 @@
 #include "modDelay.h"
 #include "modConfig.h"
 #include "stdbool.h"
+#include "modEffect.h"
 
 #define NoOfCellsPossibleOnChip	12
 #define PRECHARGE_PERCENTAGE 		0.75f

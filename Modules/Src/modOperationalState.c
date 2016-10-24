@@ -36,11 +36,14 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_CHARGING);										// Go to charge state
 				modEffectChangeState(STAT_LED_POWER,STAT_FLASH);											// Flash power LED when charging
 				modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
+				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_CHARGING'\r\n");
 			}else if(modPowerStateButtonPressedOnTurnon()) {												// Check if button was pressen on turn-on
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_PRE_CHARGE'\r\n");
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
 				modOperationalStateSetNewState(OP_STATE_EXTERNAL);										// Serve external forces
+				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_EXTERNAL'\r\n");
 			}
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
@@ -74,8 +77,10 @@ void modOperationalStateTask(void) {
 		
 			if(modOperationalStatePackStatehandle->disChargeAllowed)
 				modPowerElectronicsSetPreCharge(true);
-			else
+			else{
 				modPowerElectronicsSetPreCharge(false);
+				modOperationalStatePreChargeTimout = HAL_GetTick();
+			}
 			
 			if((modOperationalStatePackStatehandle->loadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && modOperationalStatePackStatehandle->disChargeAllowed) {
 				modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);								// Goto normal load enabled operation
@@ -98,7 +103,7 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_INIT);
 			};
 			
-			if(!modOperationalStatePackStatehandle->disChargeAllowed) {
+			if(!modOperationalStatePackStatehandle->disChargeAllowed) {							// Battery is empty?
 				modPowerElectronicsSetDisCharge(false);
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
 			}
@@ -174,7 +179,7 @@ void modOperationalStateTask(void) {
 		case OP_STATE_CHARGED:
 			// Sound the beeper indicating charging done
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
-			modPowerElectronicsDisableAll();																				// Disable all power paths
+			//modPowerElectronicsDisableAll();																				// Disable all power paths
 			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_CHARGED,modOperationalStateDisplayData);

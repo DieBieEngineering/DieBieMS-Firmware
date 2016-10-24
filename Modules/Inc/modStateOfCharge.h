@@ -9,8 +9,8 @@
 typedef struct {
 	float generalStateOfCharge;
 	float generalStateOfHealth;
-	uint32_t remainingCapacitymAh;
-	uint32_t remainingCapacityWh;
+	float remainingCapacityAh;
+	float remainingCapacityWh;
 } modStateOfChargeStructTypeDef;
 
 modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);

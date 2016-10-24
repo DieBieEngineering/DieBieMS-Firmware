@@ -1,7 +1,5 @@
 #include "modPowerElectronics.h"
 
-#include "modEffect.h"
-
 modPowerElectricsPackStateTypedef *modPowerElectronicsPackStateHandle;
 modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
 uint32_t modPowerElectronicsISLIntervalLastTick;
@@ -9,9 +7,7 @@ uint32_t modPowerElectronicsISLIntervalLastTick;
 uint32_t modPowerElectronicsChargeRetryLastTick;
 uint32_t modPowerElectronicsDisChargeRetryLastTick;
 uint32_t modPowerElectronicsCellBalanceUpdateLastTick;
-
 uint8_t modPowerElectronicsUnderAndOverVoltageErrorCount;
-
 uint16_t balanceResistorMask;
 
 driverLTC6803ConfigStructTypedef configStruct; // Temp -> delete this
