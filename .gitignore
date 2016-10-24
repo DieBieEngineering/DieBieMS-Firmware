@@ -9,6 +9,7 @@ History
 *.rar
 *.o
 *.d
+*.crf
 *Preview
 *.Annotation
 *.LOG
