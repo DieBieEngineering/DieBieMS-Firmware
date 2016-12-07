@@ -7,6 +7,7 @@
 
 typedef struct {
 	uint8_t noOfCells;																														// Number of cells in series in pack
+	float batteryCapacity;																												// Battery capacity in Ah
 	float cellHardUnderVoltage;																										// If the lowest cell is under this voltage -> Error situation, turn all off and power down
 	float cellHardOverVoltage;																										// If the upper cell is above this voltage -> Error situation, turn all off and power down
 	float cellSoftUnderVoltage;																										// If the lowest cell is under this voltage -> disable load and indicate empy battery
@@ -33,6 +34,7 @@ typedef struct {
 	uint8_t maxUnderAndOverVoltageErrorCount;																			// Threshold that defines max amount of hard over / under voltage errors
 	float notUsedCurrentThreshold;																								// Threshold that defines whether or not pack is in use.
 	uint32_t notUsedTimout;																												// Delay time that defines max amount of no operation on-time. When absolute battery curren < notUsedCurrentThreshold for longer than this amount of time -> the system is disabled
+	uint32_t stateOfChargeStoreInterval;																					// Interval to store state of charge information.
 } modConfigGeneralConfigStructTypedef;
 
 modConfigGeneralConfigStructTypedef* modConfigInit(void);

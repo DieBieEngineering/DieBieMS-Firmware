@@ -13,11 +13,17 @@ typedef struct {
 	float remainingCapacityWh;
 } modStateOfChargeStructTypeDef;
 
+typedef enum {
+	EVENT_FULL = 0,
+	EVENT_EMPTY,
+} modStateOfChargeVoltageEventTypeDef;
+
 modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void modStateOfChargeProcess(void);
 bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void);
 bool modStateOfChargeStoreStateOfCharge(void);
 bool modStateOfChargeLoadStateOfCharge(void);
 bool modStateOfChargePowerDownSave(void);
+void modStateOfChargeVoltageEvent(modStateOfChargeVoltageEventTypeDef eventType);
 
 #endif

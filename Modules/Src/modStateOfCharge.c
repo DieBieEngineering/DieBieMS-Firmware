@@ -4,6 +4,7 @@ modStateOfChargeStructTypeDef modStateOfChargeGeneralStateOfCharge;
 modPowerElectricsPackStateTypedef *modStateStateOfChargePackStatehandle;
 modConfigGeneralConfigStructTypedef *modStateOfChargeGeneralConfigHandle;
 uint32_t modStateOfChargeLargeCoulombTick;
+uint32_t modStateOfChargeStoreSoCTick;
 
 bool modStateOfChargePowerDownSavedFlag = false;
 
@@ -13,25 +14,39 @@ modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTy
 	driverSWStorageManagerStateOfChargeStructSize = (sizeof(modStateOfChargeStructTypeDef)/sizeof(uint16_t)); // Calculate the space needed for the config struct in EEPROM
 	
 	modStateOfChargeLargeCoulombTick = HAL_GetTick();
+	modStateOfChargeStoreSoCTick = HAL_GetTick();
 	
 	return &modStateOfChargeGeneralStateOfCharge;
 };
 
 void modStateOfChargeProcess(void){
+	// Calculate accumulated energy
 	uint32_t dt = HAL_GetTick() - modStateOfChargeLargeCoulombTick;
 	modStateOfChargeLargeCoulombTick = HAL_GetTick();
 	modStateOfChargeGeneralStateOfCharge.remainingCapacityAh += dt*modStateStateOfChargePackStatehandle->packCurrent/(3600*1000);// (miliseconds * amps)/(3600*1000) accumulatedCharge in AmpHour.
 	
-	modStateOfChargeGeneralStateOfCharge.generalStateOfCharge += 0.0f;
+	// Cap the max stored energy to the configured battery capacity.
+	if(modStateOfChargeGeneralStateOfCharge.remainingCapacityAh > modStateOfChargeGeneralConfigHandle->batteryCapacity)
+		modStateOfChargeGeneralStateOfCharge.remainingCapacityAh = modStateOfChargeGeneralConfigHandle->batteryCapacity;
+	
+	if(modStateOfChargeGeneralStateOfCharge.remainingCapacityAh < 0.0f)
+		modStateOfChargeGeneralStateOfCharge.remainingCapacityAh = 0.0f;
+	
+	// Calculate state of charge
+	modStateOfChargeGeneralStateOfCharge.generalStateOfCharge = modStateOfChargeGeneralStateOfCharge.remainingCapacityAh / modStateOfChargeGeneralConfigHandle->batteryCapacity * 100.0f;
+	
 	if(modStateOfChargeGeneralStateOfCharge.generalStateOfCharge >= 100.0f)
 		modStateOfChargeGeneralStateOfCharge.generalStateOfCharge = 0.0f;
+	
+	// Store SoC every 'stateOfChargeStoreInterval'
+	if(modDelayTick1ms(&modStateOfChargeStoreSoCTick,modStateOfChargeGeneralConfigHandle->stateOfChargeStoreInterval))
+		modStateOfChargeStoreStateOfCharge();
 };
 
 bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){
 	bool returnVal = false;
 	if(driverSWStorageManagerStateOfChargeEmpty){
-		// SoC manager is empy -> Determin SoC from voltage when voltages are available.
-		
+		// TODO: SoC manager is empy -> Determin SoC from voltage when voltages are available.
 		modStateOfChargeStructTypeDef defaultStateOfCharge;
 		defaultStateOfCharge.generalStateOfCharge = 0.0f;
 		defaultStateOfCharge.generalStateOfHealth = 0.0f;
@@ -50,26 +65,30 @@ bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){
 };
 
 bool modStateOfChargeStoreStateOfCharge(void){
-	// Store SoC info in EEPROM
 	return driverSWStorageManagerStoreConfigStruct(&modStateOfChargeGeneralStateOfCharge,STORAGE_STATEOFCHARGE);
 };
 
 bool modStateOfChargeLoadStateOfCharge(void){
-	// Loaf SoC info from EEPROM
 	return driverSWStorageManagerGetConfigStruct(&modStateOfChargeGeneralStateOfCharge,STORAGE_STATEOFCHARGE);
 };
 
 bool modStateOfChargePowerDownSave(void) {
 	if(!modStateOfChargePowerDownSavedFlag) {
 		modStateOfChargePowerDownSavedFlag = true;
-		
-		// Save the data to EEPROM
 		modStateOfChargeStoreStateOfCharge();
-		
-		modStateOfChargeStructTypeDef tempStateOfCharge;
-		driverSWStorageManagerGetConfigStruct(&tempStateOfCharge,STORAGE_STATEOFCHARGE);
-		
 		return true;
 	}else
 		return false;
+};
+
+void modStateOfChargeVoltageEvent(modStateOfChargeVoltageEventTypeDef eventType) {
+	switch(eventType) {
+		case EVENT_EMPTY:
+			break;
+		case EVENT_FULL:
+			modStateOfChargeGeneralStateOfCharge.remainingCapacityAh = modStateOfChargeGeneralConfigHandle->batteryCapacity;
+			break;
+		default:
+			break;
+	}
 };

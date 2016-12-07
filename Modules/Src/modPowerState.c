@@ -6,27 +6,33 @@ bool modPowerStateLastButtonPressedVar;
 bool modPowerStateLastButtonFirstPress;
 uint32_t modPowerStateButtonPressedDuration;
 uint32_t modPowerStateButtonPressedTimeStamp;
+uint32_t modPowerStateStartupDelay;
 
 void modPowerStateInit(PowerStateStateTypedef desiredPowerState) {
+	modPowerStateStartupDelay = HAL_GetTick();
 	modPowerStatePowerDownDesired = false;
 	modPowerStateButtonPressedVar = false;
-	modPowerStateLastButtonFirstPress = modPowerStateLastButtonPressedVar = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
 	modPowerStateButtonPressedDuration = 0;
 	modPowerStateButtonPressedTimeStamp = 0;
 	
 	driverHWPowerStateInit();
 	modPowerStateSetState(desiredPowerState);
+	
+	while(!modDelayTick1ms(&modPowerStateStartupDelay,10));										// Needed for power button signal to reach uC
+	
+	modPowerStateLastButtonFirstPress = modPowerStateLastButtonPressedVar = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
 };
 
 void modPowerStateTask(void) {
 	bool tempButtonPressed = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
+	
 	if(modPowerStateLastButtonPressedVar != tempButtonPressed) {
-		if(modPowerStateLastButtonPressedVar){ 				// If is was high and now low
+		if(modPowerStateLastButtonPressedVar){ 																	// If is was high and now low
 			if((modPowerStateButtonPressedDuration > POWERBUTTON_DEBOUNCE_TIME) && (modPowerStateLastButtonFirstPress == false))
 				modPowerStateButtonPressedVar = true;
 
 			modPowerStateLastButtonFirstPress = false;
-		}else{ 																				// If is was low and now high
+		}else{ 																																	// If is was low and now high
 			modPowerStateButtonPressedTimeStamp = HAL_GetTick();
 		}
 		modPowerStateLastButtonPressedVar = tempButtonPressed;
@@ -39,7 +45,7 @@ void modPowerStateTask(void) {
 			modPowerStatePowerDownDesired = true;
 			modPowerStateButtonPressedDuration = 0;
 		}
-}
+	}
 };
 
 bool modPowerStateButtonPressed(void) {
@@ -63,5 +69,3 @@ void modPowerStateSetState(PowerStateStateTypedef newState) {
 bool modPowerStateButtonPressedOnTurnon(void) {
 	return modPowerStateLastButtonFirstPress;
 };
-
-// TODO: add value containing power up source to tell for example -> powered on by button press, charge detect or unknown (can or usb)

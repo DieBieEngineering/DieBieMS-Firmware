@@ -588,6 +588,11 @@
               <FilePath>..\Modules\Src\modEffect.c</FilePath>
             </File>
             <File>
+              <FileName>modMessage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\Src\modMessage.c</FilePath>
+            </File>
+            <File>
               <FileName>modOperationalState.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Modules\Src\modOperationalState.c</FilePath>

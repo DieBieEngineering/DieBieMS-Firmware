@@ -44,6 +44,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	// Init internal ADC
 	driverHWADCInit();
 	driverHWSwitchesInit();
+	driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);																// Enable FET Driver
 	
 	// Init battery stack monitor
 	driverLTC6803ConfigStructTypedef configStruct;

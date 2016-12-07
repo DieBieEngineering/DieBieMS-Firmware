@@ -14,7 +14,7 @@ void modMessageInit(modPowerElectricsPackStateTypedef *packState, modConfigGener
 void modMessageTask(void) {
 	driverSWUART2Task();
 	if(modDelayTick1ms(&consoleStatusLastTick,2000))
-		modMessageQueMessage(MESSAGE_DEBUG,"CVLow: %1.3fV, CVHigh: %1.3fV, VPack: %.3fV \r\n",modMessagePackStateHandle->cellVoltageLow,modMessagePackStateHandle->cellVoltageHigh,modMessagePackStateHandle->packVoltage);
+		modMessageQueMessage(MESSAGE_DEBUG,"CVLow: %1.3fV, CVHigh: %1.3fV, VPack: %.3fV\r\n",modMessagePackStateHandle->cellVoltageLow,modMessagePackStateHandle->cellVoltageHigh,modMessagePackStateHandle->packVoltage);
 };
 
 void modMessageQueMessage(modMessageMessageTypeDef messageType, const char* format, ...) {

@@ -26,12 +26,13 @@ void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
 	packOperationalCellStateLastErrorState = PACK_STATE_NORMAL;
 	modDisplayInit();
+	
+	modOperationalStateNotUsedTime = HAL_GetTick();
 };
 
 void modOperationalStateTask(void) {	
 	switch(modOperationalStateCurrentState) {
 		case OP_STATE_INIT:
-			// Detect power up reason and move to that state
 			if(modPowerStateChargerDetected()) {																		// Check to detect charger
 				modOperationalStateSetNewState(OP_STATE_CHARGING);										// Go to charge state
 				modEffectChangeState(STAT_LED_POWER,STAT_FLASH);											// Flash power LED when charging
@@ -40,10 +41,12 @@ void modOperationalStateTask(void) {
 			}else if(modPowerStateButtonPressedOnTurnon()) {												// Check if button was pressen on turn-on
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
-				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_PRE_CHARGE'\r\n");
+				
+				//if(modOperationalStateCurrentState != modOperationalStateNewState)
+					//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_PRE_CHARGE'\r\n");
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
-				modOperationalStateSetNewState(OP_STATE_EXTERNAL);										// Serve external forces
-				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_EXTERNAL'\r\n");
+					modOperationalStateSetNewState(OP_STATE_EXTERNAL);										// Serve external forces
+					modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_EXTERNAL'\r\n");
 			}
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
@@ -69,7 +72,6 @@ void modOperationalStateTask(void) {
 			break;
 		case OP_STATE_PRE_CHARGE:
 			// in case of timout: disable pre charge & go to error state
-		  // if((!packStateOperationalStatehandle->disChargeAllowed) || (modOperationalStateLastState != modOperationalStateCurrentState)) { // If discharge is not allowed pre-charge will not be enabled, therefore reset timout every task call. Also reset on first entry
 			if(modOperationalStateLastState != modOperationalStateCurrentState) { 	// If discharge is not allowed pre-charge will not be enabled, therefore reset timout every task call. Also reset on first entry
 				modOperationalStatePreChargeTimout = HAL_GetTick();										// Reset timout
 				modPowerElectronicsSetDisCharge(false);
@@ -84,8 +86,10 @@ void modOperationalStateTask(void) {
 			
 			if((modOperationalStatePackStatehandle->loadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && modOperationalStatePackStatehandle->disChargeAllowed) {
 				modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);								// Goto normal load enabled operation
+				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_LOAD_ENABLED'\r\n");
 			}else if(modDelayTick1ms(&modOperationalStatePreChargeTimout,modOperationalStateGeneralConfigHandle->timoutPreCharge)){
 				modOperationalStateSetNewState(OP_STATE_ERROR);												// An error occured during pre charge
+				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_ERROR'\r\n");
 			}
 		
 			modOperationalStateUpdateStates();
@@ -158,6 +162,7 @@ void modOperationalStateTask(void) {
 			if(modOperationalStatePackStatehandle->packCurrent < modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
 				if(modDelayTick1ms(&modOperationalStateChargerTimout,modOperationalStateGeneralConfigHandle->timoutChargeCompleted)) {
 					modOperationalStateSetAllStates(OP_STATE_CHARGED);
+					modStateOfChargeVoltageEvent(EVENT_FULL);
 				}
 			}else{
 				modOperationalStateChargerTimout = HAL_GetTick();
@@ -166,6 +171,7 @@ void modOperationalStateTask(void) {
 			if(!modOperationalStatePackStatehandle->chargeAllowed && (modOperationalStatePackStatehandle->cellVoltageMisMatch < modOperationalStateGeneralConfigHandle->maxMismatchThreshold)){
 				if(modDelayTick1ms(&modOperationalStateChargedTimout,modOperationalStateGeneralConfigHandle->timoutChargingCompletedMinimalMismatch)) {
 					modOperationalStateSetAllStates(OP_STATE_CHARGED);
+					modStateOfChargeVoltageEvent(EVENT_FULL);
 				}
 			}else{
 				modOperationalStateChargedTimout = HAL_GetTick();
@@ -179,7 +185,7 @@ void modOperationalStateTask(void) {
 		case OP_STATE_CHARGED:
 			// Sound the beeper indicating charging done
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
-			//modPowerElectronicsDisableAll();																				// Disable all power paths
+			//modPowerElectronicsDisableAll();																			// Disable all power paths
 			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_CHARGED,modOperationalStateDisplayData);

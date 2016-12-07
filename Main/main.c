@@ -40,10 +40,11 @@ int main(void)
 	modMessageInit(&packState,generalConfig);																	// Will act on message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
-	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
+	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
+	modMessageQueMessage(MESSAGE_NORMAL,"\r\n\r\n DieBieMS V0.4\r\n");
 	modMessageQueMessage(MESSAGE_DEBUG,"Application started.\r\n");
 	
   while(true) {
