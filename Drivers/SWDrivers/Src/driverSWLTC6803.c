@@ -35,7 +35,7 @@ void driverSWLTC6803ResetCellVoltageRegisters(void) {
 bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12]) {
 	uint16_t cellRegisters[12]; 
   int data_counter = 0;
-  bool pec_error = true;
+  bool dataValid = true;
   uint8_t data_pec = 0;
   uint8_t received_pec = 0;
   uint8_t *rx_data;
@@ -53,7 +53,7 @@ bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12])
 	received_pec =  rx_data[18];
 	data_pec = driverSWLTC6803CalcPEC(18, &rx_data[0]);
 	if (received_pec != data_pec) {
-		pec_error = false;
+		dataValid = false;
 	}
 	
 	data_counter = 0;
@@ -68,15 +68,19 @@ bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12])
 		cellRegisters[k+1] = temp+temp2 -512;
 	}
 	
-	for(uint8_t j=0; j<12 ; j++) {		
-		if(cellRegisters[j]*0.0015 < 10.0f) // Probably use pec error to catch this if any pec error?
-			cellVoltages[j].cellVoltage = cellRegisters[j]*0.0015;
-		cellVoltages[j].cellNumber = j;
+	if(dataValid){
+		for(uint8_t j=0; j<12 ; j++) {		
+			if(cellRegisters[j]*0.0015 < 5.0f)
+				cellVoltages[j].cellVoltage = cellRegisters[j]*0.0015;
+			else
+				dataValid = false;
+			cellVoltages[j].cellNumber = j;
+		}
 	}
 		
   free(rx_data);
 	
-  return pec_error;
+  return dataValid;
 };
 
 bool driverSWLTC6803ReadCellVoltagesOld(uint8_t total_ic, uint16_t cellDataHolder[][12]) {

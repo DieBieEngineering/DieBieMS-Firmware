@@ -22,6 +22,10 @@ modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTy
 void modStateOfChargeProcess(void){
 	// Calculate accumulated energy
 	uint32_t dt = HAL_GetTick() - modStateOfChargeLargeCoulombTick;
+	modStateOfChargeStructTypeDef lastGeneralStateOfCharge;
+	
+	lastGeneralStateOfCharge = modStateOfChargeGeneralStateOfCharge;
+	
 	modStateOfChargeLargeCoulombTick = HAL_GetTick();
 	modStateOfChargeGeneralStateOfCharge.remainingCapacityAh += dt*modStateStateOfChargePackStatehandle->packCurrent/(3600*1000);// (miliseconds * amps)/(3600*1000) accumulatedCharge in AmpHour.
 	
@@ -36,10 +40,10 @@ void modStateOfChargeProcess(void){
 	modStateOfChargeGeneralStateOfCharge.generalStateOfCharge = modStateOfChargeGeneralStateOfCharge.remainingCapacityAh / modStateOfChargeGeneralConfigHandle->batteryCapacity * 100.0f;
 	
 	if(modStateOfChargeGeneralStateOfCharge.generalStateOfCharge >= 100.0f)
-		modStateOfChargeGeneralStateOfCharge.generalStateOfCharge = 0.0f;
+		modStateOfChargeGeneralStateOfCharge.generalStateOfCharge = 100.0f;
 	
 	// Store SoC every 'stateOfChargeStoreInterval'
-	if(modDelayTick1ms(&modStateOfChargeStoreSoCTick,modStateOfChargeGeneralConfigHandle->stateOfChargeStoreInterval))
+	if(modDelayTick1ms(&modStateOfChargeStoreSoCTick,modStateOfChargeGeneralConfigHandle->stateOfChargeStoreInterval) && !modStateOfChargePowerDownSavedFlag && (lastGeneralStateOfCharge.remainingCapacityAh != modStateOfChargeGeneralStateOfCharge.remainingCapacityAh))
 		modStateOfChargeStoreStateOfCharge();
 };
 

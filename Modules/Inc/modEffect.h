@@ -11,3 +11,4 @@ STATStateTypedef modEffectTaskFlash(void);
 STATStateTypedef modEffectTaskFlashFast(void);
 STATStateTypedef modEffectTaskBlinkShort(uint32_t LEDPointer, uint32_t blinkTime);
 STATStateTypedef modEffectTaskBlinkLong(uint32_t LEDPointer, uint32_t blinkTime);
+STATStateTypedef modEffectTaskBlinkShortLong(uint32_t blinkTimeShort, uint32_t blinkRatio);

@@ -46,6 +46,12 @@ void modEffectTask(void) {
 			case STAT_BLINKLONG:
 				driverHWSetOutput((STATIDTypedef)LEDPointer,modEffectTaskBlinkLong(LEDPointer,500));
 				break;
+			case STAT_BLINKSHORTLONG_100_20:
+				driverHWSetOutput((STATIDTypedef)LEDPointer,modEffectTaskBlinkShortLong(200,10));
+				break;
+			case STAT_BLINKSHORTLONG_1000_4:
+				driverHWSetOutput((STATIDTypedef)LEDPointer,modEffectTaskBlinkShortLong(1000,4));
+				break;			
 			default:
 				break;
 		}
@@ -125,6 +131,25 @@ STATStateTypedef modEffectTaskBlinkLong(uint32_t LEDPointer, uint32_t blinkTime)
 				STATStatuses[LEDPointer].Count--;
 				LEDOnState = STAT_SET; 
 			}
+			lastTick = HAL_GetTick();
+		}
+	}
+	
+	return LEDOnState;
+}
+
+STATStateTypedef modEffectTaskBlinkShortLong(uint32_t blinkTimeShort, uint32_t blinkRatio) {
+	static uint32_t lastTick;
+	static STATStateTypedef LEDOnState = STAT_RESET;
+	
+	if(LEDOnState) {
+		if(modDelayTick1ms(&lastTick,blinkTimeShort)) {
+			LEDOnState = STAT_RESET;
+			lastTick = HAL_GetTick();
+		}
+	}else{
+		if(modDelayTick1ms(&lastTick,blinkTimeShort*blinkRatio)) {
+			LEDOnState = STAT_SET;
 			lastTick = HAL_GetTick();
 		}
 	}

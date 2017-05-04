@@ -21,8 +21,7 @@ void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 
-int main(void)
-{		
+int main(void) {		
   HAL_Init();
 
   /* Configure the system clock */
@@ -104,11 +103,11 @@ void SystemClock_Config(void) {
 /* CAN init function */
 static void MX_CAN_Init(void) {
   hcan.Instance = CAN;
-  hcan.Init.Prescaler = 48;
-  hcan.Init.Mode = CAN_MODE_NORMAL;
+  hcan.Init.Prescaler = 9;
+  hcan.Init.Mode = CAN_MODE_SILENT;
   hcan.Init.SJW = CAN_SJW_1TQ;
-  hcan.Init.BS1 = CAN_BS1_1TQ;
-  hcan.Init.BS2 = CAN_BS2_1TQ;
+  hcan.Init.BS1 = CAN_BS1_11TQ;
+  hcan.Init.BS2 = CAN_BS2_4TQ;
   hcan.Init.TTCM = DISABLE;
   hcan.Init.ABOM = DISABLE;
   hcan.Init.AWUM = DISABLE;

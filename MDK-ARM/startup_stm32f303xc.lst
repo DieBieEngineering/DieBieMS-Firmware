@@ -644,10 +644,10 @@ ARM Macro Assembler    Page 10
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=diebiems\startup_stm32f303xc.d -odiebiems\startup_stm32f303xc.o
  -IC:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE -IC:\Keil_v5\ARM\
-PACK\ARM\CMSIS\5.0.0-Beta4\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32F3xx_D
-FP\1.3.0\Device\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_
-VERSION SETA 520" --predefine="_RTE_ SETA 1" --predefine="STM32F303xC SETA 1" -
--list=startup_stm32f303xc.lst ..\Device\startup_stm32f303xc.s
+PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --p
+redefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 520" --predefi
+ne="STM32F303xC SETA 1" --list=startup_stm32f303xc.lst ..\Device\startup_stm32f
+303xc.s
 
 
 
@@ -1579,4 +1579,4 @@ Symbol: __main
       At line 191 in file ..\Device\startup_stm32f303xc.s
 Comment: __main used once
 2 symbols
-430 symbols in table
+429 symbols in table

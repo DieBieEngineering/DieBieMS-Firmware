@@ -11,12 +11,12 @@ bool driverSWISL28022GetBusCurrent(float *busCurrent){
 	// ToDo make register to current conversion register dependent
 	uint8_t writeDataC[1] = {REG_SHUNTVOLTAGE};
 	uint8_t readDataC[2];
-	int16_t busCurrentInt;
+	static int16_t busCurrentInt;
 	
 	driverHWI2C2Write(ISL28022_ADDRES,false,writeDataC,1);
 	driverHWI2C2Read(ISL28022_ADDRES,readDataC,2);
 	busCurrentInt = (readDataC[0] << 9) | (readDataC[1] << 1);
-	*busCurrent = (-0.004808f)*busCurrentInt;
+	*busCurrent = (-0.004494f)*busCurrentInt;
 	
 	return false;
 };

@@ -51,7 +51,7 @@ void modOperationalStateTask(void) {
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
 			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
-				if(!modOperationalStatePackStatehandle->disChargeAllowed) {						// If discharge is not allowed
+				if(!modOperationalStatePackStatehandle->disChargeAllowed && !modPowerStateChargerDetected()) {						// If discharge is not allowed
 					modOperationalStateSetNewState(OP_STATE_BATTERY_DEAD);							// Then the battery is dead
 					modOperationalStateBatteryDeadDisplayTime = HAL_GetTick();
 				}
@@ -181,12 +181,12 @@ void modOperationalStateTask(void) {
 			modPowerElectronicsSetCharge(true);
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_BALANCING,modOperationalStateDisplayData);
+			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
 			break;
 		case OP_STATE_CHARGED:
 			// Sound the beeper indicating charging done
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
-			//modPowerElectronicsDisableAll();																			// Disable all power paths
-			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
+			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Indicate Charged
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_CHARGED,modOperationalStateDisplayData);
 			break;
