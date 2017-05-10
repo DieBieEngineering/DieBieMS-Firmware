@@ -16,6 +16,7 @@ uint32_t modOperationalStateChargerDisconnectDetectDelay;
 uint32_t modOperationalStateBatteryDeadDisplayTime;
 uint32_t modOperationalStateErrorDisplayTime;
 uint32_t modOperationalStateNotUsedTime;
+bool modOperationalStateForceOn;
 
 void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer, modStateOfChargeStructTypeDef *generalStateOfCharge) {
 	modOperationalStatePackStatehandle = packState;
@@ -25,6 +26,7 @@ void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modOperationalStateStartupDelay = HAL_GetTick();
 	modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
 	packOperationalCellStateLastErrorState = PACK_STATE_NORMAL;
+	modOperationalStateForceOn = false;
 	modDisplayInit();
 	
 	modOperationalStateNotUsedTime = HAL_GetTick();
@@ -77,16 +79,21 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetDisCharge(false);
 			}
 		
-			if(modOperationalStatePackStatehandle->disChargeAllowed)
+			if(modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)
 				modPowerElectronicsSetPreCharge(true);
 			else{
 				modPowerElectronicsSetPreCharge(false);
 				modOperationalStatePreChargeTimout = HAL_GetTick();
 			}
 			
-			if((modOperationalStatePackStatehandle->loadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && modOperationalStatePackStatehandle->disChargeAllowed) {
-				modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);								// Goto normal load enabled operation
-				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_LOAD_ENABLED'\r\n");
+			if((modOperationalStatePackStatehandle->loadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)) {
+				if(modOperationalStateForceOn) {
+					modOperationalStateSetNewState(OP_STATE_FORCEON);								// Goto force on
+					modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_FORCEON'\r\n");
+				}else{
+					modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);					// Goto normal load enabled operation
+					modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_LOAD_ENABLED'\r\n");
+				}
 			}else if(modDelayTick1ms(&modOperationalStatePreChargeTimout,modOperationalStateGeneralConfigHandle->timoutPreCharge)){
 				modOperationalStateSetNewState(OP_STATE_ERROR);												// An error occured during pre charge
 				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_ERROR'\r\n");
@@ -190,6 +197,18 @@ void modOperationalStateTask(void) {
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_CHARGED,modOperationalStateDisplayData);
 			break;
+		case OP_STATE_FORCEON:
+			if(modPowerElectronicsSetDisCharge(true))
+				modPowerElectronicsSetPreCharge(false);
+			else {
+				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
+				modPowerElectronicsSetDisCharge(false);
+			}
+			
+			modDisplayShowInfo(DISP_MODE_FORCED_ON,modOperationalStateDisplayData);
+			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Turn flash fast on debug and power LED
+			modOperationalStateUpdateStates();
+			break;
 		default:
 			modOperationalStateSetAllStates(OP_STATE_ERROR);
 			break;
@@ -201,8 +220,14 @@ void modOperationalStateTask(void) {
 		modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 	};
 	
+	if(modPowerStateForceOnRequest()){
+		modOperationalStateForceOn = true;
+		modPowerElectronicsAllowForcedOn(true);
+		modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
+	};
+	
 	// In case of extreme cellvoltages goto error state
-	if((modOperationalStatePackStatehandle->packOperationalCellState == PACK_STATE_ERROR_HARD_CELLVOLTAGE) && (modOperationalStatePackStatehandle->packOperationalCellState != packOperationalCellStateLastErrorState)){
+	if((modOperationalStatePackStatehandle->packOperationalCellState == PACK_STATE_ERROR_HARD_CELLVOLTAGE) && (modOperationalStatePackStatehandle->packOperationalCellState != packOperationalCellStateLastErrorState) && !modOperationalStateForceOn){
 		packOperationalCellStateLastErrorState = modOperationalStatePackStatehandle->packOperationalCellState; // Meganism to make error situation only trigger once
 		modOperationalStateSetNewState(OP_STATE_ERROR);														// TODO: show error message then power down
 	}

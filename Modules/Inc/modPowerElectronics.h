@@ -40,6 +40,7 @@ typedef struct {
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
 bool modPowerElectronicsTask(void);
+void modPowerElectronicsAllowForcedOn(bool allowedState);
 void modPowerElectronicsSetPreCharge(bool newState);
 bool modPowerElectronicsSetDisCharge(bool newState);
 void modPowerElectronicsSetCharge(bool newState);

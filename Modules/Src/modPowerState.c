@@ -1,6 +1,7 @@
 #include "modPowerState.h"
 
 bool modPowerStatePowerDownDesired;
+bool modPowerStateForceOnDesired;
 bool modPowerStateButtonPressedVar;
 bool modPowerStateLastButtonPressedVar;
 bool modPowerStateLastButtonFirstPress;
@@ -11,6 +12,7 @@ uint32_t modPowerStateStartupDelay;
 void modPowerStateInit(PowerStateStateTypedef desiredPowerState) {
 	modPowerStateStartupDelay = HAL_GetTick();
 	modPowerStatePowerDownDesired = false;
+	modPowerStateForceOnDesired  = false;
 	modPowerStateButtonPressedVar = false;
 	modPowerStateButtonPressedDuration = 0;
 	modPowerStateButtonPressedTimeStamp = 0;
@@ -41,10 +43,15 @@ void modPowerStateTask(void) {
 	if(tempButtonPressed) {
 		modPowerStateButtonPressedDuration = HAL_GetTick() - modPowerStateButtonPressedTimeStamp;
 	
-		if((modPowerStateButtonPressedDuration >= POWERBUTTON_THRESHOLD_TIME) && (modPowerStateLastButtonFirstPress == false)) {
+		if((modPowerStateButtonPressedDuration >= POWERBUTTON_POWERDOWN_THRESHOLD_TIME) && (modPowerStateLastButtonFirstPress == false)) {
 			modPowerStatePowerDownDesired = true;
 			modPowerStateButtonPressedDuration = 0;
 		}
+		
+		if((modPowerStateButtonPressedDuration >= POWERBUTTON_FORCEON_THRESHOLD_TIME) && (modPowerStateLastButtonFirstPress == true)) {
+			modPowerStateForceOnDesired = true;
+			modPowerStateButtonPressedDuration = 0;
+		}		
 	}
 };
 
@@ -60,6 +67,15 @@ bool modPowerStateChargerDetected(void) {
 
 bool modPowerStatePowerdownRequest(void) {
 	return modPowerStatePowerDownDesired;
+};
+
+bool modPowerStateForceOnRequest(void) {
+	if(modPowerStateForceOnDesired){
+		modPowerStateForceOnDesired = false;
+		return true;
+	}else{
+		return false;
+	}
 };
 
 void modPowerStateSetState(PowerStateStateTypedef newState) {

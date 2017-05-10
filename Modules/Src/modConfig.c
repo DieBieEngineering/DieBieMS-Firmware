@@ -12,8 +12,8 @@ bool modConfigStoreAndLoadDefaultConfig(void) {
 	if(driverSWStorageManagerConfigEmpty) {
 		// VALUES WILL ONLY UPDATE AFTER FLASH ERASE!
 		modConfigGeneralConfigStructTypedef defaultConfig;
-		defaultConfig.noOfCells 																=	6;														// 12 Cells in series
-		defaultConfig.batteryCapacity														=	10.00f;												// 12Ah battery
+		defaultConfig.noOfCells 																=	12;														// 12 Cells in series
+		defaultConfig.batteryCapacity														=	10.00f;												// 10Ah battery
 		defaultConfig.cellHardUnderVoltage											= 2.40f;												// Worst case 2.4V as lowest cell voltage
 		defaultConfig.cellHardOverVoltage												= 4.45f;												// Worst case 4.35V as highest cell voltage
 		defaultConfig.cellSoftUnderVoltage											= 2.60f;												// Normal lowest cell voltage 2.6V

@@ -23,7 +23,8 @@ typedef enum {
 	DISP_MODE_EXTERNAL,
 	DISP_MODE_BATTERY_DEAD,
 	DISP_MODE_BALANCING,
-	DISP_MODE_CHARGED
+	DISP_MODE_CHARGED,
+	DISP_MODE_FORCED_ON
 } modDisplayInfoType;
 
 void modDisplayInit(void);

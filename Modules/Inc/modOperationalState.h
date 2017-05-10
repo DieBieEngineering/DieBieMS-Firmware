@@ -20,6 +20,7 @@ typedef enum {
 	OP_STATE_ERROR,
 	OP_STATE_BALANCING,
 	OP_STATE_CHARGED,
+	OP_STATE_FORCEON,
 } OperationalStateTypedef;
 
 void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer,modStateOfChargeStructTypeDef *generalStateOfCharge);

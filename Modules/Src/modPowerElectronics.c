@@ -12,12 +12,15 @@ uint16_t balanceResistorMask;
 
 driverLTC6803ConfigStructTypedef configStruct; // Temp -> delete this
 
+bool modPowerElectronicsAllowForcedOnState;
+
 float cellVoltagesTemp[12];
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
 	modPowerElectronicsPackStateHandle = packState;
 	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
+	modPowerElectronicsAllowForcedOnState = false;
 	
 	// Init pack status
 	modPowerElectronicsPackStateHandle->packVoltage = 0.0f;
@@ -91,6 +94,10 @@ bool modPowerElectronicsTask(void) {
 		return false;
 };
 
+void modPowerElectronicsAllowForcedOn(bool allowedState){
+	modPowerElectronicsAllowForcedOnState = allowedState;
+}
+
 void modPowerElectronicsSetPreCharge(bool newState) {
 	static bool preChargeLastState = false;
 	
@@ -163,9 +170,6 @@ void modPowerElectronicsCalculateCellStats(void) {
 	
 	modPowerElectronicsPackStateHandle->cellVoltageAverage = cellVoltagesSummed/modPowerElectronicsGeneralConfigHandle->noOfCells;
 	modPowerElectronicsPackStateHandle->cellVoltageMisMatch = modPowerElectronicsPackStateHandle->cellVoltageHigh - modPowerElectronicsPackStateHandle->cellVoltageLow;
-	
-	//if(modPowerElectronicsPackStateHandle->cellVoltageHigh > 5.0f)
-	//	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);
 };
 
 void modPowerElectronicsSubTaskBalaning(void) {
@@ -262,13 +266,13 @@ void modPowerElectronicsUpdateSwitches(void) {
 	// Do the actual power switching in here
 	
 	//Handle pre charge output
-	if(modPowerElectronicsPackStateHandle->preChargeDesired && modPowerElectronicsPackStateHandle->disChargeAllowed)
+	if(modPowerElectronicsPackStateHandle->preChargeDesired && (modPowerElectronicsPackStateHandle->disChargeAllowed || modPowerElectronicsAllowForcedOnState))
 		driverHWSwitchesSetSwitchState(SWITCH_PRECHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	else
 		driverHWSwitchesSetSwitchState(SWITCH_PRECHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	
 	//Handle discharge output
-	if(modPowerElectronicsPackStateHandle->disChargeDesired && modPowerElectronicsPackStateHandle->disChargeAllowed)
+	if(modPowerElectronicsPackStateHandle->disChargeDesired && (modPowerElectronicsPackStateHandle->disChargeAllowed || modPowerElectronicsAllowForcedOnState))
 		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	else
 		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
