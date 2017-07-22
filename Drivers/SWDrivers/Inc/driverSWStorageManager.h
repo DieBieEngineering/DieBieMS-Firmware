@@ -16,8 +16,9 @@ typedef enum {
 } StorageLocationTypedef;
 
 void driverSWStorageManagerInit(void);
-bool driverSWStorageManagerStoreConfigStruct(void *configStruct, StorageLocationTypedef storageLocation);
-bool driverSWStorageManagerGetConfigStruct(void *configStruct, StorageLocationTypedef storageLocation);
+bool driverSWStorageManagerEraseData(void);
+bool driverSWStorageManagerStoreStruct(void *configStruct, StorageLocationTypedef storageLocation);
+bool driverSWStorageManagerGetStruct(void *configStruct, StorageLocationTypedef storageLocation);
 uint16_t driverSWStorageManagerGetOffsetFromLocation(StorageLocationTypedef storageLocation);
 uint16_t driverSWStorageManagerGetStructSize(StorageLocationTypedef storageLocation);
 

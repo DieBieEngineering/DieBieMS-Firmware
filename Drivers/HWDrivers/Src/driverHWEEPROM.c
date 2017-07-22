@@ -264,6 +264,22 @@ uint16_t driverHWEEPROMInit(uint16_t numberOfVars) {
   return HAL_OK;
 }
 
+uint16_t driverHWEEPROMEraseFlash(void) {
+  FLASH_EraseInitTypeDef s_eraseinit;
+  HAL_StatusTypeDef  flashstatus;
+  uint32_t page_error = 0;
+	
+  /* Fill EraseInit structure*/
+  s_eraseinit.TypeErase   = FLASH_TYPEERASE_PAGES;
+  s_eraseinit.PageAddress = PAGE0_BASE_ADDRESS;
+  s_eraseinit.NbPages     = 2;
+	
+	flashstatus = HAL_FLASHEx_Erase(&s_eraseinit, &page_error);
+	/* If erase operation was failed, a Flash error code is returned */
+
+	return flashstatus;
+}
+
 /**
   * @brief  Verify if specified page is fully erased.
   * @param  Address: page address

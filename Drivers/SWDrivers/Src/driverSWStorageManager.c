@@ -29,7 +29,11 @@ void driverSWStorageManagerInit(void) {
 	}
 };
 
-bool driverSWStorageManagerStoreConfigStruct(void *configStruct, StorageLocationTypedef storageLocation) {
+bool driverSWStorageManagerEraseData(void) {
+	return (driverHWEEPROMEraseFlash() == HAL_OK);
+}
+
+bool driverSWStorageManagerStoreStruct(void *configStruct, StorageLocationTypedef storageLocation) {
 	uint16_t *dataPointer = (uint16_t*)configStruct;																																// Trick to convert struct to a 16 bit pointer.
 	uint16_t dataOffset = driverSWStorageManagerGetOffsetFromLocation(storageLocation);															// Get addres offset
 	uint16_t dataSize = driverSWStorageManagerGetStructSize(storageLocation);																				// Get data size
@@ -41,7 +45,7 @@ bool driverSWStorageManagerStoreConfigStruct(void *configStruct, StorageLocation
 	return false;
 };
 
-bool driverSWStorageManagerGetConfigStruct(void *configStruct, StorageLocationTypedef storageLocation) {
+bool driverSWStorageManagerGetStruct(void *configStruct, StorageLocationTypedef storageLocation) {
 	uint16_t *dataPointer = (uint16_t*)configStruct;																																// Trick to convert struct to a 16 bit pointer.
 	uint16_t dataOffset = driverSWStorageManagerGetOffsetFromLocation(storageLocation);															// Get addres offset
 	uint16_t dataSize = driverSWStorageManagerGetStructSize(storageLocation);																				// Get data size

@@ -45,6 +45,7 @@ void modStateOfChargeProcess(void){
 	// Store SoC every 'stateOfChargeStoreInterval'
 	if(modDelayTick1ms(&modStateOfChargeStoreSoCTick,modStateOfChargeGeneralConfigHandle->stateOfChargeStoreInterval) && !modStateOfChargePowerDownSavedFlag && (lastGeneralStateOfCharge.remainingCapacityAh != modStateOfChargeGeneralStateOfCharge.remainingCapacityAh))
 		modStateOfChargeStoreStateOfCharge();
+	  // TODO_EEPROM
 };
 
 bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){
@@ -58,28 +59,30 @@ bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){
 		defaultStateOfCharge.remainingCapacityWh = 0.0f;
 		
 		driverSWStorageManagerStateOfChargeEmpty = false;
-		driverSWStorageManagerStoreConfigStruct(&defaultStateOfCharge,STORAGE_STATEOFCHARGE);
+		driverSWStorageManagerStoreStruct(&defaultStateOfCharge,STORAGE_STATEOFCHARGE);
+		// TODO_EEPROM
 	}
 	
 	modStateOfChargeStructTypeDef tempStateOfCharge;
-	driverSWStorageManagerGetConfigStruct(&tempStateOfCharge,STORAGE_STATEOFCHARGE);
+	driverSWStorageManagerGetStruct(&tempStateOfCharge,STORAGE_STATEOFCHARGE);
 	
 	modStateOfChargeLoadStateOfCharge();
 	return returnVal;
 };
 
 bool modStateOfChargeStoreStateOfCharge(void){
-	return driverSWStorageManagerStoreConfigStruct(&modStateOfChargeGeneralStateOfCharge,STORAGE_STATEOFCHARGE);
+	return driverSWStorageManagerStoreStruct(&modStateOfChargeGeneralStateOfCharge,STORAGE_STATEOFCHARGE);
 };
 
 bool modStateOfChargeLoadStateOfCharge(void){
-	return driverSWStorageManagerGetConfigStruct(&modStateOfChargeGeneralStateOfCharge,STORAGE_STATEOFCHARGE);
+	return driverSWStorageManagerGetStruct(&modStateOfChargeGeneralStateOfCharge,STORAGE_STATEOFCHARGE);
 };
 
 bool modStateOfChargePowerDownSave(void) {
 	if(!modStateOfChargePowerDownSavedFlag) {
 		modStateOfChargePowerDownSavedFlag = true;
 		modStateOfChargeStoreStateOfCharge();
+		// TODO_EEPROM
 		return true;
 	}else
 		return false;

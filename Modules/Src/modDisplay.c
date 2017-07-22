@@ -35,7 +35,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				libGraphicsWrite('V');
 				libGraphicsWrite('0');
 				libGraphicsWrite('.');
-				libGraphicsWrite('6');
+				libGraphicsWrite('8');
 				break;
 			case DISP_MODE_LOAD:
 				driverSWSSD1306ClearDisplay();
@@ -104,6 +104,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 			case DISP_MODE_CHARGED:
 				driverSWSSD1306ClearDisplay();
 				driverSWSSD1306FillBuffer(libLogos[LOGO_BATTERY_FULL],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8); 
+				break;
 			case DISP_MODE_FORCED_ON:
 				driverSWSSD1306ClearDisplay();
 				driverSWSSD1306FillBuffer(libLogos[LOGO_FORCEON],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);			

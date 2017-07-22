@@ -41,5 +41,6 @@ modConfigGeneralConfigStructTypedef* modConfigInit(void);
 bool modConfigStoreAndLoadDefaultConfig(void);
 bool modConfigStoreConfig(void);
 bool modConfigLoadConfig(void);
+bool modConfigStoreDefaultConfig(void);
 
 #endif

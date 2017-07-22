@@ -70,8 +70,11 @@ bool modPowerStatePowerdownRequest(void) {
 };
 
 bool modPowerStateForceOnRequest(void) {
-	if(modPowerStateForceOnDesired){
+	static bool firstTrigger = true;
+	
+	if(modPowerStateForceOnDesired && firstTrigger){
 		modPowerStateForceOnDesired = false;
+		firstTrigger = false;
 		return true;
 	}else{
 		return false;

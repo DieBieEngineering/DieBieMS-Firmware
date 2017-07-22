@@ -310,6 +310,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 uint16_t driverHWEEPROMInit(uint16_t numberOfVars);
+uint16_t driverHWEEPROMEraseFlash(void);
 uint16_t driverHWEEPROMReadVariable(uint16_t VirtAddress, uint16_t* Data);
 uint16_t driverHWEEPROMWriteVariable(uint16_t VirtAddress, uint16_t Data);
 

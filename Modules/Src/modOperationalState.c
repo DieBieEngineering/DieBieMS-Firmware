@@ -147,7 +147,7 @@ void modOperationalStateTask(void) {
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 			break;
 		case OP_STATE_EXTERNAL:																										// BMS is turned on by external force IE CAN or USB
-			modPowerStateSetState(P_STAT_RESET);
+			modOperationalStateTerminateOperation();																// Disable power and store SoC
 			modDisplayShowInfo(DISP_MODE_EXTERNAL,modOperationalStateDisplayData);
 			break;
 		case OP_STATE_ERROR:
@@ -205,6 +205,12 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetDisCharge(false);
 			}
 			
+			if(fabs(modOperationalStatePackStatehandle->packCurrent) >= modOperationalStateGeneralConfigHandle->notUsedCurrentThreshold)
+				modOperationalStateNotUsedTime = HAL_GetTick();
+			
+			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimout))
+				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+			
 			modDisplayShowInfo(DISP_MODE_FORCED_ON,modOperationalStateDisplayData);
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Turn flash fast on debug and power LED
 			modOperationalStateUpdateStates();
@@ -224,6 +230,7 @@ void modOperationalStateTask(void) {
 		modOperationalStateForceOn = true;
 		modPowerElectronicsAllowForcedOn(true);
 		modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
+		driverSWStorageManagerEraseData();
 	};
 	
 	// In case of extreme cellvoltages goto error state
@@ -259,10 +266,10 @@ void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState
 	}
 };
 
-void modOperationalStateTerminateOperation(void) {
-	// Disable the power supply
-	modPowerStateSetState(P_STAT_RESET);																				// Turn off the power
-	
+void modOperationalStateTerminateOperation(void) {	
 	// Store the state of charge data
 	modStateOfChargePowerDownSave();																						// Store the SoC data
+	
+	// Disable the power supply
+	modPowerStateSetState(P_STAT_RESET);																				// Turn off the power
 }

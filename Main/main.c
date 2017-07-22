@@ -12,6 +12,9 @@
 
 CAN_HandleTypeDef hcan;
 
+uint32_t transmitLastTick;
+uint32_t errorLastTick;
+
 modConfigGeneralConfigStructTypedef *generalConfig;
 modStateOfChargeStructTypeDef *generalStateOfCharge;
 modPowerElectricsPackStateTypedef packState;
@@ -31,6 +34,7 @@ int main(void) {
   MX_GPIO_Init();
   MX_CAN_Init();
 	
+	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	generalConfig = modConfigInit();																					// Tell EEPROM the needed size for ConfigStruct
 	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Tell EEPROM the needed size for StatOfChargeStruct
 	driverSWStorageManagerInit();																							// Initializes EEPROM Memory
@@ -40,11 +44,18 @@ int main(void) {
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
-	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
 	modMessageQueMessage(MESSAGE_NORMAL,"\r\n\r\n DieBieMS V0.4\r\n");
 	modMessageQueMessage(MESSAGE_DEBUG,"Application started.\r\n");
+		
+  hcan.pTxMsg->StdId = 321;
+  hcan.pTxMsg->ExtId = 0x01;
+  hcan.pTxMsg->RTR = CAN_RTR_DATA;
+  hcan.pTxMsg->IDE = CAN_ID_STD;
+  hcan.pTxMsg->DLC = 2;
+	hcan.pTxMsg->Data[0] = 0x01;
+	hcan.pTxMsg->Data[1] = 0x02;
 	
   while(true) {
 		modEffectTask();
@@ -54,6 +65,13 @@ int main(void) {
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
+		
+		if(modDelayTick1ms(&transmitLastTick,500))
+			HAL_CAN_Transmit(&hcan,10);
+		
+		if(modDelayTick1ms(&errorLastTick,1000) && (hcan.State != HAL_OK))
+			MX_CAN_Init();
+			
   }
 }
 
@@ -102,12 +120,18 @@ void SystemClock_Config(void) {
 
 /* CAN init function */
 static void MX_CAN_Init(void) {
+  static CanTxMsgTypeDef        TxMessage;
+  static CanRxMsgTypeDef        RxMessage;
+	
   hcan.Instance = CAN;
+  hcan.pTxMsg = &TxMessage;
+  hcan.pRxMsg = &RxMessage;
+	
   hcan.Init.Prescaler = 9;
-  hcan.Init.Mode = CAN_MODE_SILENT;
+  hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SJW = CAN_SJW_1TQ;
-  hcan.Init.BS1 = CAN_BS1_11TQ;
-  hcan.Init.BS2 = CAN_BS2_4TQ;
+  hcan.Init.BS1 = CAN_BS1_5TQ;
+  hcan.Init.BS2 = CAN_BS2_2TQ;
   hcan.Init.TTCM = DISABLE;
   hcan.Init.ABOM = DISABLE;
   hcan.Init.AWUM = DISABLE;
