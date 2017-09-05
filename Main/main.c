@@ -1,3 +1,4 @@
+#include "hardwareDefines.h"
 #include "stm32f3xx_hal.h"
 #include "modEffect.h"
 #include "modPowerState.h"
@@ -9,6 +10,7 @@
 #include "driverSWStorageManager.h"
 #include "modMessage.h"
 
+#include "driverSWCC1101.h"
 
 CAN_HandleTypeDef hcan;
 
@@ -35,11 +37,15 @@ int main(void) {
   MX_CAN_Init();
 	
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
+	
+	// All following functions should be called in exactly this order
 	generalConfig = modConfigInit();																					// Tell EEPROM the needed size for ConfigStruct
 	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Tell EEPROM the needed size for StatOfChargeStruct
 	driverSWStorageManagerInit();																							// Initializes EEPROM Memory
 	modConfigStoreAndLoadDefaultConfig();																			// Store default config if needed -> load config from EEPROM
 	modStateOfChargeStoreAndLoadDefaultStateOfCharge();												// Determin SoC from cell voltage if needed -> load StateOfCharge from EEPROM
+	// Until here
+	
 	modMessageInit(&packState,generalConfig);																	// Will act on message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
@@ -57,20 +63,24 @@ int main(void) {
 	hcan.pTxMsg->Data[0] = 0x01;
 	hcan.pTxMsg->Data[1] = 0x02;
 	
+	driverSWCC1101Init();
+	
   while(true) {
 		modEffectTask();
 		modPowerStateTask();
 		modOperationalStateTask();
 		modMessageTask();
 		
+		driverSWCC1101Task();
+		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
 		
-		if(modDelayTick1ms(&transmitLastTick,500))
-			HAL_CAN_Transmit(&hcan,10);
+		//if(modDelayTick1ms(&transmitLastTick,500))
+		//	HAL_CAN_Transmit(&hcan,10);
 		
-		if(modDelayTick1ms(&errorLastTick,1000) && (hcan.State != HAL_OK))
-			MX_CAN_Init();
+		//if(modDelayTick1ms(&errorLastTick,1000) && (hcan.State != HAL_OK))
+		//	MX_CAN_Init();
 			
   }
 }
@@ -160,26 +170,12 @@ static void MX_GPIO_Init(void) {
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, ChargeEnable_Pin|StatusLED_Pin|SwitchEnable_Pin|DischargeEnable_Pin 
-                          |PreChargeEnable_Pin|PowerLED_Pin|PowerEnable_Pin|OLED_RST_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : ChargeEnable_Pin StatusLED_Pin SwitchEnable_Pin DischargeEnable_Pin 
-                           PreChargeEnable_Pin PowerLED_Pin PowerEnable_Pin OLED_RST_Pin */
-  GPIO_InitStruct.Pin = ChargeEnable_Pin|StatusLED_Pin|SwitchEnable_Pin|DischargeEnable_Pin 
-                          |PreChargeEnable_Pin|PowerLED_Pin|PowerEnable_Pin|OLED_RST_Pin;
+  HAL_GPIO_WritePin(GPIOB, ChargeEnable_Pin|StatusLED_Pin|SwitchEnable_Pin|DischargeEnable_Pin |PreChargeEnable_Pin|PowerLED_Pin|PowerEnable_Pin|OLED_RST_Pin, GPIO_PIN_RESET);
+  GPIO_InitStruct.Pin = ChargeEnable_Pin|StatusLED_Pin|SwitchEnable_Pin|DischargeEnable_Pin |PreChargeEnable_Pin|PowerLED_Pin|PowerEnable_Pin|OLED_RST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : ISL_INT_Pin */
-  GPIO_InitStruct.Pin = ISL_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ISL_INT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Buzzer_Pin */
   GPIO_InitStruct.Pin = Buzzer_Pin;
@@ -187,13 +183,6 @@ static void MX_GPIO_Init(void) {
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(Buzzer_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PowerButton_Pin */
-  GPIO_InitStruct.Pin = PowerButton_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PowerButton_GPIO_Port, &GPIO_InitStruct);
-
 }
 
 /**

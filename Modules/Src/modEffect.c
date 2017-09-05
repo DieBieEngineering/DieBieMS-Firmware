@@ -9,6 +9,7 @@ STATStatusStruct STATStatuses[NoOfSTATs] = 								// Hold all STAT StateIndicat
 
 void modEffectInit(void) {
 	driverHWStatusInit();																		// Init GPIO direction and state
+	modEffectTask();
 	modDelayInit();																					// Init delay mechanism
 }
 

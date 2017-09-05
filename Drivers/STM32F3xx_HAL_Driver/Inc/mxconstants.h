@@ -41,8 +41,6 @@
 
 /* Private define ------------------------------------------------------------*/
 
-#define VChargeDetect_Pin GPIO_PIN_0
-#define VChargeDetect_GPIO_Port GPIOA
 #define VoutSense_Pin GPIO_PIN_1
 #define VoutSense_GPIO_Port GPIOA
 #define BOOTLOADER_TX_Pin GPIO_PIN_2
@@ -67,8 +65,6 @@
 #define DischargeEnable_GPIO_Port GPIOB
 #define PreChargeEnable_Pin GPIO_PIN_11
 #define PreChargeEnable_GPIO_Port GPIOB
-#define ISL_INT_Pin GPIO_PIN_8
-#define ISL_INT_GPIO_Port GPIOA
 #define ISL_SCL_Pin GPIO_PIN_9
 #define ISL_SCL_GPIO_Port GPIOA
 #define ISL_SDA_Pin GPIO_PIN_10

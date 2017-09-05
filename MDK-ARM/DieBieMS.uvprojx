@@ -334,7 +334,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F303xC</Define>
               <Undefine></Undefine>
-              <IncludePath>../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Include;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;..\Drivers\HWDrivers\Inc;..\Drivers\HWDrivers\Src;..\Drivers\SWDrivers\Inc;..\Drivers\SWDrivers\Src;..\Modules\Inc;..\Modules\Src;..\Libraries\Inc;..\Libraries\Scr</IncludePath>
+              <IncludePath>../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Include;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;..\Drivers\HWDrivers\Inc;..\Drivers\HWDrivers\Src;..\Drivers\SWDrivers\Inc;..\Drivers\SWDrivers\Src;..\Modules\Inc;..\Modules\Src;..\Libraries\Inc;..\Libraries\Scr;..\Main</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -537,6 +537,11 @@
         <Group>
           <GroupName>Drivers/SWDriver</GroupName>
           <Files>
+            <File>
+              <FileName>driverSWCC1101.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWCC1101.c</FilePath>
+            </File>
             <File>
               <FileName>driverSWISL28022.c</FileName>
               <FileType>1</FileType>

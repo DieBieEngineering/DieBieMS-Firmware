@@ -29,6 +29,7 @@
 "diebiems\driverhwstatus.o"
 "diebiems\driverhwswitches.o"
 "diebiems\driverhwuart2.o"
+"diebiems\driverswcc1101.o"
 "diebiems\driverswisl28022.o"
 "diebiems\driverswltc6803.o"
 "diebiems\driverswssd1306.o"

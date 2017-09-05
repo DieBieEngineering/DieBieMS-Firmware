@@ -7,7 +7,7 @@ void driverSWLTC6803Init(driverLTC6803ConfigStructTypedef configStruct, uint8_t 
 	driverSWLTC6803TotalNumerOfICs = totalNumberOfLTCs;
 	driverSWLTC6803ConfigStruct = configStruct;
 	
-	driverHWSPI1Init();
+	driverHWSPI1Init(LTC_CS_GPIO_Port,LTC_CS_Pin);
 	
 	driverSWLTC6803WriteConfig(driverSWLTC6803ConfigStruct);
 };
@@ -365,10 +365,10 @@ void driverSWLTC6803SendCommand(driverSWLTC6803Registers command) {
 
 // Coupling of drivers
 void driverSWLTC6803Write(uint8_t *writeBytes, uint8_t writeLength) {
-	driverHWSPI1Write(writeBytes,writeLength);
+	driverHWSPI1Write(writeBytes,writeLength,LTC_CS_GPIO_Port,LTC_CS_Pin);
 };
 
 // Coupling of drivers
 void driverSWLTC6803WriteRead(uint8_t *writeBytes, uint8_t writeLength, uint8_t *readBytes, uint8_t readLength) {
-	driverHWSPI1WriteRead(writeBytes,writeLength,readBytes,readLength);
+	driverHWSPI1WriteRead(writeBytes,writeLength,readBytes,readLength,LTC_CS_GPIO_Port,LTC_CS_Pin);
 };
