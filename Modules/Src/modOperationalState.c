@@ -39,7 +39,7 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_CHARGING);										// Go to charge state
 				modEffectChangeState(STAT_LED_POWER,STAT_FLASH);											// Flash power LED when charging
 				modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
-				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_CHARGING'\r\n");
+				//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_CHARGING'\r\n");
 			}else if(modPowerStateButtonPressedOnTurnon()) {												// Check if button was pressen on turn-on
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
@@ -48,7 +48,7 @@ void modOperationalStateTask(void) {
 					//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_PRE_CHARGE'\r\n");
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
 					modOperationalStateSetNewState(OP_STATE_EXTERNAL);										// Serve external forces
-					modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_EXTERNAL'\r\n");
+					//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_EXTERNAL'\r\n");
 			}
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
@@ -89,14 +89,14 @@ void modOperationalStateTask(void) {
 			if((modOperationalStatePackStatehandle->loadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)) {
 				if(modOperationalStateForceOn) {
 					modOperationalStateSetNewState(OP_STATE_FORCEON);								// Goto force on
-					modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_FORCEON'\r\n");
+					//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_FORCEON'\r\n");
 				}else{
 					modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);					// Goto normal load enabled operation
-					modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_LOAD_ENABLED'\r\n");
+					//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_LOAD_ENABLED'\r\n");
 				}
 			}else if(modDelayTick1ms(&modOperationalStatePreChargeTimout,modOperationalStateGeneralConfigHandle->timoutPreCharge)){
-				modOperationalStateSetNewState(OP_STATE_ERROR);												// An error occured during pre charge
-				modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_ERROR'\r\n");
+				modOperationalStateSetNewState(OP_STATE_ERROR_PRECHARGE);												// An error occured during pre charge
+				//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_ERROR'\r\n");
 			}
 		
 			modOperationalStateUpdateStates();
@@ -163,6 +163,20 @@ void modOperationalStateTask(void) {
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_ERROR,modOperationalStateDisplayData);
+			break;
+		case OP_STATE_ERROR_PRECHARGE:
+			// Go to save state and in the future -> try to handle error situation
+			if(modOperationalStateLastState != modOperationalStateCurrentState)
+				modOperationalStateErrorDisplayTime = HAL_GetTick();
+			
+			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimoutBatteryErrorPreCharge))
+				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+		
+			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			modPowerElectronicsDisableAll();
+			modOperationalStateUpdateStates();
+			modDisplayShowInfo(DISP_MODE_ERROR_PRECHARGE,modOperationalStateDisplayData);
 			break;
 		case OP_STATE_BALANCING:
 			// update timout time for balancing and use charging manager for enable state charge input

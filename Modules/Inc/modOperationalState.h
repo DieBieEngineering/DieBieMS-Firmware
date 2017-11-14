@@ -7,7 +7,9 @@
 #include "modConfig.h"
 #include "modStateOfCharge.h"
 #include "math.h"
-#include "modMessage.h"
+
+#ifndef MODOPERATIONALSTATE_H_
+#define MODOPERATIONALSTATE_H_
 
 typedef enum {
 	OP_STATE_INIT = 0,											// 0
@@ -18,9 +20,10 @@ typedef enum {
 	OP_STATE_POWER_DOWN,										// 5
 	OP_STATE_EXTERNAL,											// 6
 	OP_STATE_ERROR,													// 7
-	OP_STATE_BALANCING,											// 8
-	OP_STATE_CHARGED,												// 9
-	OP_STATE_FORCEON,												// 10
+	OP_STATE_ERROR_PRECHARGE,								// 8
+	OP_STATE_BALANCING,											// 9
+	OP_STATE_CHARGED,												// 10
+	OP_STATE_FORCEON,												// 11
 } OperationalStateTypedef;
 
 void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer,modStateOfChargeStructTypeDef *generalStateOfCharge);
@@ -30,3 +33,5 @@ void modOperationalStateSetAllStates(OperationalStateTypedef newState);
 void modOperationalStateSetNewState(OperationalStateTypedef newState);
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState);
 void modOperationalStateTerminateOperation(void);
+
+#endif

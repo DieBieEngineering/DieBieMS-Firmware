@@ -34,26 +34,28 @@ bool driverSWStorageManagerEraseData(void) {
 }
 
 bool driverSWStorageManagerStoreStruct(void *configStruct, StorageLocationTypedef storageLocation) {
+	uint8_t returnStatus = 0;
 	uint16_t *dataPointer = (uint16_t*)configStruct;																																// Trick to convert struct to a 16 bit pointer.
 	uint16_t dataOffset = driverSWStorageManagerGetOffsetFromLocation(storageLocation);															// Get addres offset
 	uint16_t dataSize = driverSWStorageManagerGetStructSize(storageLocation);																				// Get data size
 	
 	for(uint16_t addresPointer=0 ; addresPointer<dataSize ; addresPointer++) {																			// Scan trough all adresses
-		driverHWEEPROMWriteVariable(driverHWEEPROMVirtAddVarTab[addresPointer+dataOffset],dataPointer[addresPointer]);// Store data in EEPROM
+		returnStatus |= driverHWEEPROMWriteVariable(driverHWEEPROMVirtAddVarTab[addresPointer+dataOffset],dataPointer[addresPointer]);// Store data in EEPROM
 	}
 	
-	return false;
+	return (returnStatus == HAL_OK);
 };
 
 bool driverSWStorageManagerGetStruct(void *configStruct, StorageLocationTypedef storageLocation) {
+	uint8_t returnStatus = 0;
 	uint16_t *dataPointer = (uint16_t*)configStruct;																																// Trick to convert struct to a 16 bit pointer.
 	uint16_t dataOffset = driverSWStorageManagerGetOffsetFromLocation(storageLocation);															// Get addres offset
 	uint16_t dataSize = driverSWStorageManagerGetStructSize(storageLocation);																				// Get data size
 	
 	for(uint16_t addresPointer=0 ; addresPointer<dataSize ; addresPointer++)																				// Scan trough all adresses
-		driverHWEEPROMReadVariable(driverHWEEPROMVirtAddVarTab[addresPointer+dataOffset],&dataPointer[addresPointer]);// Get data from EEPROM
+		returnStatus |= driverHWEEPROMReadVariable(driverHWEEPROMVirtAddVarTab[addresPointer+dataOffset],&dataPointer[addresPointer]);// Get data from EEPROM
 	
-	return false;
+	return (returnStatus == HAL_OK);
 };
 
 uint16_t driverSWStorageManagerGetOffsetFromLocation(StorageLocationTypedef storageLocation) {

@@ -10,8 +10,8 @@ typedef struct {
 	float batteryCapacity;																												// Battery capacity in Ah
 	float cellHardUnderVoltage;																										// If the lowest cell is under this voltage -> Error situation, turn all off and power down
 	float cellHardOverVoltage;																										// If the upper cell is above this voltage -> Error situation, turn all off and power down
-	float cellSoftUnderVoltage;																										// If the lowest cell is under this voltage -> disable load and indicate empy battery
-	float cellSoftOverVoltage;																										// If the upper cell is above this voltage -> disable charging, but keep 
+	float cellSoftUnderVoltage;																										// If the lowest cell is under this voltage -> disable load and indicate empty battery
+	float cellSoftOverVoltage;																										// If the upper cell is above this voltage -> disable charging, but keep bms enabled
 	float cellBalanceDifferenceThreshold;																					// If the upper cell is more than this voltage away from the average -> start discharging this cell
 	float cellBalanceStart;																												// If an upper cell is above this voltage and higher than the cellBalanceDifferenceThreshold voltage then average, start discharging 
 	uint32_t cellBalanceUpdateInterval;																						// Amount of time that the balance resistor enable mask is kept
@@ -30,11 +30,13 @@ typedef struct {
 	float maxAllowedCurrent;																											// Max allowed current passing trough BMS, if limit is exceded disable output
 	uint32_t displayTimoutBatteryDead;																						// Duration of displaying battery dead symbol
 	uint32_t displayTimoutBatteryError;																						// Duration of displaying error symbol
+	uint32_t displayTimoutBatteryErrorPreCharge;																	// Duration of displaying error symbol
 	uint32_t displayTimoutSplashScreen;																						// Duration of displaying splash screen + First few samples of ADC's
 	uint8_t maxUnderAndOverVoltageErrorCount;																			// Threshold that defines max amount of hard over / under voltage errors
 	float notUsedCurrentThreshold;																								// Threshold that defines whether or not pack is in use.
 	uint32_t notUsedTimout;																												// Delay time that defines max amount of no operation on-time. When absolute battery curren < notUsedCurrentThreshold for longer than this amount of time -> the system is disabled
 	uint32_t stateOfChargeStoreInterval;																					// Interval to store state of charge information.
+	uint32_t CANID;
 } modConfigGeneralConfigStructTypedef;
 
 modConfigGeneralConfigStructTypedef* modConfigInit(void);

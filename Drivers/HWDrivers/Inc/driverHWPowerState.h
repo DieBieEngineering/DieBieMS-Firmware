@@ -1,7 +1,7 @@
 #ifndef __DRIVERHWPOWERSTATE_H
 #define __DRIVERHWPOWERSTATE_H
 
-#include "hardwareDefines.h"
+#include "generalDefines.h"
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
 

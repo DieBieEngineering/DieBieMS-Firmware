@@ -35,7 +35,8 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				libGraphicsWrite('V');
 				libGraphicsWrite('0');
 				libGraphicsWrite('.');
-				libGraphicsWrite('9');
+				libGraphicsWrite('1');
+				libGraphicsWrite('0');
 				break;
 			case DISP_MODE_LOAD:
 				driverSWSSD1306ClearDisplay();
@@ -70,6 +71,32 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				libGraphicsWrite('O');  
 				libGraphicsWrite('R');  
 				break;
+			case DISP_MODE_ERROR_PRECHARGE:
+				driverSWSSD1306ClearDisplay();
+				driverSWSSD1306FillBuffer(libLogos[LOGO_ERROR],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);  // Error logo uses half of the screen
+			
+				libGraphicsSetTextSize(1);
+				libGraphicsSetTextColor_0(WHITE);
+				libGraphicsSetCursor(68,0);																						// Display text on the other side of the screen
+			
+				libGraphicsWrite('E');  
+				libGraphicsWrite('R');  
+				libGraphicsWrite('R');  
+				libGraphicsWrite('O');  
+				libGraphicsWrite('R');  
+			
+				libGraphicsSetCursor(68,15);																						// Display text on the other side of the screen
+			
+				libGraphicsWrite('P');
+				libGraphicsWrite('R');
+				libGraphicsWrite('E');
+				libGraphicsWrite('C');
+				libGraphicsWrite('H');
+				libGraphicsWrite('A');
+				libGraphicsWrite('R');
+				libGraphicsWrite('G');
+				libGraphicsWrite('E');
+				break;			
 			case DISP_MODE_EXTERNAL:
 				driverSWSSD1306ClearDisplay();
 				libGraphicsSetTextSize(1);

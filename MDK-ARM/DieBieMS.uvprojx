@@ -573,6 +573,16 @@
           <GroupName>Modules</GroupName>
           <Files>
             <File>
+              <FileName>modCAN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\Src\modCAN.c</FilePath>
+            </File>
+            <File>
+              <FileName>modCommands.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\Src\modCommands.c</FilePath>
+            </File>
+            <File>
               <FileName>modConfig.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Modules\Src\modConfig.c</FilePath>
@@ -591,11 +601,6 @@
               <FileName>modEffect.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Modules\Src\modEffect.c</FilePath>
-            </File>
-            <File>
-              <FileName>modMessage.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Modules\Src\modMessage.c</FilePath>
             </File>
             <File>
               <FileName>modOperationalState.c</FileName>
@@ -617,11 +622,31 @@
               <FileType>1</FileType>
               <FilePath>..\Modules\Src\modStateOfCharge.c</FilePath>
             </File>
+            <File>
+              <FileName>modTerminal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\Src\modTerminal.c</FilePath>
+            </File>
+            <File>
+              <FileName>modUART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\Src\modUART.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>Libraries</GroupName>
           <Files>
+            <File>
+              <FileName>libBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Libraries\Scr\libBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>libCRC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Libraries\Scr\libCRC.c</FilePath>
+            </File>
             <File>
               <FileName>libFileStream.c</FileName>
               <FileType>1</FileType>
@@ -641,6 +666,11 @@
               <FileName>libLogos.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Libraries\Scr\libLogos.c</FilePath>
+            </File>
+            <File>
+              <FileName>libPacket.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Libraries\Scr\libPacket.c</FilePath>
             </File>
             <File>
               <FileName>libRingbuffer.c</FileName>

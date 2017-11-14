@@ -1,4 +1,4 @@
-#include "hardwareDefines.h"
+#include "generalDefines.h"
 #include "stm32f3xx_hal.h"
 #include "modEffect.h"
 #include "modPowerState.h"
@@ -8,14 +8,10 @@
 #include "modConfig.h"
 #include "modStateOfCharge.h"
 #include "driverSWStorageManager.h"
-#include "modMessage.h"
-
+#include "modUART.h"
+#include "mainDataTypes.h"
+#include "modCAN.h"
 #include "driverSWCC1101.h"
-
-CAN_HandleTypeDef hcan;
-
-uint32_t transmitLastTick;
-uint32_t errorLastTick;
 
 modConfigGeneralConfigStructTypedef *generalConfig;
 modStateOfChargeStructTypeDef *generalStateOfCharge;
@@ -24,9 +20,8 @@ modPowerElectricsPackStateTypedef packState;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
-static void MX_CAN_Init(void);
 
-int main(void) {		
+int main(void) {			
   HAL_Init();
 
   /* Configure the system clock */
@@ -34,7 +29,6 @@ int main(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_CAN_Init();
 	
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	
@@ -46,42 +40,26 @@ int main(void) {
 	modStateOfChargeStoreAndLoadDefaultStateOfCharge();												// Determin SoC from cell voltage if needed -> load StateOfCharge from EEPROM
 	// Until here
 	
-	modMessageInit(&packState,generalConfig);																	// Will act on message requests
+	modUARTInit();																	  												// Will act on UART message requests
+	modCANInit();																															// Will act on CAN message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	
-	modMessageQueMessage(MESSAGE_NORMAL,"\r\n\r\n DieBieMS V0.4\r\n");
-	modMessageQueMessage(MESSAGE_DEBUG,"Application started.\r\n");
-		
-  hcan.pTxMsg->StdId = 321;
-  hcan.pTxMsg->ExtId = 0x01;
-  hcan.pTxMsg->RTR = CAN_RTR_DATA;
-  hcan.pTxMsg->IDE = CAN_ID_STD;
-  hcan.pTxMsg->DLC = 2;
-	hcan.pTxMsg->Data[0] = 0x01;
-	hcan.pTxMsg->Data[1] = 0x02;
-	
-	driverSWCC1101Init();
+	//driverSWCC1101Init();
 	
   while(true) {
 		modEffectTask();
 		modPowerStateTask();
 		modOperationalStateTask();
-		modMessageTask();
+		modUARTTask();
+		modCANTask();
 		
-		driverSWCC1101Task();
+		//driverSWCC1101Task();
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
-		
-		//if(modDelayTick1ms(&transmitLastTick,500))
-		//	HAL_CAN_Transmit(&hcan,10);
-		
-		//if(modDelayTick1ms(&errorLastTick,1000) && (hcan.State != HAL_OK))
-		//	MX_CAN_Init();
-			
   }
 }
 
@@ -128,30 +106,7 @@ void SystemClock_Config(void) {
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* CAN init function */
-static void MX_CAN_Init(void) {
-  static CanTxMsgTypeDef        TxMessage;
-  static CanRxMsgTypeDef        RxMessage;
-	
-  hcan.Instance = CAN;
-  hcan.pTxMsg = &TxMessage;
-  hcan.pRxMsg = &RxMessage;
-	
-  hcan.Init.Prescaler = 9;
-  hcan.Init.Mode = CAN_MODE_NORMAL;
-  hcan.Init.SJW = CAN_SJW_1TQ;
-  hcan.Init.BS1 = CAN_BS1_5TQ;
-  hcan.Init.BS2 = CAN_BS2_2TQ;
-  hcan.Init.TTCM = DISABLE;
-  hcan.Init.ABOM = DISABLE;
-  hcan.Init.AWUM = DISABLE;
-  hcan.Init.NART = DISABLE;
-  hcan.Init.RFLM = DISABLE;
-  hcan.Init.TXFP = DISABLE;
-	
-  if (HAL_CAN_Init(&hcan) != HAL_OK)
-    Error_Handler();
-}
+
 
 /** Configure pins as 
         * Analog 
@@ -190,8 +145,7 @@ static void MX_GPIO_Init(void) {
   * @param  None
   * @retval None
   */
-void Error_Handler(void)
-{
+void Error_Handler(void){
   /* USER CODE BEGIN Error_Handler */
   /* User can add his own implementation to report the HAL error return state */
   while(1) 

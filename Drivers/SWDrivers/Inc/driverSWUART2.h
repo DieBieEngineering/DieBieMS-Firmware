@@ -6,7 +6,7 @@
 #include "libRingBuffer.h"
 #include "libFileStream.h"
 
-#define RINGBUFFERSIZE									200
+#define RINGBUFFERSIZE									1024
 
 void driverSWUART2Init(uint32_t baudRate);
 char driverSWUART2PutCharInOutputBuffer(char character, FILE *stream);

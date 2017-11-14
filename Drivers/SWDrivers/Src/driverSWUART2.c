@@ -16,22 +16,22 @@ void driverSWUART2Init(uint32_t baudRate) {
 
 char driverSWUART2PutCharInOutputBuffer(char character, FILE *stream) {
 	// TODO: If buffer is full, first send a character out, then place new char. This should however never happen
-	if(!driverSWUART2OutputBuffer->isFull(driverSWUART2OutputBuffer))
+	if(!driverSWUART2OutputBuffer->isFull(driverSWUART2OutputBuffer)) {
 		driverSWUART2OutputBuffer->add(driverSWUART2OutputBuffer,&character);
+	}else{
+		driverSWUART2Task();
+		driverSWUART2OutputBuffer->add(driverSWUART2OutputBuffer,&character);
+	}
 	return 0;
 };
 
 bool driverSWUART2Task(void) {
 	char outputChar;
-	char inputChar;
 	
 	if(!driverSWUART2OutputBuffer->isEmpty(driverSWUART2OutputBuffer)){						// Check if there is data in the ouput buffer
 		driverSWUART2OutputBuffer->pull(driverSWUART2OutputBuffer,&outputChar);			// Pull the data from ouput buffer
 		driverHWUART2SendChar(outputChar);																					// And send it to the uart
 	}
-	
-	if(driverHWUART2GetChar(&inputChar))																					// Loop received data back to output
-		driverSWUART2PutCharInOutputBuffer(inputChar,&driverSWUART2IOStream);
 	
 	return !driverSWUART2OutputBuffer->isEmpty(driverSWUART2OutputBuffer);
 };
