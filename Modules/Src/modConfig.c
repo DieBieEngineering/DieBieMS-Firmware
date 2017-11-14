@@ -30,12 +30,12 @@ bool modConfigStoreDefaultConfig(void) {
 	// VALUES WILL ONLY UPDATE AFTER FLASH ERASE!
 	modConfigGeneralConfigStructTypedef defaultConfig;
 	defaultConfig.noOfCells 																=	12;														// 4 Cells in series
-	defaultConfig.batteryCapacity														=	3.00f;												// 80Ah battery
-	defaultConfig.cellHardUnderVoltage											= 2.40f;												// Worst case X.XXV as lowest cell voltage
+	defaultConfig.batteryCapacity														=	8.00f;												// 7Ah battery
+	defaultConfig.cellHardUnderVoltage											= 2.30f;												// Worst case X.XXV as lowest cell voltage
 	defaultConfig.cellHardOverVoltage												= 4.30f;												// Worst case X.XXV as highest cell voltage
-	defaultConfig.cellSoftUnderVoltage											= 2.70f;												// Normal lowest cell voltage 2.7V
-	defaultConfig.cellSoftOverVoltage												= 4.10f;												// Normal highest cell voltage 4.10V
-	defaultConfig.cellBalanceDifferenceThreshold						=	0.005f;												// Start balancing @ 5mV difference, stop if below
+	defaultConfig.cellSoftUnderVoltage											= 2.50f;												// Normal lowest cell voltage 2.7V
+	defaultConfig.cellSoftOverVoltage												= 4.30f;												// Normal highest cell voltage 4.10V
+	defaultConfig.cellBalanceDifferenceThreshold						=	0.01f;												// Start balancing @ 5mV difference, stop if below
 	defaultConfig.cellBalanceStart													= 3.80f;												// Start balancing above 3.8V
 	defaultConfig.cellBalanceUpdateInterval									= 4*1000;												// Keep calculated resistors enabled for this amount of time in miliseconds
 	defaultConfig.maxSimultaneousDischargingCells						= 5;														// Allow a maximum of 5 cells simultinous discharging trough bleeding resistors

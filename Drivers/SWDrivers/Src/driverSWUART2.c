@@ -30,7 +30,7 @@ bool driverSWUART2Task(void) {
 		driverHWUART2SendChar(outputChar);																					// And send it to the uart
 	}
 	
-	if(driverHWUART2GetChar(&inputChar))
+	if(driverHWUART2GetChar(&inputChar))																					// Loop received data back to output
 		driverSWUART2PutCharInOutputBuffer(inputChar,&driverSWUART2IOStream);
 	
 	return !driverSWUART2OutputBuffer->isEmpty(driverSWUART2OutputBuffer);

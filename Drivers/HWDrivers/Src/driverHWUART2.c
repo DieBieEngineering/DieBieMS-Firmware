@@ -26,7 +26,7 @@ void driverHWUART2Init(uint32_t baudRate) {
 		while(true);
 	}
 
-    __HAL_LINKDMA(&driverHWUART2Handle,hdmarx,driverHWUART2HDMAHandleRX);
+  __HAL_LINKDMA(&driverHWUART2Handle,hdmarx,driverHWUART2HDMAHandleRX);
 	
   driverHWUART2Handle.Instance = USART2;
   driverHWUART2Handle.Init.BaudRate = baudRate;
@@ -45,7 +45,7 @@ void driverHWUART2Init(uint32_t baudRate) {
 	
 	volatile HAL_StatusTypeDef temp = HAL_UART_Receive_DMA(&driverHWUART2Handle,driverHWUART2ReceiveBuffer,sizeof(driverHWUART2ReceiveBuffer)/sizeof(uint8_t)); // Start receive to DMA transfer
 	
-  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);																// Will realise interrupt on half and full DMA transfer
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);		// Will realise interrupt on half and full DMA transfer
   HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 };
 
