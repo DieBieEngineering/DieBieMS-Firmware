@@ -23,6 +23,7 @@ static void MX_GPIO_Init(void);
 
 int main(void) {			
   HAL_Init();
+	
 
   /* Configure the system clock */
   SystemClock_Config();
@@ -55,7 +56,7 @@ int main(void) {
 		modOperationalStateTask();
 		modUARTTask();
 		modCANTask();
-		
+
 		//driverSWCC1101Task();
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task

@@ -145,6 +145,10 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF9_CAN;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(CAN_RX0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(CAN_RX0_IRQn);
 
   /* USER CODE BEGIN CAN_MspInit 1 */
 

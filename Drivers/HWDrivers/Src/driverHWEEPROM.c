@@ -563,7 +563,7 @@ static uint16_t driverHWEEPROMVerifyPageFullWriteVariable(uint16_t VirtAddress, 
     if ((*(__IO uint32_t*)address) == 0xFFFFFFFF)
     {
       /* Set variable data */
-      flashstatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address, Data);       
+      flashstatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address, Data);
       /* If program operation was failed, a Flash error code is returned */
       if (flashstatus != HAL_OK)
       {

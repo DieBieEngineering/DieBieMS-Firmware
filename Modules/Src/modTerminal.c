@@ -56,7 +56,6 @@ void terminal_process_string(char *str) {
 
 	if (strcmp(argv[0], "ping") == 0) {
 		modCommandsPrintf("pong\n");
-		
 	} else if (strcmp(argv[0], "status") == 0) {
 		bool disChargeEnabled = packState.disChargeDesired && packState.disChargeAllowed;
 		bool chargeEnabled = packState.chargeDesired && packState.chargeAllowed;
@@ -99,7 +98,6 @@ void terminal_process_string(char *str) {
 				modCommandsPrintf("Operational state     : %s","Unknown");
 				break;
 		}
-		
 		modCommandsPrintf("Load voltage          : %.2fV",packState.loadVoltage);
 		modCommandsPrintf("Cell voltage high     : %.3fV",packState.cellVoltageHigh);
 		modCommandsPrintf("Cell voltage low      : %.3fV",packState.cellVoltageLow);
@@ -321,6 +319,16 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("------  Rebooting BMS  ------");
 		NVIC_SystemReset();
 		
+	} else if (strcmp(argv[0], "bootloader_erase") == 0) {
+		modCommandsPrintf("------  erasing new app space  ------");
+		if(modFlashEraseNewAppData(0x00002000) == HAL_OK)
+			modCommandsPrintf("--Erase done.");
+		else
+			modCommandsPrintf("--Erase error.");
+		
+	} else if (strcmp(argv[0], "bootloader_jump") == 0) {
+		modFlashJumpToBootloader();
+		
 	} else if (strcmp(argv[0], "help") == 0) {
 		modCommandsPrintf("------- Start of help -------");
 		modCommandsPrintf("Valid commands for the DieBieMS are:");
@@ -340,6 +348,8 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("  Store current BMS configuration to EEPROM.");
 		modCommandsPrintf("config_read");
 		modCommandsPrintf("  Read BMS configuration from EEPROM.");
+		modCommandsPrintf("config_set_cells [newCellCount]");
+		modCommandsPrintf("  Set the amount of cells in series.");
 		modCommandsPrintf("config_set_ah [newCapacity]");
 		modCommandsPrintf("  Set the battery capacity in Ah.");
 		modCommandsPrintf("config_set_HOV [newHardOverVoltage]");

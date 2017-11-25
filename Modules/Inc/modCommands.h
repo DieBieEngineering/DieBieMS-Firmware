@@ -25,10 +25,8 @@
 #include "generalDefines.h"
 #include "libBuffer.h"
 #include "modTerminal.h"
-
-//--#include "terminal.h"
-//--#include "comm_can.h" -- for can forward
-
+#include "modCAN.h"
+#include "modFlash.h"
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>

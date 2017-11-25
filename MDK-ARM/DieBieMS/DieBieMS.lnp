@@ -41,6 +41,7 @@
 "diebiems\moddelay.o"
 "diebiems\moddisplay.o"
 "diebiems\modeffect.o"
+"diebiems\modflash.o"
 "diebiems\modoperationalstate.o"
 "diebiems\modpowerelectronics.o"
 "diebiems\modpowerstate.o"
