@@ -92,7 +92,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_JUMP_TO_BOOTLOADER:
-			jumpBootloaderTrue = true;
+			//jumpBootloaderTrue = true;
 			delayTick = HAL_GetTick();
 			break;
 		case COMM_ERASE_NEW_APP:

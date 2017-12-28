@@ -805,8 +805,8 @@ Section Cross References
     modcommands.o(i.modCommandsProcessPacket) refers to modcan.o(i.comm_can_send_buffer) for comm_can_send_buffer
     modcommands.o(i.modCommandsProcessPacket) refers to moddelay.o(i.modDelayTick1ms) for modDelayTick1ms
     modcommands.o(i.modCommandsProcessPacket) refers to modflash.o(i.modFlashJumpToBootloader) for modFlashJumpToBootloader
-    modcommands.o(i.modCommandsProcessPacket) refers to modcommands.o(.data) for .data
     modcommands.o(i.modCommandsProcessPacket) refers to modcommands.o(.bss) for .bss
+    modcommands.o(i.modCommandsProcessPacket) refers to modcommands.o(.data) for .data
     modcommands.o(i.modCommandsSendPacket) refers to modcommands.o(.data) for .data
     modcommands.o(i.modCommandsSetSendFunction) refers to modcommands.o(.data) for .data
     modconfig.o(i.modConfigInit) refers to driverswstoragemanager.o(.data) for driverSWStorageManagerConfigStructSize
@@ -2611,87 +2611,87 @@ Image Symbol Table
     i.modCANTask                             0x08008c24   Section        0  modcan.o(i.modCANTask)
     i.modCommandsPrintf                      0x08008c5c   Section        0  modcommands.o(i.modCommandsPrintf)
     i.modCommandsProcessPacket               0x08008c94   Section        0  modcommands.o(i.modCommandsProcessPacket)
-    i.modCommandsSendPacket                  0x08008dc0   Section        0  modcommands.o(i.modCommandsSendPacket)
-    i.modCommandsSetSendFunction             0x08008dd0   Section        0  modcommands.o(i.modCommandsSetSendFunction)
-    i.modConfigInit                          0x08008ddc   Section        0  modconfig.o(i.modConfigInit)
-    i.modConfigLoadConfig                    0x08008df0   Section        0  modconfig.o(i.modConfigLoadConfig)
-    i.modConfigStoreAndLoadDefaultConfig     0x08008dfc   Section        0  modconfig.o(i.modConfigStoreAndLoadDefaultConfig)
-    i.modConfigStoreConfig                   0x08008e18   Section        0  modconfig.o(i.modConfigStoreConfig)
-    i.modConfigStoreDefaultConfig            0x08008e24   Section        0  modconfig.o(i.modConfigStoreDefaultConfig)
-    i.modDelayInit                           0x08008f1c   Section        0  moddelay.o(i.modDelayInit)
-    i.modDelayTick100ms                      0x08008f44   Section        0  moddelay.o(i.modDelayTick100ms)
-    i.modDelayTick1ms                        0x08008f78   Section        0  moddelay.o(i.modDelayTick1ms)
-    i.modDisplayInit                         0x08008f98   Section        0  moddisplay.o(i.modDisplayInit)
-    i.modDisplayShowInfo                     0x08008fd0   Section        0  moddisplay.o(i.modDisplayShowInfo)
-    i.modDisplayTask                         0x08009258   Section        0  moddisplay.o(i.modDisplayTask)
-    i.modEffectChangeState                   0x0800925c   Section        0  modeffect.o(i.modEffectChangeState)
-    i.modEffectInit                          0x08009284   Section        0  modeffect.o(i.modEffectInit)
-    i.modEffectTask                          0x08009298   Section        0  modeffect.o(i.modEffectTask)
-    i.modEffectTaskBlinkLong                 0x08009308   Section        0  modeffect.o(i.modEffectTaskBlinkLong)
-    i.modEffectTaskBlinkShort                0x08009354   Section        0  modeffect.o(i.modEffectTaskBlinkShort)
-    i.modEffectTaskBlinkShortLong            0x080093a0   Section        0  modeffect.o(i.modEffectTaskBlinkShortLong)
-    i.modEffectTaskFlash                     0x080093d8   Section        0  modeffect.o(i.modEffectTaskFlash)
-    i.modEffectTaskFlashFast                 0x080093fc   Section        0  modeffect.o(i.modEffectTaskFlashFast)
-    i.modFlashEraseNewAppData                0x08009420   Section        0  modflash.o(i.modFlashEraseNewAppData)
-    i.modFlashJumpToBootloader               0x08009468   Section        0  modflash.o(i.modFlashJumpToBootloader)
-    i.modFlashWriteByte                      0x080094ec   Section        0  modflash.o(i.modFlashWriteByte)
-    i.modFlashWriteNewAppData                0x08009538   Section        0  modflash.o(i.modFlashWriteNewAppData)
-    i.modOperationalStateHandleChargerDisconnect 0x08009570   Section        0  modoperationalstate.o(i.modOperationalStateHandleChargerDisconnect)
-    i.modOperationalStateInit                0x080095d0   Section        0  modoperationalstate.o(i.modOperationalStateInit)
-    i.modOperationalStateSetAllStates        0x08009608   Section        0  modoperationalstate.o(i.modOperationalStateSetAllStates)
-    i.modOperationalStateTask                0x08009618   Section        0  modoperationalstate.o(i.modOperationalStateTask)
-    i.modOperationalStateTerminateOperation  0x080099f0   Section        0  modoperationalstate.o(i.modOperationalStateTerminateOperation)
-    i.modOperationalStateUpdateStates        0x08009a00   Section        0  modoperationalstate.o(i.modOperationalStateUpdateStates)
-    i.modPowerElectronicsAllowForcedOn       0x08009a10   Section        0  modpowerelectronics.o(i.modPowerElectronicsAllowForcedOn)
-    i.modPowerElectronicsCalculateCellStats  0x08009a1c   Section        0  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
-    i.modPowerElectronicsDisableAll          0x08009aa4   Section        0  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
-    i.modPowerElectronicsInit                0x08009ad0   Section        0  modpowerelectronics.o(i.modPowerElectronicsInit)
-    i.modPowerElectronicsSetCharge           0x08009b94   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
-    i.modPowerElectronicsSetDisCharge        0x08009bc0   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
-    i.modPowerElectronicsSetPreCharge        0x08009c0c   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
-    i.modPowerElectronicsSortCells           0x08009c38   Section        0  modpowerelectronics.o(i.modPowerElectronicsSortCells)
-    i.modPowerElectronicsSubTaskBalaning     0x08009c80   Section        0  modpowerelectronics.o(i.modPowerElectronicsSubTaskBalaning)
-    i.modPowerElectronicsSubTaskVoltageWatch 0x08009d48   Section        0  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
-    i.modPowerElectronicsTask                0x08009ea8   Section        0  modpowerelectronics.o(i.modPowerElectronicsTask)
-    i.modPowerElectronicsUpdateSwitches      0x08009f18   Section        0  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
-    i.modPowerStateButtonPressedOnTurnon     0x08009f7c   Section        0  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
-    i.modPowerStateChargerDetected           0x08009f88   Section        0  modpowerstate.o(i.modPowerStateChargerDetected)
-    i.modPowerStateForceOnRequest            0x08009f90   Section        0  modpowerstate.o(i.modPowerStateForceOnRequest)
-    i.modPowerStateInit                      0x08009fac   Section        0  modpowerstate.o(i.modPowerStateInit)
-    i.modPowerStatePowerdownRequest          0x08009fec   Section        0  modpowerstate.o(i.modPowerStatePowerdownRequest)
-    i.modPowerStateSetState                  0x08009ff8   Section        0  modpowerstate.o(i.modPowerStateSetState)
-    i.modPowerStateTask                      0x0800a000   Section        0  modpowerstate.o(i.modPowerStateTask)
-    i.modStateOfChargeInit                   0x0800a068   Section        0  modstateofcharge.o(i.modStateOfChargeInit)
-    i.modStateOfChargeLoadStateOfCharge      0x0800a094   Section        0  modstateofcharge.o(i.modStateOfChargeLoadStateOfCharge)
-    i.modStateOfChargePowerDownSave          0x0800a0a0   Section        0  modstateofcharge.o(i.modStateOfChargePowerDownSave)
-    i.modStateOfChargeProcess                0x0800a0bc   Section        0  modstateofcharge.o(i.modStateOfChargeProcess)
-    i.modStateOfChargeStoreAndLoadDefaultStateOfCharge 0x0800a19c   Section        0  modstateofcharge.o(i.modStateOfChargeStoreAndLoadDefaultStateOfCharge)
-    i.modStateOfChargeStoreStateOfCharge     0x0800a1e4   Section        0  modstateofcharge.o(i.modStateOfChargeStoreStateOfCharge)
-    i.modStateOfChargeVoltageEvent           0x0800a1f0   Section        0  modstateofcharge.o(i.modStateOfChargeVoltageEvent)
-    i.modUARTInit                            0x0800a20c   Section        0  moduart.o(i.modUARTInit)
-    i.modUARTProcessPacket                   0x0800a22c   Section        0  moduart.o(i.modUARTProcessPacket)
-    i.modUARTSendPacket                      0x0800a248   Section        0  moduart.o(i.modUARTSendPacket)
-    i.modUARTSendPacketWrapper               0x0800a270   Section        0  moduart.o(i.modUARTSendPacketWrapper)
-    i.modUARTTask                            0x0800a278   Section        0  moduart.o(i.modUARTTask)
-    i.send_packet_wrapper                    0x0800a29c   Section        0  modcan.o(i.send_packet_wrapper)
-    send_packet_wrapper                      0x0800a29d   Thumb Code    20  modcan.o(i.send_packet_wrapper)
-    i.terminal_process_string                0x0800a2b4   Section        0  modterminal.o(i.terminal_process_string)
-    .constdata                               0x0800bb10   Section       32  stm32f3xx_hal_rcc.o(.constdata)
-    .constdata                               0x0800bb30   Section       24  driverhwadc.o(.constdata)
-    .constdata                               0x0800bb48   Section       48  driverhwi2c1.o(.constdata)
-    .constdata                               0x0800bb78   Section       72  driverhwi2c2.o(.constdata)
-    .constdata                               0x0800bbc0   Section       60  driverhwpowerstate.o(.constdata)
-    .constdata                               0x0800bbfc   Section       36  driverhwstatus.o(.constdata)
-    .constdata                               0x0800bc20   Section       80  driverhwswitches.o(.constdata)
-    .constdata                               0x0800bc70   Section      400  modflash.o(.constdata)
-    flash_addr                               0x0800bc70   Data         400  modflash.o(.constdata)
-    .constdata                               0x0800be00   Section      512  libcrc.o(.constdata)
-    .constdata                               0x0800c000   Section     1280  libglcdfont.o(.constdata)
-    .constdata                               0x0800c500   Section     7168  liblogos.o(.constdata)
-    .constdata                               0x0800e100   Section       16  system_stm32f3xx.o(.constdata)
-    .constdata                               0x0800e110   Section        8  system_stm32f3xx.o(.constdata)
-    .constdata                               0x0800e118   Section       64  ctype_c.o(.constdata)
-    .conststring                             0x0800e158   Section      594  modterminal.o(.conststring)
+    i.modCommandsSendPacket                  0x08008db4   Section        0  modcommands.o(i.modCommandsSendPacket)
+    i.modCommandsSetSendFunction             0x08008dc4   Section        0  modcommands.o(i.modCommandsSetSendFunction)
+    i.modConfigInit                          0x08008dd0   Section        0  modconfig.o(i.modConfigInit)
+    i.modConfigLoadConfig                    0x08008de4   Section        0  modconfig.o(i.modConfigLoadConfig)
+    i.modConfigStoreAndLoadDefaultConfig     0x08008df0   Section        0  modconfig.o(i.modConfigStoreAndLoadDefaultConfig)
+    i.modConfigStoreConfig                   0x08008e0c   Section        0  modconfig.o(i.modConfigStoreConfig)
+    i.modConfigStoreDefaultConfig            0x08008e18   Section        0  modconfig.o(i.modConfigStoreDefaultConfig)
+    i.modDelayInit                           0x08008f10   Section        0  moddelay.o(i.modDelayInit)
+    i.modDelayTick100ms                      0x08008f38   Section        0  moddelay.o(i.modDelayTick100ms)
+    i.modDelayTick1ms                        0x08008f6c   Section        0  moddelay.o(i.modDelayTick1ms)
+    i.modDisplayInit                         0x08008f8c   Section        0  moddisplay.o(i.modDisplayInit)
+    i.modDisplayShowInfo                     0x08008fc4   Section        0  moddisplay.o(i.modDisplayShowInfo)
+    i.modDisplayTask                         0x0800924c   Section        0  moddisplay.o(i.modDisplayTask)
+    i.modEffectChangeState                   0x08009250   Section        0  modeffect.o(i.modEffectChangeState)
+    i.modEffectInit                          0x08009278   Section        0  modeffect.o(i.modEffectInit)
+    i.modEffectTask                          0x0800928c   Section        0  modeffect.o(i.modEffectTask)
+    i.modEffectTaskBlinkLong                 0x080092fc   Section        0  modeffect.o(i.modEffectTaskBlinkLong)
+    i.modEffectTaskBlinkShort                0x08009348   Section        0  modeffect.o(i.modEffectTaskBlinkShort)
+    i.modEffectTaskBlinkShortLong            0x08009394   Section        0  modeffect.o(i.modEffectTaskBlinkShortLong)
+    i.modEffectTaskFlash                     0x080093cc   Section        0  modeffect.o(i.modEffectTaskFlash)
+    i.modEffectTaskFlashFast                 0x080093f0   Section        0  modeffect.o(i.modEffectTaskFlashFast)
+    i.modFlashEraseNewAppData                0x08009414   Section        0  modflash.o(i.modFlashEraseNewAppData)
+    i.modFlashJumpToBootloader               0x0800945c   Section        0  modflash.o(i.modFlashJumpToBootloader)
+    i.modFlashWriteByte                      0x080094e0   Section        0  modflash.o(i.modFlashWriteByte)
+    i.modFlashWriteNewAppData                0x0800952c   Section        0  modflash.o(i.modFlashWriteNewAppData)
+    i.modOperationalStateHandleChargerDisconnect 0x08009564   Section        0  modoperationalstate.o(i.modOperationalStateHandleChargerDisconnect)
+    i.modOperationalStateInit                0x080095c4   Section        0  modoperationalstate.o(i.modOperationalStateInit)
+    i.modOperationalStateSetAllStates        0x080095fc   Section        0  modoperationalstate.o(i.modOperationalStateSetAllStates)
+    i.modOperationalStateTask                0x0800960c   Section        0  modoperationalstate.o(i.modOperationalStateTask)
+    i.modOperationalStateTerminateOperation  0x080099e4   Section        0  modoperationalstate.o(i.modOperationalStateTerminateOperation)
+    i.modOperationalStateUpdateStates        0x080099f4   Section        0  modoperationalstate.o(i.modOperationalStateUpdateStates)
+    i.modPowerElectronicsAllowForcedOn       0x08009a04   Section        0  modpowerelectronics.o(i.modPowerElectronicsAllowForcedOn)
+    i.modPowerElectronicsCalculateCellStats  0x08009a10   Section        0  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
+    i.modPowerElectronicsDisableAll          0x08009a98   Section        0  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
+    i.modPowerElectronicsInit                0x08009ac4   Section        0  modpowerelectronics.o(i.modPowerElectronicsInit)
+    i.modPowerElectronicsSetCharge           0x08009b88   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
+    i.modPowerElectronicsSetDisCharge        0x08009bb4   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
+    i.modPowerElectronicsSetPreCharge        0x08009c00   Section        0  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
+    i.modPowerElectronicsSortCells           0x08009c2c   Section        0  modpowerelectronics.o(i.modPowerElectronicsSortCells)
+    i.modPowerElectronicsSubTaskBalaning     0x08009c74   Section        0  modpowerelectronics.o(i.modPowerElectronicsSubTaskBalaning)
+    i.modPowerElectronicsSubTaskVoltageWatch 0x08009d3c   Section        0  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
+    i.modPowerElectronicsTask                0x08009e9c   Section        0  modpowerelectronics.o(i.modPowerElectronicsTask)
+    i.modPowerElectronicsUpdateSwitches      0x08009f0c   Section        0  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
+    i.modPowerStateButtonPressedOnTurnon     0x08009f70   Section        0  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
+    i.modPowerStateChargerDetected           0x08009f7c   Section        0  modpowerstate.o(i.modPowerStateChargerDetected)
+    i.modPowerStateForceOnRequest            0x08009f84   Section        0  modpowerstate.o(i.modPowerStateForceOnRequest)
+    i.modPowerStateInit                      0x08009fa0   Section        0  modpowerstate.o(i.modPowerStateInit)
+    i.modPowerStatePowerdownRequest          0x08009fe0   Section        0  modpowerstate.o(i.modPowerStatePowerdownRequest)
+    i.modPowerStateSetState                  0x08009fec   Section        0  modpowerstate.o(i.modPowerStateSetState)
+    i.modPowerStateTask                      0x08009ff4   Section        0  modpowerstate.o(i.modPowerStateTask)
+    i.modStateOfChargeInit                   0x0800a05c   Section        0  modstateofcharge.o(i.modStateOfChargeInit)
+    i.modStateOfChargeLoadStateOfCharge      0x0800a088   Section        0  modstateofcharge.o(i.modStateOfChargeLoadStateOfCharge)
+    i.modStateOfChargePowerDownSave          0x0800a094   Section        0  modstateofcharge.o(i.modStateOfChargePowerDownSave)
+    i.modStateOfChargeProcess                0x0800a0b0   Section        0  modstateofcharge.o(i.modStateOfChargeProcess)
+    i.modStateOfChargeStoreAndLoadDefaultStateOfCharge 0x0800a190   Section        0  modstateofcharge.o(i.modStateOfChargeStoreAndLoadDefaultStateOfCharge)
+    i.modStateOfChargeStoreStateOfCharge     0x0800a1d8   Section        0  modstateofcharge.o(i.modStateOfChargeStoreStateOfCharge)
+    i.modStateOfChargeVoltageEvent           0x0800a1e4   Section        0  modstateofcharge.o(i.modStateOfChargeVoltageEvent)
+    i.modUARTInit                            0x0800a200   Section        0  moduart.o(i.modUARTInit)
+    i.modUARTProcessPacket                   0x0800a220   Section        0  moduart.o(i.modUARTProcessPacket)
+    i.modUARTSendPacket                      0x0800a23c   Section        0  moduart.o(i.modUARTSendPacket)
+    i.modUARTSendPacketWrapper               0x0800a264   Section        0  moduart.o(i.modUARTSendPacketWrapper)
+    i.modUARTTask                            0x0800a26c   Section        0  moduart.o(i.modUARTTask)
+    i.send_packet_wrapper                    0x0800a290   Section        0  modcan.o(i.send_packet_wrapper)
+    send_packet_wrapper                      0x0800a291   Thumb Code    20  modcan.o(i.send_packet_wrapper)
+    i.terminal_process_string                0x0800a2a8   Section        0  modterminal.o(i.terminal_process_string)
+    .constdata                               0x0800bb4c   Section       32  stm32f3xx_hal_rcc.o(.constdata)
+    .constdata                               0x0800bb6c   Section       24  driverhwadc.o(.constdata)
+    .constdata                               0x0800bb84   Section       48  driverhwi2c1.o(.constdata)
+    .constdata                               0x0800bbb4   Section       72  driverhwi2c2.o(.constdata)
+    .constdata                               0x0800bbfc   Section       60  driverhwpowerstate.o(.constdata)
+    .constdata                               0x0800bc38   Section       36  driverhwstatus.o(.constdata)
+    .constdata                               0x0800bc5c   Section       80  driverhwswitches.o(.constdata)
+    .constdata                               0x0800bcac   Section      400  modflash.o(.constdata)
+    flash_addr                               0x0800bcac   Data         400  modflash.o(.constdata)
+    .constdata                               0x0800be3c   Section      512  libcrc.o(.constdata)
+    .constdata                               0x0800c03c   Section     1280  libglcdfont.o(.constdata)
+    .constdata                               0x0800c53c   Section     7168  liblogos.o(.constdata)
+    .constdata                               0x0800e13c   Section       16  system_stm32f3xx.o(.constdata)
+    .constdata                               0x0800e14c   Section        8  system_stm32f3xx.o(.constdata)
+    .constdata                               0x0800e154   Section       64  ctype_c.o(.constdata)
+    .conststring                             0x0800e194   Section      594  modterminal.o(.conststring)
     .data                                    0x20000000   Section        4  stm32f3xx_hal.o(.data)
     .data                                    0x20000004   Section        8  driverhwadc.o(.data)
     .data                                    0x2000000c   Section        4  driverhweeprom.o(.data)
@@ -3181,84 +3181,84 @@ Image Symbol Table
     modCANInit                               0x08008b7d   Thumb Code   152  modcan.o(i.modCANInit)
     modCANTask                               0x08008c25   Thumb Code    48  modcan.o(i.modCANTask)
     modCommandsPrintf                        0x08008c5d   Thumb Code    50  modcommands.o(i.modCommandsPrintf)
-    modCommandsProcessPacket                 0x08008c95   Thumb Code   274  modcommands.o(i.modCommandsProcessPacket)
-    modCommandsSendPacket                    0x08008dc1   Thumb Code    12  modcommands.o(i.modCommandsSendPacket)
-    modCommandsSetSendFunction               0x08008dd1   Thumb Code     6  modcommands.o(i.modCommandsSetSendFunction)
-    modConfigInit                            0x08008ddd   Thumb Code    10  modconfig.o(i.modConfigInit)
-    modConfigLoadConfig                      0x08008df1   Thumb Code     8  modconfig.o(i.modConfigLoadConfig)
-    modConfigStoreAndLoadDefaultConfig       0x08008dfd   Thumb Code    24  modconfig.o(i.modConfigStoreAndLoadDefaultConfig)
-    modConfigStoreConfig                     0x08008e19   Thumb Code     8  modconfig.o(i.modConfigStoreConfig)
-    modConfigStoreDefaultConfig              0x08008e25   Thumb Code   206  modconfig.o(i.modConfigStoreDefaultConfig)
-    modDelayInit                             0x08008f1d   Thumb Code    32  moddelay.o(i.modDelayInit)
-    modDelayTick100ms                        0x08008f45   Thumb Code    46  moddelay.o(i.modDelayTick100ms)
-    modDelayTick1ms                          0x08008f79   Thumb Code    32  moddelay.o(i.modDelayTick1ms)
-    modDisplayInit                           0x08008f99   Thumb Code    52  moddisplay.o(i.modDisplayInit)
-    modDisplayShowInfo                       0x08008fd1   Thumb Code   610  moddisplay.o(i.modDisplayShowInfo)
-    modDisplayTask                           0x08009259   Thumb Code     4  moddisplay.o(i.modDisplayTask)
-    modEffectChangeState                     0x0800925d   Thumb Code    34  modeffect.o(i.modEffectChangeState)
-    modEffectInit                            0x08009285   Thumb Code    18  modeffect.o(i.modEffectInit)
-    modEffectTask                            0x08009299   Thumb Code   108  modeffect.o(i.modEffectTask)
-    modEffectTaskBlinkLong                   0x08009309   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkLong)
-    modEffectTaskBlinkShort                  0x08009355   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkShort)
-    modEffectTaskBlinkShortLong              0x080093a1   Thumb Code    50  modeffect.o(i.modEffectTaskBlinkShortLong)
-    modEffectTaskFlash                       0x080093d9   Thumb Code    32  modeffect.o(i.modEffectTaskFlash)
-    modEffectTaskFlashFast                   0x080093fd   Thumb Code    32  modeffect.o(i.modEffectTaskFlashFast)
-    modFlashEraseNewAppData                  0x08009421   Thumb Code    62  modflash.o(i.modFlashEraseNewAppData)
-    modFlashJumpToBootloader                 0x08009469   Thumb Code   118  modflash.o(i.modFlashJumpToBootloader)
-    modFlashWriteByte                        0x080094ed   Thumb Code    70  modflash.o(i.modFlashWriteByte)
-    modFlashWriteNewAppData                  0x08009539   Thumb Code    50  modflash.o(i.modFlashWriteNewAppData)
-    modOperationalStateHandleChargerDisconnect 0x08009571   Thumb Code    92  modoperationalstate.o(i.modOperationalStateHandleChargerDisconnect)
-    modOperationalStateInit                  0x080095d1   Thumb Code    50  modoperationalstate.o(i.modOperationalStateInit)
-    modOperationalStateSetAllStates          0x08009609   Thumb Code    10  modoperationalstate.o(i.modOperationalStateSetAllStates)
-    modOperationalStateTask                  0x08009619   Thumb Code   974  modoperationalstate.o(i.modOperationalStateTask)
-    modOperationalStateTerminateOperation    0x080099f1   Thumb Code    16  modoperationalstate.o(i.modOperationalStateTerminateOperation)
-    modOperationalStateUpdateStates          0x08009a01   Thumb Code    12  modoperationalstate.o(i.modOperationalStateUpdateStates)
-    modPowerElectronicsAllowForcedOn         0x08009a11   Thumb Code     6  modpowerelectronics.o(i.modPowerElectronicsAllowForcedOn)
-    modPowerElectronicsCalculateCellStats    0x08009a1d   Thumb Code   126  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
-    modPowerElectronicsDisableAll            0x08009aa5   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
-    modPowerElectronicsInit                  0x08009ad1   Thumb Code   186  modpowerelectronics.o(i.modPowerElectronicsInit)
-    modPowerElectronicsSetCharge             0x08009b95   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
-    modPowerElectronicsSetDisCharge          0x08009bc1   Thumb Code    70  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
-    modPowerElectronicsSetPreCharge          0x08009c0d   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
-    modPowerElectronicsSortCells             0x08009c39   Thumb Code    70  modpowerelectronics.o(i.modPowerElectronicsSortCells)
-    modPowerElectronicsSubTaskBalaning       0x08009c81   Thumb Code   192  modpowerelectronics.o(i.modPowerElectronicsSubTaskBalaning)
-    modPowerElectronicsSubTaskVoltageWatch   0x08009d49   Thumb Code   348  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
-    modPowerElectronicsTask                  0x08009ea9   Thumb Code   104  modpowerelectronics.o(i.modPowerElectronicsTask)
-    modPowerElectronicsUpdateSwitches        0x08009f19   Thumb Code    94  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
-    modPowerStateButtonPressedOnTurnon       0x08009f7d   Thumb Code     6  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
-    modPowerStateChargerDetected             0x08009f89   Thumb Code     6  modpowerstate.o(i.modPowerStateChargerDetected)
-    modPowerStateForceOnRequest              0x08009f91   Thumb Code    24  modpowerstate.o(i.modPowerStateForceOnRequest)
-    modPowerStateInit                        0x08009fad   Thumb Code    60  modpowerstate.o(i.modPowerStateInit)
-    modPowerStatePowerdownRequest            0x08009fed   Thumb Code     6  modpowerstate.o(i.modPowerStatePowerdownRequest)
-    modPowerStateSetState                    0x08009ff9   Thumb Code     8  modpowerstate.o(i.modPowerStateSetState)
-    modPowerStateTask                        0x0800a001   Thumb Code   100  modpowerstate.o(i.modPowerStateTask)
-    modStateOfChargeInit                     0x0800a069   Thumb Code    30  modstateofcharge.o(i.modStateOfChargeInit)
-    modStateOfChargeLoadStateOfCharge        0x0800a095   Thumb Code     8  modstateofcharge.o(i.modStateOfChargeLoadStateOfCharge)
-    modStateOfChargePowerDownSave            0x0800a0a1   Thumb Code    24  modstateofcharge.o(i.modStateOfChargePowerDownSave)
-    modStateOfChargeProcess                  0x0800a0bd   Thumb Code   200  modstateofcharge.o(i.modStateOfChargeProcess)
-    modStateOfChargeStoreAndLoadDefaultStateOfCharge 0x0800a19d   Thumb Code    62  modstateofcharge.o(i.modStateOfChargeStoreAndLoadDefaultStateOfCharge)
-    modStateOfChargeStoreStateOfCharge       0x0800a1e5   Thumb Code     8  modstateofcharge.o(i.modStateOfChargeStoreStateOfCharge)
-    modStateOfChargeVoltageEvent             0x0800a1f1   Thumb Code    20  modstateofcharge.o(i.modStateOfChargeVoltageEvent)
-    modUARTInit                              0x0800a20d   Thumb Code    24  moduart.o(i.modUARTInit)
-    modUARTProcessPacket                     0x0800a22d   Thumb Code    24  moduart.o(i.modUARTProcessPacket)
-    modUARTSendPacket                        0x0800a249   Thumb Code    30  moduart.o(i.modUARTSendPacket)
-    modUARTSendPacketWrapper                 0x0800a271   Thumb Code     6  moduart.o(i.modUARTSendPacketWrapper)
-    modUARTTask                              0x0800a279   Thumb Code    34  moduart.o(i.modUARTTask)
-    terminal_process_string                  0x0800a2b5   Thumb Code  5318  modterminal.o(i.terminal_process_string)
-    aPLLMULFactorTable                       0x0800bb10   Data          16  stm32f3xx_hal_rcc.o(.constdata)
-    aPredivFactorTable                       0x0800bb20   Data          16  stm32f3xx_hal_rcc.o(.constdata)
-    driverHWADCPorts                         0x0800bb30   Data          24  driverhwadc.o(.constdata)
-    driverHWI2C1Ports                        0x0800bb48   Data          48  driverhwi2c1.o(.constdata)
-    driverHWI2C2Ports                        0x0800bb78   Data          72  driverhwi2c2.o(.constdata)
-    driverHWPorts                            0x0800bbc0   Data          60  driverhwpowerstate.o(.constdata)
-    STATPorts                                0x0800bbfc   Data          36  driverhwstatus.o(.constdata)
-    driverHWSwitchesPorts                    0x0800bc20   Data          80  driverhwswitches.o(.constdata)
-    libCRCLookupTable                        0x0800be00   Data         512  libcrc.o(.constdata)
-    font                                     0x0800c000   Data        1280  libglcdfont.o(.constdata)
-    libLogos                                 0x0800c500   Data        7168  liblogos.o(.constdata)
-    AHBPrescTable                            0x0800e100   Data          16  system_stm32f3xx.o(.constdata)
-    APBPrescTable                            0x0800e110   Data           8  system_stm32f3xx.o(.constdata)
-    __ctype_categories                       0x0800e118   Data          64  ctype_c.o(.constdata)
+    modCommandsProcessPacket                 0x08008c95   Thumb Code   262  modcommands.o(i.modCommandsProcessPacket)
+    modCommandsSendPacket                    0x08008db5   Thumb Code    12  modcommands.o(i.modCommandsSendPacket)
+    modCommandsSetSendFunction               0x08008dc5   Thumb Code     6  modcommands.o(i.modCommandsSetSendFunction)
+    modConfigInit                            0x08008dd1   Thumb Code    10  modconfig.o(i.modConfigInit)
+    modConfigLoadConfig                      0x08008de5   Thumb Code     8  modconfig.o(i.modConfigLoadConfig)
+    modConfigStoreAndLoadDefaultConfig       0x08008df1   Thumb Code    24  modconfig.o(i.modConfigStoreAndLoadDefaultConfig)
+    modConfigStoreConfig                     0x08008e0d   Thumb Code     8  modconfig.o(i.modConfigStoreConfig)
+    modConfigStoreDefaultConfig              0x08008e19   Thumb Code   208  modconfig.o(i.modConfigStoreDefaultConfig)
+    modDelayInit                             0x08008f11   Thumb Code    32  moddelay.o(i.modDelayInit)
+    modDelayTick100ms                        0x08008f39   Thumb Code    46  moddelay.o(i.modDelayTick100ms)
+    modDelayTick1ms                          0x08008f6d   Thumb Code    32  moddelay.o(i.modDelayTick1ms)
+    modDisplayInit                           0x08008f8d   Thumb Code    52  moddisplay.o(i.modDisplayInit)
+    modDisplayShowInfo                       0x08008fc5   Thumb Code   610  moddisplay.o(i.modDisplayShowInfo)
+    modDisplayTask                           0x0800924d   Thumb Code     4  moddisplay.o(i.modDisplayTask)
+    modEffectChangeState                     0x08009251   Thumb Code    34  modeffect.o(i.modEffectChangeState)
+    modEffectInit                            0x08009279   Thumb Code    18  modeffect.o(i.modEffectInit)
+    modEffectTask                            0x0800928d   Thumb Code   108  modeffect.o(i.modEffectTask)
+    modEffectTaskBlinkLong                   0x080092fd   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkLong)
+    modEffectTaskBlinkShort                  0x08009349   Thumb Code    72  modeffect.o(i.modEffectTaskBlinkShort)
+    modEffectTaskBlinkShortLong              0x08009395   Thumb Code    50  modeffect.o(i.modEffectTaskBlinkShortLong)
+    modEffectTaskFlash                       0x080093cd   Thumb Code    32  modeffect.o(i.modEffectTaskFlash)
+    modEffectTaskFlashFast                   0x080093f1   Thumb Code    32  modeffect.o(i.modEffectTaskFlashFast)
+    modFlashEraseNewAppData                  0x08009415   Thumb Code    62  modflash.o(i.modFlashEraseNewAppData)
+    modFlashJumpToBootloader                 0x0800945d   Thumb Code   118  modflash.o(i.modFlashJumpToBootloader)
+    modFlashWriteByte                        0x080094e1   Thumb Code    70  modflash.o(i.modFlashWriteByte)
+    modFlashWriteNewAppData                  0x0800952d   Thumb Code    50  modflash.o(i.modFlashWriteNewAppData)
+    modOperationalStateHandleChargerDisconnect 0x08009565   Thumb Code    92  modoperationalstate.o(i.modOperationalStateHandleChargerDisconnect)
+    modOperationalStateInit                  0x080095c5   Thumb Code    50  modoperationalstate.o(i.modOperationalStateInit)
+    modOperationalStateSetAllStates          0x080095fd   Thumb Code    10  modoperationalstate.o(i.modOperationalStateSetAllStates)
+    modOperationalStateTask                  0x0800960d   Thumb Code   974  modoperationalstate.o(i.modOperationalStateTask)
+    modOperationalStateTerminateOperation    0x080099e5   Thumb Code    16  modoperationalstate.o(i.modOperationalStateTerminateOperation)
+    modOperationalStateUpdateStates          0x080099f5   Thumb Code    12  modoperationalstate.o(i.modOperationalStateUpdateStates)
+    modPowerElectronicsAllowForcedOn         0x08009a05   Thumb Code     6  modpowerelectronics.o(i.modPowerElectronicsAllowForcedOn)
+    modPowerElectronicsCalculateCellStats    0x08009a11   Thumb Code   126  modpowerelectronics.o(i.modPowerElectronicsCalculateCellStats)
+    modPowerElectronicsDisableAll            0x08009a99   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsDisableAll)
+    modPowerElectronicsInit                  0x08009ac5   Thumb Code   186  modpowerelectronics.o(i.modPowerElectronicsInit)
+    modPowerElectronicsSetCharge             0x08009b89   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetCharge)
+    modPowerElectronicsSetDisCharge          0x08009bb5   Thumb Code    70  modpowerelectronics.o(i.modPowerElectronicsSetDisCharge)
+    modPowerElectronicsSetPreCharge          0x08009c01   Thumb Code    40  modpowerelectronics.o(i.modPowerElectronicsSetPreCharge)
+    modPowerElectronicsSortCells             0x08009c2d   Thumb Code    70  modpowerelectronics.o(i.modPowerElectronicsSortCells)
+    modPowerElectronicsSubTaskBalaning       0x08009c75   Thumb Code   192  modpowerelectronics.o(i.modPowerElectronicsSubTaskBalaning)
+    modPowerElectronicsSubTaskVoltageWatch   0x08009d3d   Thumb Code   348  modpowerelectronics.o(i.modPowerElectronicsSubTaskVoltageWatch)
+    modPowerElectronicsTask                  0x08009e9d   Thumb Code   104  modpowerelectronics.o(i.modPowerElectronicsTask)
+    modPowerElectronicsUpdateSwitches        0x08009f0d   Thumb Code    94  modpowerelectronics.o(i.modPowerElectronicsUpdateSwitches)
+    modPowerStateButtonPressedOnTurnon       0x08009f71   Thumb Code     6  modpowerstate.o(i.modPowerStateButtonPressedOnTurnon)
+    modPowerStateChargerDetected             0x08009f7d   Thumb Code     6  modpowerstate.o(i.modPowerStateChargerDetected)
+    modPowerStateForceOnRequest              0x08009f85   Thumb Code    24  modpowerstate.o(i.modPowerStateForceOnRequest)
+    modPowerStateInit                        0x08009fa1   Thumb Code    60  modpowerstate.o(i.modPowerStateInit)
+    modPowerStatePowerdownRequest            0x08009fe1   Thumb Code     6  modpowerstate.o(i.modPowerStatePowerdownRequest)
+    modPowerStateSetState                    0x08009fed   Thumb Code     8  modpowerstate.o(i.modPowerStateSetState)
+    modPowerStateTask                        0x08009ff5   Thumb Code   100  modpowerstate.o(i.modPowerStateTask)
+    modStateOfChargeInit                     0x0800a05d   Thumb Code    30  modstateofcharge.o(i.modStateOfChargeInit)
+    modStateOfChargeLoadStateOfCharge        0x0800a089   Thumb Code     8  modstateofcharge.o(i.modStateOfChargeLoadStateOfCharge)
+    modStateOfChargePowerDownSave            0x0800a095   Thumb Code    24  modstateofcharge.o(i.modStateOfChargePowerDownSave)
+    modStateOfChargeProcess                  0x0800a0b1   Thumb Code   200  modstateofcharge.o(i.modStateOfChargeProcess)
+    modStateOfChargeStoreAndLoadDefaultStateOfCharge 0x0800a191   Thumb Code    62  modstateofcharge.o(i.modStateOfChargeStoreAndLoadDefaultStateOfCharge)
+    modStateOfChargeStoreStateOfCharge       0x0800a1d9   Thumb Code     8  modstateofcharge.o(i.modStateOfChargeStoreStateOfCharge)
+    modStateOfChargeVoltageEvent             0x0800a1e5   Thumb Code    20  modstateofcharge.o(i.modStateOfChargeVoltageEvent)
+    modUARTInit                              0x0800a201   Thumb Code    24  moduart.o(i.modUARTInit)
+    modUARTProcessPacket                     0x0800a221   Thumb Code    24  moduart.o(i.modUARTProcessPacket)
+    modUARTSendPacket                        0x0800a23d   Thumb Code    30  moduart.o(i.modUARTSendPacket)
+    modUARTSendPacketWrapper                 0x0800a265   Thumb Code     6  moduart.o(i.modUARTSendPacketWrapper)
+    modUARTTask                              0x0800a26d   Thumb Code    34  moduart.o(i.modUARTTask)
+    terminal_process_string                  0x0800a2a9   Thumb Code  5390  modterminal.o(i.terminal_process_string)
+    aPLLMULFactorTable                       0x0800bb4c   Data          16  stm32f3xx_hal_rcc.o(.constdata)
+    aPredivFactorTable                       0x0800bb5c   Data          16  stm32f3xx_hal_rcc.o(.constdata)
+    driverHWADCPorts                         0x0800bb6c   Data          24  driverhwadc.o(.constdata)
+    driverHWI2C1Ports                        0x0800bb84   Data          48  driverhwi2c1.o(.constdata)
+    driverHWI2C2Ports                        0x0800bbb4   Data          72  driverhwi2c2.o(.constdata)
+    driverHWPorts                            0x0800bbfc   Data          60  driverhwpowerstate.o(.constdata)
+    STATPorts                                0x0800bc38   Data          36  driverhwstatus.o(.constdata)
+    driverHWSwitchesPorts                    0x0800bc5c   Data          80  driverhwswitches.o(.constdata)
+    libCRCLookupTable                        0x0800be3c   Data         512  libcrc.o(.constdata)
+    font                                     0x0800c03c   Data        1280  libglcdfont.o(.constdata)
+    libLogos                                 0x0800c53c   Data        7168  liblogos.o(.constdata)
+    AHBPrescTable                            0x0800e13c   Data          16  system_stm32f3xx.o(.constdata)
+    APBPrescTable                            0x0800e14c   Data           8  system_stm32f3xx.o(.constdata)
+    __ctype_categories                       0x0800e154   Data          64  ctype_c.o(.constdata)
     uwTick                                   0x20000000   Data           4  stm32f3xx_hal.o(.data)
     driverHWADCAverageCount                  0x20000004   Data           1  driverhwadc.o(.data)
     driverHWADCAverageSum                    0x20000008   Data           4  driverhwadc.o(.data)
@@ -3449,9 +3449,9 @@ Memory Map of the image
 
 
 
-  Load Region LR_IROM2 (Base: 0x08001800, Size: 0x0000cbac, Max: 0x00015800, ABSOLUTE)
+  Load Region LR_IROM2 (Base: 0x08001800, Size: 0x0000cbe8, Max: 0x00015800, ABSOLUTE)
 
-    Execution Region ER_IROM2 (Base: 0x08001800, Size: 0x0000cbac, Max: 0x00015800, ABSOLUTE)
+    Execution Region ER_IROM2 (Base: 0x08001800, Size: 0x0000cbe8, Max: 0x00015800, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -3723,91 +3723,91 @@ Memory Map of the image
     0x08008b7c   0x000000a8   Code   RO         3668    i.modCANInit        modcan.o
     0x08008c24   0x00000038   Code   RO         3669    i.modCANTask        modcan.o
     0x08008c5c   0x00000038   Code   RO         3868    i.modCommandsPrintf  modcommands.o
-    0x08008c94   0x0000012c   Code   RO         3869    i.modCommandsProcessPacket  modcommands.o
-    0x08008dc0   0x00000010   Code   RO         3870    i.modCommandsSendPacket  modcommands.o
-    0x08008dd0   0x0000000c   Code   RO         3871    i.modCommandsSetSendFunction  modcommands.o
-    0x08008ddc   0x00000014   Code   RO         3926    i.modConfigInit     modconfig.o
-    0x08008df0   0x0000000c   Code   RO         3927    i.modConfigLoadConfig  modconfig.o
-    0x08008dfc   0x0000001c   Code   RO         3928    i.modConfigStoreAndLoadDefaultConfig  modconfig.o
-    0x08008e18   0x0000000c   Code   RO         3929    i.modConfigStoreConfig  modconfig.o
-    0x08008e24   0x000000f8   Code   RO         3930    i.modConfigStoreDefaultConfig  modconfig.o
-    0x08008f1c   0x00000028   Code   RO         3977    i.modDelayInit      moddelay.o
-    0x08008f44   0x00000034   Code   RO         3978    i.modDelayTick100ms  moddelay.o
-    0x08008f78   0x00000020   Code   RO         3979    i.modDelayTick1ms   moddelay.o
-    0x08008f98   0x00000038   Code   RO         4019    i.modDisplayInit    moddisplay.o
-    0x08008fd0   0x00000288   Code   RO         4020    i.modDisplayShowInfo  moddisplay.o
-    0x08009258   0x00000004   Code   RO         4021    i.modDisplayTask    moddisplay.o
-    0x0800925c   0x00000028   Code   RO         4060    i.modEffectChangeState  modeffect.o
-    0x08009284   0x00000012   Code   RO         4061    i.modEffectInit     modeffect.o
-    0x08009296   0x00000002   PAD
-    0x08009298   0x00000070   Code   RO         4062    i.modEffectTask     modeffect.o
-    0x08009308   0x0000004c   Code   RO         4063    i.modEffectTaskBlinkLong  modeffect.o
-    0x08009354   0x0000004c   Code   RO         4064    i.modEffectTaskBlinkShort  modeffect.o
-    0x080093a0   0x00000038   Code   RO         4065    i.modEffectTaskBlinkShortLong  modeffect.o
-    0x080093d8   0x00000024   Code   RO         4066    i.modEffectTaskFlash  modeffect.o
-    0x080093fc   0x00000024   Code   RO         4067    i.modEffectTaskFlashFast  modeffect.o
-    0x08009420   0x00000048   Code   RO         4137    i.modFlashEraseNewAppData  modflash.o
-    0x08009468   0x00000084   Code   RO         4138    i.modFlashJumpToBootloader  modflash.o
-    0x080094ec   0x0000004c   Code   RO         4140    i.modFlashWriteByte  modflash.o
-    0x08009538   0x00000038   Code   RO         4141    i.modFlashWriteNewAppData  modflash.o
-    0x08009570   0x00000060   Code   RO         4205    i.modOperationalStateHandleChargerDisconnect  modoperationalstate.o
-    0x080095d0   0x00000038   Code   RO         4206    i.modOperationalStateInit  modoperationalstate.o
-    0x08009608   0x00000010   Code   RO         4207    i.modOperationalStateSetAllStates  modoperationalstate.o
-    0x08009618   0x000003d8   Code   RO         4209    i.modOperationalStateTask  modoperationalstate.o
-    0x080099f0   0x00000010   Code   RO         4210    i.modOperationalStateTerminateOperation  modoperationalstate.o
-    0x08009a00   0x00000010   Code   RO         4211    i.modOperationalStateUpdateStates  modoperationalstate.o
-    0x08009a10   0x0000000c   Code   RO         4269    i.modPowerElectronicsAllowForcedOn  modpowerelectronics.o
-    0x08009a1c   0x00000088   Code   RO         4270    i.modPowerElectronicsCalculateCellStats  modpowerelectronics.o
-    0x08009aa4   0x0000002c   Code   RO         4271    i.modPowerElectronicsDisableAll  modpowerelectronics.o
-    0x08009ad0   0x000000c4   Code   RO         4272    i.modPowerElectronicsInit  modpowerelectronics.o
-    0x08009b94   0x0000002c   Code   RO         4273    i.modPowerElectronicsSetCharge  modpowerelectronics.o
-    0x08009bc0   0x0000004c   Code   RO         4274    i.modPowerElectronicsSetDisCharge  modpowerelectronics.o
-    0x08009c0c   0x0000002c   Code   RO         4275    i.modPowerElectronicsSetPreCharge  modpowerelectronics.o
-    0x08009c38   0x00000046   Code   RO         4276    i.modPowerElectronicsSortCells  modpowerelectronics.o
-    0x08009c7e   0x00000002   PAD
-    0x08009c80   0x000000c8   Code   RO         4277    i.modPowerElectronicsSubTaskBalaning  modpowerelectronics.o
-    0x08009d48   0x00000160   Code   RO         4278    i.modPowerElectronicsSubTaskVoltageWatch  modpowerelectronics.o
-    0x08009ea8   0x00000070   Code   RO         4279    i.modPowerElectronicsTask  modpowerelectronics.o
-    0x08009f18   0x00000064   Code   RO         4280    i.modPowerElectronicsUpdateSwitches  modpowerelectronics.o
-    0x08009f7c   0x0000000c   Code   RO         4367    i.modPowerStateButtonPressedOnTurnon  modpowerstate.o
-    0x08009f88   0x00000006   Code   RO         4368    i.modPowerStateChargerDetected  modpowerstate.o
-    0x08009f8e   0x00000002   PAD
-    0x08009f90   0x0000001c   Code   RO         4369    i.modPowerStateForceOnRequest  modpowerstate.o
-    0x08009fac   0x00000040   Code   RO         4370    i.modPowerStateInit  modpowerstate.o
-    0x08009fec   0x0000000c   Code   RO         4371    i.modPowerStatePowerdownRequest  modpowerstate.o
-    0x08009ff8   0x00000008   Code   RO         4372    i.modPowerStateSetState  modpowerstate.o
-    0x0800a000   0x00000068   Code   RO         4373    i.modPowerStateTask  modpowerstate.o
-    0x0800a068   0x0000002c   Code   RO         4435    i.modStateOfChargeInit  modstateofcharge.o
-    0x0800a094   0x0000000c   Code   RO         4436    i.modStateOfChargeLoadStateOfCharge  modstateofcharge.o
-    0x0800a0a0   0x0000001c   Code   RO         4437    i.modStateOfChargePowerDownSave  modstateofcharge.o
-    0x0800a0bc   0x000000e0   Code   RO         4438    i.modStateOfChargeProcess  modstateofcharge.o
-    0x0800a19c   0x00000048   Code   RO         4439    i.modStateOfChargeStoreAndLoadDefaultStateOfCharge  modstateofcharge.o
-    0x0800a1e4   0x0000000c   Code   RO         4440    i.modStateOfChargeStoreStateOfCharge  modstateofcharge.o
-    0x0800a1f0   0x0000001c   Code   RO         4441    i.modStateOfChargeVoltageEvent  modstateofcharge.o
-    0x0800a20c   0x00000020   Code   RO         4539    i.modUARTInit       moduart.o
-    0x0800a22c   0x0000001c   Code   RO         4540    i.modUARTProcessPacket  moduart.o
-    0x0800a248   0x00000028   Code   RO         4542    i.modUARTSendPacket  moduart.o
-    0x0800a270   0x00000006   Code   RO         4543    i.modUARTSendPacketWrapper  moduart.o
-    0x0800a276   0x00000002   PAD
-    0x0800a278   0x00000022   Code   RO         4544    i.modUARTTask       moduart.o
-    0x0800a29a   0x00000002   PAD
-    0x0800a29c   0x00000018   Code   RO         3670    i.send_packet_wrapper  modcan.o
-    0x0800a2b4   0x0000185c   Code   RO         4499    i.terminal_process_string  modterminal.o
-    0x0800bb10   0x00000020   Data   RO         2199    .constdata          stm32f3xx_hal_rcc.o
-    0x0800bb30   0x00000018   Data   RO         2713    .constdata          driverhwadc.o
-    0x0800bb48   0x00000030   Data   RO         2832    .constdata          driverhwi2c1.o
-    0x0800bb78   0x00000048   Data   RO         2875    .constdata          driverhwi2c2.o
-    0x0800bbc0   0x0000003c   Data   RO         2917    .constdata          driverhwpowerstate.o
-    0x0800bbfc   0x00000024   Data   RO         3006    .constdata          driverhwstatus.o
-    0x0800bc20   0x00000050   Data   RO         3048    .constdata          driverhwswitches.o
-    0x0800bc70   0x00000190   Data   RO         4142    .constdata          modflash.o
-    0x0800be00   0x00000200   Data   RO         4699    .constdata          libcrc.o
-    0x0800c000   0x00000500   Data   RO         4732    .constdata          libglcdfont.o
-    0x0800c500   0x00001c00   Data   RO         5006    .constdata          liblogos.o
-    0x0800e100   0x00000010   Data   RO         5272    .constdata          system_stm32f3xx.o
-    0x0800e110   0x00000008   Data   RO         5273    .constdata          system_stm32f3xx.o
-    0x0800e118   0x00000040   Data   RO         5816    .constdata          mc_w.l(ctype_c.o)
-    0x0800e158   0x00000252   Data   RO         4502    .conststring        modterminal.o
+    0x08008c94   0x00000120   Code   RO         3869    i.modCommandsProcessPacket  modcommands.o
+    0x08008db4   0x00000010   Code   RO         3870    i.modCommandsSendPacket  modcommands.o
+    0x08008dc4   0x0000000c   Code   RO         3871    i.modCommandsSetSendFunction  modcommands.o
+    0x08008dd0   0x00000014   Code   RO         3926    i.modConfigInit     modconfig.o
+    0x08008de4   0x0000000c   Code   RO         3927    i.modConfigLoadConfig  modconfig.o
+    0x08008df0   0x0000001c   Code   RO         3928    i.modConfigStoreAndLoadDefaultConfig  modconfig.o
+    0x08008e0c   0x0000000c   Code   RO         3929    i.modConfigStoreConfig  modconfig.o
+    0x08008e18   0x000000f8   Code   RO         3930    i.modConfigStoreDefaultConfig  modconfig.o
+    0x08008f10   0x00000028   Code   RO         3977    i.modDelayInit      moddelay.o
+    0x08008f38   0x00000034   Code   RO         3978    i.modDelayTick100ms  moddelay.o
+    0x08008f6c   0x00000020   Code   RO         3979    i.modDelayTick1ms   moddelay.o
+    0x08008f8c   0x00000038   Code   RO         4019    i.modDisplayInit    moddisplay.o
+    0x08008fc4   0x00000288   Code   RO         4020    i.modDisplayShowInfo  moddisplay.o
+    0x0800924c   0x00000004   Code   RO         4021    i.modDisplayTask    moddisplay.o
+    0x08009250   0x00000028   Code   RO         4060    i.modEffectChangeState  modeffect.o
+    0x08009278   0x00000012   Code   RO         4061    i.modEffectInit     modeffect.o
+    0x0800928a   0x00000002   PAD
+    0x0800928c   0x00000070   Code   RO         4062    i.modEffectTask     modeffect.o
+    0x080092fc   0x0000004c   Code   RO         4063    i.modEffectTaskBlinkLong  modeffect.o
+    0x08009348   0x0000004c   Code   RO         4064    i.modEffectTaskBlinkShort  modeffect.o
+    0x08009394   0x00000038   Code   RO         4065    i.modEffectTaskBlinkShortLong  modeffect.o
+    0x080093cc   0x00000024   Code   RO         4066    i.modEffectTaskFlash  modeffect.o
+    0x080093f0   0x00000024   Code   RO         4067    i.modEffectTaskFlashFast  modeffect.o
+    0x08009414   0x00000048   Code   RO         4137    i.modFlashEraseNewAppData  modflash.o
+    0x0800945c   0x00000084   Code   RO         4138    i.modFlashJumpToBootloader  modflash.o
+    0x080094e0   0x0000004c   Code   RO         4140    i.modFlashWriteByte  modflash.o
+    0x0800952c   0x00000038   Code   RO         4141    i.modFlashWriteNewAppData  modflash.o
+    0x08009564   0x00000060   Code   RO         4205    i.modOperationalStateHandleChargerDisconnect  modoperationalstate.o
+    0x080095c4   0x00000038   Code   RO         4206    i.modOperationalStateInit  modoperationalstate.o
+    0x080095fc   0x00000010   Code   RO         4207    i.modOperationalStateSetAllStates  modoperationalstate.o
+    0x0800960c   0x000003d8   Code   RO         4209    i.modOperationalStateTask  modoperationalstate.o
+    0x080099e4   0x00000010   Code   RO         4210    i.modOperationalStateTerminateOperation  modoperationalstate.o
+    0x080099f4   0x00000010   Code   RO         4211    i.modOperationalStateUpdateStates  modoperationalstate.o
+    0x08009a04   0x0000000c   Code   RO         4269    i.modPowerElectronicsAllowForcedOn  modpowerelectronics.o
+    0x08009a10   0x00000088   Code   RO         4270    i.modPowerElectronicsCalculateCellStats  modpowerelectronics.o
+    0x08009a98   0x0000002c   Code   RO         4271    i.modPowerElectronicsDisableAll  modpowerelectronics.o
+    0x08009ac4   0x000000c4   Code   RO         4272    i.modPowerElectronicsInit  modpowerelectronics.o
+    0x08009b88   0x0000002c   Code   RO         4273    i.modPowerElectronicsSetCharge  modpowerelectronics.o
+    0x08009bb4   0x0000004c   Code   RO         4274    i.modPowerElectronicsSetDisCharge  modpowerelectronics.o
+    0x08009c00   0x0000002c   Code   RO         4275    i.modPowerElectronicsSetPreCharge  modpowerelectronics.o
+    0x08009c2c   0x00000046   Code   RO         4276    i.modPowerElectronicsSortCells  modpowerelectronics.o
+    0x08009c72   0x00000002   PAD
+    0x08009c74   0x000000c8   Code   RO         4277    i.modPowerElectronicsSubTaskBalaning  modpowerelectronics.o
+    0x08009d3c   0x00000160   Code   RO         4278    i.modPowerElectronicsSubTaskVoltageWatch  modpowerelectronics.o
+    0x08009e9c   0x00000070   Code   RO         4279    i.modPowerElectronicsTask  modpowerelectronics.o
+    0x08009f0c   0x00000064   Code   RO         4280    i.modPowerElectronicsUpdateSwitches  modpowerelectronics.o
+    0x08009f70   0x0000000c   Code   RO         4367    i.modPowerStateButtonPressedOnTurnon  modpowerstate.o
+    0x08009f7c   0x00000006   Code   RO         4368    i.modPowerStateChargerDetected  modpowerstate.o
+    0x08009f82   0x00000002   PAD
+    0x08009f84   0x0000001c   Code   RO         4369    i.modPowerStateForceOnRequest  modpowerstate.o
+    0x08009fa0   0x00000040   Code   RO         4370    i.modPowerStateInit  modpowerstate.o
+    0x08009fe0   0x0000000c   Code   RO         4371    i.modPowerStatePowerdownRequest  modpowerstate.o
+    0x08009fec   0x00000008   Code   RO         4372    i.modPowerStateSetState  modpowerstate.o
+    0x08009ff4   0x00000068   Code   RO         4373    i.modPowerStateTask  modpowerstate.o
+    0x0800a05c   0x0000002c   Code   RO         4435    i.modStateOfChargeInit  modstateofcharge.o
+    0x0800a088   0x0000000c   Code   RO         4436    i.modStateOfChargeLoadStateOfCharge  modstateofcharge.o
+    0x0800a094   0x0000001c   Code   RO         4437    i.modStateOfChargePowerDownSave  modstateofcharge.o
+    0x0800a0b0   0x000000e0   Code   RO         4438    i.modStateOfChargeProcess  modstateofcharge.o
+    0x0800a190   0x00000048   Code   RO         4439    i.modStateOfChargeStoreAndLoadDefaultStateOfCharge  modstateofcharge.o
+    0x0800a1d8   0x0000000c   Code   RO         4440    i.modStateOfChargeStoreStateOfCharge  modstateofcharge.o
+    0x0800a1e4   0x0000001c   Code   RO         4441    i.modStateOfChargeVoltageEvent  modstateofcharge.o
+    0x0800a200   0x00000020   Code   RO         4539    i.modUARTInit       moduart.o
+    0x0800a220   0x0000001c   Code   RO         4540    i.modUARTProcessPacket  moduart.o
+    0x0800a23c   0x00000028   Code   RO         4542    i.modUARTSendPacket  moduart.o
+    0x0800a264   0x00000006   Code   RO         4543    i.modUARTSendPacketWrapper  moduart.o
+    0x0800a26a   0x00000002   PAD
+    0x0800a26c   0x00000022   Code   RO         4544    i.modUARTTask       moduart.o
+    0x0800a28e   0x00000002   PAD
+    0x0800a290   0x00000018   Code   RO         3670    i.send_packet_wrapper  modcan.o
+    0x0800a2a8   0x000018a4   Code   RO         4499    i.terminal_process_string  modterminal.o
+    0x0800bb4c   0x00000020   Data   RO         2199    .constdata          stm32f3xx_hal_rcc.o
+    0x0800bb6c   0x00000018   Data   RO         2713    .constdata          driverhwadc.o
+    0x0800bb84   0x00000030   Data   RO         2832    .constdata          driverhwi2c1.o
+    0x0800bbb4   0x00000048   Data   RO         2875    .constdata          driverhwi2c2.o
+    0x0800bbfc   0x0000003c   Data   RO         2917    .constdata          driverhwpowerstate.o
+    0x0800bc38   0x00000024   Data   RO         3006    .constdata          driverhwstatus.o
+    0x0800bc5c   0x00000050   Data   RO         3048    .constdata          driverhwswitches.o
+    0x0800bcac   0x00000190   Data   RO         4142    .constdata          modflash.o
+    0x0800be3c   0x00000200   Data   RO         4699    .constdata          libcrc.o
+    0x0800c03c   0x00000500   Data   RO         4732    .constdata          libglcdfont.o
+    0x0800c53c   0x00001c00   Data   RO         5006    .constdata          liblogos.o
+    0x0800e13c   0x00000010   Data   RO         5272    .constdata          system_stm32f3xx.o
+    0x0800e14c   0x00000008   Data   RO         5273    .constdata          system_stm32f3xx.o
+    0x0800e154   0x00000040   Data   RO         5816    .constdata          mc_w.l(ctype_c.o)
+    0x0800e194   0x00000252   Data   RO         4502    .conststring        modterminal.o
 
 
 ==============================================================================
@@ -3841,8 +3841,8 @@ Image component sizes
        444         38          0          0          0       8130   libringbuffer.o
        396         20          0          8        132       3043   main.o
       1116         82          0         32       4952      25038   modcan.o
-       384         42          0          8       1279       4057   modcommands.o
-       320         64          0          0        124       3437   modconfig.o
+       372         42          0          8       1279       4037   modcommands.o
+       320         62          0          0        124       3433   modconfig.o
        124         14          0          8          0      29152   moddelay.o
        708         54          0         12         16       2453   moddisplay.o
        450         42          0         52          0       5741   modeffect.o
@@ -3851,7 +3851,7 @@ Image component sizes
       1386         70          0         40         68      10301   modpowerelectronics.o
        234         24          0         20          0       5205   modpowerstate.o
        420         68          0         20         16       5595   modstateofcharge.o
-      6236       3870        594          8       1800       3901   modterminal.o
+      6308       3948        594          8       1800       3901   modterminal.o
        140         22          0          0       1029       2930   moduart.o
         36          8        392          0       3072        836   startup_stm32f303xc.o
        126         22          0          4          0       3835   stm32f3xx_hal.o
@@ -3874,7 +3874,7 @@ Image component sizes
        216         44         24          4          0       2203   system_stm32f3xx.o
 
     ----------------------------------------------------------------------
-     35052       5610      10756        360      20336     969290   Object Totals
+     35112       5686      10756        360      20336     969266   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         48          0          2          3          6          0   (incl. Padding)
 
@@ -3954,15 +3954,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     41832       5774      10820        372      20340     945898   Grand Totals
-     41832       5774      10820         20      20340     945898   ELF Image Totals (compressed)
-     41832       5774      10820         20          0          0   ROM Totals
+     41892       5850      10820        372      20340     945874   Grand Totals
+     41892       5850      10820         20      20340     945874   ELF Image Totals (compressed)
+     41892       5850      10820         20          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                52652 (  51.42kB)
+    Total RO  Size (Code + RO Data)                52712 (  51.48kB)
     Total RW  Size (RW Data + ZI Data)             20712 (  20.23kB)
-    Total ROM Size (Code + RO Data + RW Data)      52672 (  51.44kB)
+    Total ROM Size (Code + RO Data + RW Data)      52732 (  51.50kB)
 
 ==============================================================================
 

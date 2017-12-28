@@ -25,7 +25,7 @@ void driverHWI2C1Init(void) {
 	__I2C1_CLK_ENABLE();																												// Enable clock source of I2C Master
 	
   driverHWI2C1.Instance = I2C1;
-  driverHWI2C1.Init.Timing = 0x00705CFF;																			// 200kHz SYSClock 72MHz
+  driverHWI2C1.Init.Timing = 0x00705CFF;																			// 200kHz SYSClock 72MHz 110khz: 10808DD3
   driverHWI2C1.Init.OwnAddress1 = 0;
   driverHWI2C1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   driverHWI2C1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;

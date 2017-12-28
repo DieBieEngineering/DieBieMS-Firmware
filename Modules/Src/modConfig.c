@@ -29,8 +29,8 @@ bool modConfigLoadConfig(void) {
 bool modConfigStoreDefaultConfig(void) {
 	// VALUES WILL ONLY AUTIMATICALLY UPDATE AFTER FLASH ERASE!
 	modConfigGeneralConfigStructTypedef defaultConfig;
-	defaultConfig.noOfCells 																=	10;														// X Cells in series
-	defaultConfig.batteryCapacity														=	10.00f;												// XXAh battery
+	defaultConfig.noOfCells 																=	6;														// X Cells in series
+	defaultConfig.batteryCapacity														=	11.00f;												// XXAh battery
 	defaultConfig.cellHardUnderVoltage											= 2.30f;												// Worst case X.XXV as lowest cell voltage
 	defaultConfig.cellHardOverVoltage												= 4.40f;												// Worst case X.XXV as highest cell voltage
 	defaultConfig.cellSoftUnderVoltage											= 2.50f;												// Normal lowest cell voltage X.XXV.
@@ -56,7 +56,7 @@ bool modConfigStoreDefaultConfig(void) {
 	defaultConfig.displayTimoutBatteryErrorPreCharge				= 20000;												// Show pre charge error for XX seconds.
 	defaultConfig.displayTimoutSplashScreen									=	1000;													// Display / INIT splash screen time.
 	defaultConfig.maxUnderAndOverVoltageErrorCount 					= 5;														// Max count of hard cell voltage errors.
-	defaultConfig.notUsedCurrentThreshold										= 0.5f;													// If abs(packcurrent) < XXXmA consider pack as not used.
+	defaultConfig.notUsedCurrentThreshold										= 0.5f;													// If abs(packcurrent) < X.XA consider pack as not used.
 	defaultConfig.notUsedTimout															= 30*60*1000;										// If pack is not used for longer than XX minutes disable bms.
 	defaultConfig.stateOfChargeStoreInterval								= 60*1000;											// Interval in ms to store state of charge information.
 	defaultConfig.CANID																			= 10;														// CAN ID for CAN communication.

@@ -113,12 +113,12 @@ void terminal_process_string(char *str) {
 		
 		modCommandsPrintf("-----   Cell voltages   -----");				
 		for(cellPointer = 0 ; cellPointer < generalConfig->noOfCells ; cellPointer++) {
-			modCommandsPrintf("Cell voltage%2d           : %.3fV",cellPointer,packState.cellVoltagesIndividual[cellPointer].cellVoltage);
+			modCommandsPrintf("Cell voltage%2d             : %.3fV",cellPointer,packState.cellVoltagesIndividual[cellPointer].cellVoltage);
 		}
-		modCommandsPrintf("Cell voltage high       : %.3fV",packState.cellVoltageHigh);
-		modCommandsPrintf("Cell voltage low        : %.3fV",packState.cellVoltageLow);
-		modCommandsPrintf("Cell voltage average  : %.3fV",packState.cellVoltageAverage);
-		modCommandsPrintf("Cell voltage mismatch : %.3fV",packState.cellVoltageMisMatch);
+		modCommandsPrintf("Cell voltage high          : %.3fV",packState.cellVoltageHigh);
+		modCommandsPrintf("Cell voltage low           : %.3fV",packState.cellVoltageLow);
+		modCommandsPrintf("Cell voltage average       : %.3fV",packState.cellVoltageAverage);
+		modCommandsPrintf("Cell voltage mismatch      : %.3fV",packState.cellVoltageMisMatch);
 		modCommandsPrintf("----- End Cell voltages -----");	
 		modCommandsPrintf(" ");
 		

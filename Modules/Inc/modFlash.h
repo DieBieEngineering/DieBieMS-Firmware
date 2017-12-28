@@ -9,10 +9,10 @@
 #define NEW_APP_MAX_SIZE		(NEW_APP_SECTORS * (1 << 11))
 
 /* Base address of the Flash sectors */
-#define ADDR_FLASH_PAGE_0   ((uint32_t)0x08000000) /* Base @ of Page 0, 2 Kbytes */  // Startup Code
+#define ADDR_FLASH_PAGE_0   ((uint32_t)0x08000000) /* Base @ of Page 0, 2 Kbytes */  // Startup Code - Main application
 #define ADDR_FLASH_PAGE_1   ((uint32_t)0x08000800) /* Base @ of Page 1, 2 Kbytes */  // Page0
 #define ADDR_FLASH_PAGE_2   ((uint32_t)0x08001000) /* Base @ of Page 2, 2 Kbytes */  // Page1
-#define ADDR_FLASH_PAGE_3   ((uint32_t)0x08001800) /* Base @ of Page 3, 2 Kbytes */  // Remainder of code from here
+#define ADDR_FLASH_PAGE_3   ((uint32_t)0x08001800) /* Base @ of Page 3, 2 Kbytes */  // Remainder of the main application firmware stars from here
 #define ADDR_FLASH_PAGE_4   ((uint32_t)0x08002000) /* Base @ of Page 4, 2 Kbytes */
 #define ADDR_FLASH_PAGE_5   ((uint32_t)0x08002800) /* Base @ of Page 5, 2 Kbytes */
 #define ADDR_FLASH_PAGE_6   ((uint32_t)0x08003000) /* Base @ of Page 6, 2 Kbytes */
