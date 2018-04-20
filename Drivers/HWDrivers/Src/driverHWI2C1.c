@@ -25,7 +25,7 @@ void driverHWI2C1Init(void) {
 	__I2C1_CLK_ENABLE();																												// Enable clock source of I2C Master
 	
   driverHWI2C1.Instance = I2C1;
-  driverHWI2C1.Init.Timing = 0x00705CFF;																			// 200kHz SYSClock 72MHz 110khz: 10808DD3
+  driverHWI2C1.Init.Timing = 0x10808DD3;																			// 200kHz: 0x00705CFF, 110khz: 10808DD3 SYSClock 72MHz
   driverHWI2C1.Init.OwnAddress1 = 0;
   driverHWI2C1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   driverHWI2C1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -54,15 +54,13 @@ void driverHWI2C1Init(void) {
 bool driverHWI2C1Write(uint16_t DevAddress, bool readWrite, uint8_t *pData, uint16_t Size) {
 	uint16_t addresRW = (DevAddress << 1) | readWrite;
 	
-	HAL_I2C_Master_Transmit(&driverHWI2C1,addresRW,pData,Size,100);
-	return false;
+	return HAL_I2C_Master_Transmit(&driverHWI2C1,addresRW,pData,Size,5);
 };
 
 bool driverHWI2C1Read(uint16_t DevAddress, uint8_t *pData, uint16_t Size) {
 	uint16_t addresRW = (DevAddress << 1) | 0x01; // Read bit high
 	
-	HAL_I2C_Master_Receive(&driverHWI2C1,addresRW,pData,Size,100);
-	return false;
+	return HAL_I2C_Master_Receive(&driverHWI2C1,addresRW,pData,Size,5);
 };
 
 

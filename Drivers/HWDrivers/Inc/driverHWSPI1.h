@@ -3,7 +3,7 @@
 #include "stdlib.h"
 #include "string.h"
 
-#define driverHWSPI1DefaultTimout										100
+#define driverHWSPI1DefaultTimeout										100
 
 void driverHWSPI1Init(GPIO_TypeDef* GPIOCSPort, uint16_t GPIO_CSPin);
 bool driverHWSPI1Write(uint8_t *writeBuffer, uint8_t noOfBytesToWrite,GPIO_TypeDef* GPIOCSPort, uint16_t GPIO_CSPin);

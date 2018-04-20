@@ -53,12 +53,11 @@
 
 void driverSWSSD1306Init(uint8_t switchvcc, uint8_t i2caddr);
 void driverSWSSD1306Command(uint8_t c);
+void driverSWSSD1306ClearDisplayBuffers(void);
 void driverSWSSD1306ClearDisplay(void);
 void driverSWSSD1306FillBuffer(const uint8_t *newContents,uint16_t size);
 void driverSWSSD1306InvertDisplay(uint8_t i);
-void driverSWSSD1306Display(void);
-void driverSWSSD1306DisplayAsync(void);
-void driverSWSSD1306DisplayAsyncEfficient(void);
+bool driverSWSSD1306DisplayAsync(void);
 void driverSWSSD1306Startscrollright(uint8_t start, uint8_t stop);
 void driverSWSSD1306Startscrollleft(uint8_t start, uint8_t stop);
 void driverSWSSD1306Startscrolldiagright(uint8_t start, uint8_t stop);

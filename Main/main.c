@@ -5,37 +5,30 @@
 #include "modOperationalState.h"
 #include "modDelay.h"
 #include "modPowerElectronics.h"
+#include "modHiAmp.h"
 #include "modConfig.h"
 #include "modStateOfCharge.h"
 #include "driverSWStorageManager.h"
 #include "modUART.h"
 #include "mainDataTypes.h"
 #include "modCAN.h"
-#include "driverSWCC1101.h"
+#include "modHiAmp.h"
 
 modConfigGeneralConfigStructTypedef *generalConfig;
-modStateOfChargeStructTypeDef *generalStateOfCharge;
-modPowerElectricsPackStateTypedef packState;
+modStateOfChargeStructTypeDef       *generalStateOfCharge;
+modPowerElectricsPackStateTypedef   packState;
 
 void SystemClock_Config(void);
 void Error_Handler(void);
-static void MX_GPIO_Init(void);
 
 int main(void) {			
   HAL_Init();
-	
-
-  /* Configure the system clock */
   SystemClock_Config();
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-	
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	
 	// All following functions should be called in exactly this order
-	generalConfig = modConfigInit();																					// Tell EEPROM the needed size for ConfigStruct
-	generalStateOfCharge = modStateOfChargeInit(&packState,generalConfig);		// Tell EEPROM the needed size for StatOfChargeStruct
+	generalConfig            = modConfigInit();																// Tell EEPROM the needed size for ConfigStruct
+	generalStateOfCharge     = modStateOfChargeInit(&packState,generalConfig);// Tell EEPROM the needed size for StatOfChargeStruct
 	driverSWStorageManagerInit();																							// Initializes EEPROM Memory
 	modConfigStoreAndLoadDefaultConfig();																			// Store default config if needed -> load config from EEPROM
 	modStateOfChargeStoreAndLoadDefaultStateOfCharge();												// Determin SoC from cell voltage if needed -> load StateOfCharge from EEPROM
@@ -47,8 +40,7 @@ int main(void) {
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
-	
-	//driverSWCC1101Init();
+	modHiAmpInit(&packState,generalConfig);																		// Initialize the HiAmp shield enviroment if any
 	
   while(true) {
 		modEffectTask();
@@ -56,8 +48,7 @@ int main(void) {
 		modOperationalStateTask();
 		modUARTTask();
 		modCANTask();
-
-		//driverSWCC1101Task();
+		modHiAmpTask();
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
@@ -105,40 +96,6 @@ void SystemClock_Config(void) {
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-}
-
-
-
-/** Configure pins as 
-        * Analog 
-        * Input 
-        * Output
-        * EVENT_OUT
-        * EXTI
-*/
-static void MX_GPIO_Init(void) {
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, ChargeEnable_Pin|StatusLED_Pin|SwitchEnable_Pin|DischargeEnable_Pin |PreChargeEnable_Pin|PowerLED_Pin|PowerEnable_Pin|OLED_RST_Pin, GPIO_PIN_RESET);
-  GPIO_InitStruct.Pin = ChargeEnable_Pin|StatusLED_Pin|SwitchEnable_Pin|DischargeEnable_Pin |PreChargeEnable_Pin|PowerLED_Pin|PowerEnable_Pin|OLED_RST_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : Buzzer_Pin */
-  GPIO_InitStruct.Pin = Buzzer_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(Buzzer_GPIO_Port, &GPIO_InitStruct);
 }
 
 /**

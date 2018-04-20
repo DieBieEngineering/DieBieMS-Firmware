@@ -1,12 +1,12 @@
 #include "driverHWPowerState.h"
 
-const PowerStatePortStruct driverHWPorts[NoOfPowersSTATs] = 		// Hold all status configuration data
+const PowerStatePortStruct driverHWPorts[NoOfPowersSTATs] = 		            // Holds all status configuration data
 {
 	{GPIOB,RCC_AHBENR_GPIOBEN,GPIO_PIN_5,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL},		// P_STAT_POWER_ENABLE
 	{GPIOB,RCC_AHBENR_GPIOBEN,GPIO_PIN_4,GPIO_MODE_INPUT,GPIO_PULLUP},				// P_STAT_BUTTON_INPUT
 #ifdef HWVersion_0_4	
 	{GPIOC,RCC_AHBENR_GPIOCEN,GPIO_PIN_14,GPIO_MODE_INPUT,GPIO_PULLUP}				// P_STAT_CHARGE_DETECT
-#else  // Any other previous version
+#else  																																			// Any other previous version
 	{GPIOA,RCC_AHBENR_GPIOCEN,GPIO_PIN_0,GPIO_MODE_INPUT,GPIO_PULLUP}					// P_STAT_CHARGE_DETECT
 #endif
 };
@@ -24,7 +24,7 @@ void driverHWPowerStateInit(void) {
 		PowerStatePortHolder.Mode = driverHWPorts[STATPointer].Mode;					// Push pull output
 		PowerStatePortHolder.Pin = driverHWPorts[STATPointer].Pin;						// Points to status pin
 		PowerStatePortHolder.Pull = driverHWPorts[STATPointer].Pull;					// No pullup
-		PowerStatePortHolder.Speed = GPIO_SPEED_HIGH;														// GPIO clock speed
+		PowerStatePortHolder.Speed = GPIO_SPEED_HIGH;													// GPIO clock speed
 		HAL_GPIO_Init(driverHWPorts[STATPointer].Port,&PowerStatePortHolder);	// Perform the IO init 
 	};
 };

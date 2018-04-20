@@ -38,10 +38,8 @@ bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12])
   bool dataValid = true;
   uint8_t data_pec = 0;
   uint8_t received_pec = 0;
-  uint8_t *rx_data;
+  uint8_t rx_data[19];
   uint8_t cmd[4];
-	
-  rx_data = (uint8_t *) malloc((19)*sizeof(uint8_t));
 	
 	cmd[0] = LTC6803_BASEADDRES;
 	cmd[1] = driverSWLTC6803CalcPEC(1,cmd);
@@ -77,92 +75,41 @@ bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12])
 			cellVoltages[j].cellNumber = j;
 		}
 	}
-		
-  free(rx_data);
 	
   return dataValid;
 };
 
-bool driverSWLTC6803ReadCellVoltagesOld(uint8_t total_ic, uint16_t cellDataHolder[][12]) {
-  int data_counter = 0;
-  bool pec_error = true;
-  uint8_t data_pec = 0;
-  uint8_t received_pec = 0;
-  uint8_t *rx_data;
-  uint8_t cmd[4];
-	
-  rx_data = (uint8_t *) malloc((19)*sizeof(uint8_t));
-	
-  for (int i=0; i<total_ic; i++) {
-    cmd[0] = LTC6803_BASEADDRES + i;
-    cmd[1] = driverSWLTC6803CalcPEC(1,cmd);
-    cmd[2] = LTC6803ReadAllCellVoltageGroup;
-    cmd[3] = driverSWLTC6803CalcPEC(1,cmd+2);
-		
-		driverSWLTC6803WriteRead(cmd, 4,rx_data,19);
-
-    received_pec =  rx_data[18];
-    data_pec = driverSWLTC6803CalcPEC(18, &rx_data[0]);
-    if (received_pec != data_pec) {
-      pec_error = false;
-    }
-		
-    data_counter = 0;
-    uint16_t temp,temp2;
-
-    for (int k = 0; k<12; k=k+2) {
-      temp = rx_data[data_counter++];
-      temp2 = (uint16_t)(rx_data[data_counter]&0x0F)<<8;
-      cellDataHolder[i][k] = temp + temp2 -512;
-      temp2 = (rx_data[data_counter++])>>4;
-      temp =  (rx_data[data_counter++])<<4;
-      cellDataHolder[i][k+1] = temp+temp2 -512;
-    }
-
-  }
-  free(rx_data);
-	
-  return pec_error;
-};
-
-bool driverSWLTC6803ReadTempVoltages(uint8_t total_ic, uint16_t temp_codes[][3]) {
+bool driverSWLTC6803ReadTempVoltages(uint16_t tempVoltages[3]) {
   int data_counter = 0;
   bool pec_error = true;
   uint8_t data_pec = 0;
   uint8_t received_pec = 0;
   uint8_t cmd[4];
-  uint8_t *rx_data;
-  rx_data = (uint8_t *) malloc((7)*sizeof(uint8_t));
+  uint8_t rx_data[7];
 	
-  for (int i=0; i<total_ic; i++) {
-    cmd[0] = LTC6803_BASEADDRES + i;
-    cmd[1] = driverSWLTC6803CalcPEC(1,cmd);
-    cmd[2] = LTC6803ReadTemperatureRegisterGroup;
-    cmd[3] = driverSWLTC6803CalcPEC(1,cmd+2);
-		
-    driverSWLTC6803WriteRead(cmd, 4,rx_data,6);
-
-    received_pec =  rx_data[5];
-    data_pec = driverSWLTC6803CalcPEC(5, &rx_data[0]);
-    if (received_pec != data_pec) {
-      pec_error = false;
-    }
-
-    data_counter = 0;
-    int temp,temp2;
-
-    temp = rx_data[data_counter++];
-    temp2 = (rx_data[data_counter]& 0x0F)<<8;
-    temp_codes[i][0] = temp + temp2 -512;
-    temp2 = (rx_data[data_counter++])>>4;
-    temp =  (rx_data[data_counter++])<<4;
-    temp_codes[i][1] = temp+temp2 -512;
-    temp2 = (rx_data[data_counter++]);
-    temp =  (rx_data[data_counter++]& 0x0F)<<8;
-    temp_codes[i][2] = temp+temp2 -512;
-  }
+	cmd[0] = LTC6803_BASEADDRES;
+	cmd[1] = driverSWLTC6803CalcPEC(1,cmd);
+	cmd[2] = LTC6803ReadTemperatureRegisterGroup;
+	cmd[3] = driverSWLTC6803CalcPEC(1,cmd+2);
 	
-  free(rx_data);
+	driverSWLTC6803WriteRead(cmd, 4,rx_data,6);
+
+	received_pec =  rx_data[5];
+	data_pec = driverSWLTC6803CalcPEC(5, &rx_data[0]);
+	if (received_pec != data_pec) {
+		pec_error = false;
+	}
+
+	int temp,temp2;
+	temp = rx_data[data_counter++];
+	temp2 = (rx_data[data_counter]& 0x0F)<<8;
+	tempVoltages[0] = (temp + temp2 -512)*2;
+	temp2 = (rx_data[data_counter++])>>4;
+	temp =  (rx_data[data_counter++])<<4;
+	tempVoltages[1] = (temp+temp2 -512)*2;
+	temp2 = (rx_data[data_counter++]);
+	temp =  (rx_data[data_counter++]& 0x0F)<<8;
+	tempVoltages[2] = temp+temp2 -512;
 	
   return pec_error;
 };
@@ -271,7 +218,6 @@ bool driverSWLTC6803ReadConfig(driverLTC6803ConfigStructTypedef *configStruct) {
 	configStruct->CellUnderVoltageLimit = ((configPointer[0][4]-31)*16*0.0015);
 	configStruct->CellOverVoltageLimit = ((configPointer[0][5]-32)*16*0.0015);
 
-	
 	return returnval;
 }
 
@@ -372,3 +318,23 @@ void driverSWLTC6803Write(uint8_t *writeBytes, uint8_t writeLength) {
 void driverSWLTC6803WriteRead(uint8_t *writeBytes, uint8_t writeLength, uint8_t *readBytes, uint8_t readLength) {
 	driverHWSPI1WriteRead(writeBytes,writeLength,readBytes,readLength,LTC_CS_GPIO_Port,LTC_CS_Pin);
 };
+
+float driverSWLTC6803ConvertTemperatureExt(uint16_t inputValue,uint32_t ntcNominal,uint32_t ntcSeriesResistance,uint16_t ntcBetaFactor, float ntcNominalTemp) {
+	static float scalar;
+	static float steinhart;
+	
+  scalar = 4095.0f / (float)inputValue - 1.0f;
+  scalar = (float)ntcSeriesResistance / scalar;
+  steinhart = scalar / (float)ntcNominal;               // (R/Ro)
+  steinhart = log(steinhart);                           // ln(R/Ro)
+  steinhart /= (float)ntcBetaFactor;                    // 1/B * ln(R/Ro)
+  steinhart += 1.0f / (ntcNominalTemp + 273.15f);       // + (1/To)
+  steinhart = 1.0f / steinhart;                         // Invert
+  steinhart -= 273.15f;                                 // convert to degree
+  return steinhart;
+}
+
+float driverSWLTC6803ConvertTemperatureInt(uint16_t inputValue) {
+ return (float)inputValue*1.5f/8.0f - 273.15f;
+}
+

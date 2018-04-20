@@ -3,12 +3,11 @@
 // Example: http://visualgdb.com/tutorials/arm/stm32/adc/
 
 ADC_HandleTypeDef hadc1;
-uint32_t driverHWADCAverageSum = 0;
-uint8_t	driverHWADCAverageCount = 1;
 
-const driverHWADCPortStruct driverHWADCPorts[NoOfADCPorts] = 												// Hold all I2C pin configuration data
+const driverHWADCPortStruct driverHWADCPorts[NoOfADCPorts] = 								// Hold all I2C pin configuration data
 {
-	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_1,GPIO_MODE_ANALOG,GPIO_NOPULL,0x00}		// LoadVoltageSense analog pin
+	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_1,GPIO_MODE_ANALOG,GPIO_NOPULL,0x00},	// LoadVoltageSense analog pin
+	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_0,GPIO_MODE_ANALOG,GPIO_PULLUP,0x00}		// NTC analog pin
 };
 
 void driverHWADCInit(void) {
@@ -26,82 +25,92 @@ void driverHWADCInit(void) {
 	};
 	
 	__ADC1_CLK_ENABLE();																											// Enable clock to ADC1
-
-  ADC_ChannelConfTypeDef sConfig;
-
-	// ADC config
+	
+	// ADC config	
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
-
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     while(true) {}; 																												// Error situation 
   }
 
-	// Channel config
-	sConfig.Channel = ADC_CHANNEL_2;
+	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_2);
+};
+
+void driverHWADCSetInputChannel(ADC_HandleTypeDef* hadc, uint32_t inputChannel) {
+  ADC_ChannelConfTypeDef sConfig;
+	
+  sConfig.Channel = inputChannel;
   sConfig.Rank = 1;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  if (HAL_ADC_ConfigChannel(hadc, &sConfig) != HAL_OK)
   {
     while(true) {}; 																												// Error situation 
   }
-	
-	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;																				// Enable clock de desired port
-	PortInitHolder.Mode = GPIO_MODE_OUTPUT_PP;																// Push pull output
-	PortInitHolder.Pin = GPIO_PIN_2;																					// Points to status pin
-	PortInitHolder.Pull = GPIO_NOPULL;																				// No pullup
-	PortInitHolder.Speed = GPIO_SPEED_HIGH;																		// GPIO clock speed
-	PortInitHolder.Alternate = 0x00;																					// Alternate function
-	HAL_GPIO_Init(GPIOB,&PortInitHolder);																			// Perform the IO init
-	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_SET);
-};
+}
 
 bool driverHWADCGetLoadVoltage(float *loadVoltage) {
-	HAL_ADC_Start(&hadc1);
+	uint32_t driverHWADCAverageSum = 0;
+	uint8_t	driverHWADCAverageCount = 1;
 	
+	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_2);
+
 	driverHWADCAverageSum = 0;
 	for(driverHWADCAverageCount = 0; driverHWADCAverageCount < NoOfAverages; driverHWADCAverageCount++) {
-		driverHWADCAverageSum += HAL_ADC_GetValue(&hadc1);
+		HAL_ADC_Start(&hadc1);
+		if (HAL_ADC_PollForConversion(&hadc1, 1) == HAL_OK) {
+			driverHWADCAverageSum += HAL_ADC_GetValue(&hadc1);
+		};
 	};
 	
 	uint16_t temp = driverHWADCAverageSum/NoOfAverages;
 	*loadVoltage = temp*(3.3f/4096*17.4f);
+
+	return false;
+};
+
+bool driverHWADCGetNTCValue(float *ntcValue, uint32_t ntcNominal, uint32_t ntcSeriesResistance, uint16_t ntcBetaFactor, float ntcNominalTemp) {
+	uint32_t driverHWADCAverageSum;
+	uint8_t	 driverHWADCAverageCount;
+	uint16_t driverHWADCAverage;
 	
-	/*
-	if (HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK) {
-		driverHWADCAverageSum += HAL_ADC_GetValue(&hadc1);
-		driverHWADCAverageCount++;
+	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_1);
+
+	driverHWADCAverageSum = 0;
+	for(driverHWADCAverageCount = 0; driverHWADCAverageCount < 5; driverHWADCAverageCount++) {
+		HAL_ADC_Start(&hadc1);
+		if (HAL_ADC_PollForConversion(&hadc1, 1) == HAL_OK) {
+			driverHWADCAverageSum += HAL_ADC_GetValue(&hadc1);
+		};
 	};
 	
-	driverHWADCAverageCount %= NoOfAverages;
+	driverHWADCAverage = driverHWADCAverageSum/5;
 	
-	if(!driverHWADCAverageCount){
-		uint16_t temp = driverHWADCAverageSum/NoOfAverages;
-		*loadVoltage = temp*(3.3f/4096*17.4f);
-		driverHWADCAverageSum = 0;
-	}
-	*/
+	static float scalar;
+	static float steinhart;
 	
-	/*
-	if (HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK) {
-		volatile uint16_t temp = HAL_ADC_GetValue(&hadc1);
-		*loadVoltage = temp*(3.3f/4096*17.4f);
-	}
-	*/
+  scalar = 4095.0f / (float)driverHWADCAverage - 1.0f;
+  scalar = (float)ntcSeriesResistance / scalar;
+  steinhart = scalar / (float)ntcNominal;               // (R/Ro)
+  steinhart = log(steinhart);                           // ln(R/Ro)
+  steinhart /= (float)ntcBetaFactor;                    // 1/B * ln(R/Ro)
+  steinhart += 1.0f / (ntcNominalTemp + 273.15f);       // + (1/To)
+  steinhart = 1.0f / steinhart;                         // Invert
+  *ntcValue = steinhart - 273.15f;                      // convert to degree
+
 	return false;
 };

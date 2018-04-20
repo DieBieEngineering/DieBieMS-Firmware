@@ -31,7 +31,7 @@ bool driverHWSPI1Write(uint8_t *writeBuffer, uint8_t noOfBytesToWrite, GPIO_Type
 	readBuffer = malloc(noOfBytesToWrite);																												// Make fake buffer for
 	
 	HAL_GPIO_WritePin(GPIOCSPort,GPIO_CSPin,GPIO_PIN_RESET);																// Make CS low
-	halReturnStatus = HAL_SPI_TransmitReceive(&driverHWSPI1Handle,writeBuffer,readBuffer,noOfBytesToWrite,driverHWSPI1DefaultTimout);	// Write desired data to slave and store the received data in readBuffer
+	halReturnStatus = HAL_SPI_TransmitReceive(&driverHWSPI1Handle,writeBuffer,readBuffer,noOfBytesToWrite,driverHWSPI1DefaultTimeout);	// Write desired data to slave and store the received data in readBuffer
 	while( driverHWSPI1Handle.State == HAL_SPI_STATE_BUSY );  																		// Wait until transmission is complete
 	HAL_GPIO_WritePin(GPIOCSPort,GPIO_CSPin,GPIO_PIN_SET);																	// Make CS High
 	
@@ -51,7 +51,7 @@ bool driverHWSPI1WriteRead(uint8_t *writeBuffer, uint8_t noOfBytesToWrite, uint8
 	memcpy(writeArray,writeBuffer,noOfBytesToWrite);
 	
 	HAL_GPIO_WritePin(GPIOCSPort,GPIO_CSPin,GPIO_PIN_RESET);
-	halReturnStatus = HAL_SPI_TransmitReceive(&driverHWSPI1Handle,writeArray,readArray,noOfBytesToWrite+noOfBytesToRead,driverHWSPI1DefaultTimout);
+	halReturnStatus = HAL_SPI_TransmitReceive(&driverHWSPI1Handle,writeArray,readArray,noOfBytesToWrite+noOfBytesToRead,driverHWSPI1DefaultTimeout);
 	while( driverHWSPI1Handle.State == HAL_SPI_STATE_BUSY );  // wait xmission complete
 	HAL_GPIO_WritePin(GPIOCSPort,GPIO_CSPin,GPIO_PIN_SET);
 	

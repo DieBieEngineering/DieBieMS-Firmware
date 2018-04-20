@@ -1,9 +1,9 @@
-#define HWVersion_0_3 /* Define this when HW les then HW 0.4 */
-//#define HWVersion_0_4 /* Define this with the newer hardware */
+//#define HWVersion_0_3 /* Define this when HW les then HW 0.4 */
+#define HWVersion_0_4 /* Define this with the newer hardware */
 
 // Hardware name
 #define HW_NAME "DieBieMS"
-#define HW_VERSION "V0.5"
+#define HW_VERSION "V0.3"
 
 // Firmware version
 #define FW_VERSION_MAJOR		3

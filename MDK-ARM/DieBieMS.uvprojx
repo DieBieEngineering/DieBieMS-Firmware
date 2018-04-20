@@ -538,9 +538,24 @@
           <GroupName>Drivers/SWDriver</GroupName>
           <Files>
             <File>
+              <FileName>driverSWADC128D818.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWADC128D818.c</FilePath>
+            </File>
+            <File>
               <FileName>driverSWCC1101.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\SWDrivers\Src\driverSWCC1101.c</FilePath>
+            </File>
+            <File>
+              <FileName>driverSWDCDC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWDCDC.c</FilePath>
+            </File>
+            <File>
+              <FileName>driverSWEMC2305.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWEMC2305.c</FilePath>
             </File>
             <File>
               <FileName>driverSWISL28022.c</FileName>
@@ -551,6 +566,16 @@
               <FileName>driverSWLTC6803.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\SWDrivers\Src\driverSWLTC6803.c</FilePath>
+            </File>
+            <File>
+              <FileName>driverSWPCAL6416.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWPCAL6416.c</FilePath>
+            </File>
+            <File>
+              <FileName>driverSWSHT21.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWSHT21.c</FilePath>
             </File>
             <File>
               <FileName>driverSWSSD1306.c</FileName>
@@ -606,6 +631,11 @@
               <FileName>modFlash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Modules\Src\modFlash.c</FilePath>
+            </File>
+            <File>
+              <FileName>modHiAmp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\Src\modHiAmp.c</FilePath>
             </File>
             <File>
               <FileName>modOperationalState.c</FileName>

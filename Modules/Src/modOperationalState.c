@@ -8,9 +8,9 @@ modPowerElectricsPackStateTypedef *modOperationalStatePackStatehandle;
 modConfigGeneralConfigStructTypedef *modOperationalStateGeneralConfigHandle;
 modStateOfChargeStructTypeDef *modOperationalStateGeneralStateOfCharge;
 modDisplayDataTypedef modOperationalStateDisplayData;
-uint32_t modOperationalStateChargerTimout;
-uint32_t modOperationalStateChargedTimout;
-uint32_t modOperationalStatePreChargeTimout;
+uint32_t modOperationalStateChargerTimeout;
+uint32_t modOperationalStateChargedTimeout;
+uint32_t modOperationalStatePreChargeTimeout;
 uint32_t modOperationalStateStartupDelay;
 uint32_t modOperationalStateChargerDisconnectDetectDelay;
 uint32_t modOperationalStateBatteryDeadDisplayTime;
@@ -43,13 +43,13 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
-				modOperationalStateSetNewState(OP_STATE_EXTERNAL);									// Serve external forces
+				modOperationalStateSetNewState(OP_STATE_EXTERNAL);									  // Serve external forces
 				//modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				//modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
-			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
+			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimeoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
 				if(!modOperationalStatePackStatehandle->disChargeAllowed && !modPowerStateChargerDetected()) {						// If discharge is not allowed
 					modOperationalStateSetNewState(OP_STATE_BATTERY_DEAD);							// Then the battery is dead
 					modOperationalStateBatteryDeadDisplayTime = HAL_GetTick();
@@ -70,9 +70,9 @@ void modOperationalStateTask(void) {
 			modDisplayShowInfo(DISP_MODE_CHARGE,modOperationalStateDisplayData);
 			break;
 		case OP_STATE_PRE_CHARGE:
-			// in case of timout: disable pre charge & go to error state
-			if(modOperationalStateLastState != modOperationalStateCurrentState) { 	// If discharge is not allowed pre-charge will not be enabled, therefore reset timout every task call. Also reset on first entry
-				modOperationalStatePreChargeTimout = HAL_GetTick();										// Reset timout
+			// in case of timeout: disable pre charge & go to error state
+			if(modOperationalStateLastState != modOperationalStateCurrentState) { 	  // If discharge is not allowed pre-charge will not be enabled, therefore reset timeout every task call. Also reset on first entry
+				modOperationalStatePreChargeTimeout = HAL_GetTick();										// Reset timeout
 				modPowerElectronicsSetDisCharge(false);
 			}
 		
@@ -80,7 +80,7 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetPreCharge(true);
 			else{
 				modPowerElectronicsSetPreCharge(false);
-				modOperationalStatePreChargeTimout = HAL_GetTick();
+				modOperationalStatePreChargeTimeout = HAL_GetTick();
 			}
 			
 			if((modOperationalStatePackStatehandle->loadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)) {
@@ -91,7 +91,7 @@ void modOperationalStateTask(void) {
 					modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);					// Goto normal load enabled operation
 					//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_LOAD_ENABLED'\r\n");
 				}
-			}else if(modDelayTick1ms(&modOperationalStatePreChargeTimout,modOperationalStateGeneralConfigHandle->timoutPreCharge)){
+			}else if(modDelayTick1ms(&modOperationalStatePreChargeTimeout,modOperationalStateGeneralConfigHandle->timeoutLCPreCharge)){
 				modOperationalStateSetNewState(OP_STATE_ERROR_PRECHARGE);												// An error occured during pre charge
 				//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_ERROR'\r\n");
 			}
@@ -119,7 +119,7 @@ void modOperationalStateTask(void) {
 			if(fabs(modOperationalStatePackStatehandle->packCurrent) >= modOperationalStateGeneralConfigHandle->notUsedCurrentThreshold)
 				modOperationalStateNotUsedTime = HAL_GetTick();
 			
-			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimout))
+			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimeout))
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 			
 			modOperationalStateUpdateStates();
@@ -131,7 +131,7 @@ void modOperationalStateTask(void) {
 			break;
 		case OP_STATE_BATTERY_DEAD:
 			modDisplayShowInfo(DISP_MODE_BATTERY_DEAD,modOperationalStateDisplayData);
-			if(modDelayTick1ms(&modOperationalStateBatteryDeadDisplayTime,modOperationalStateGeneralConfigHandle->displayTimoutBatteryDead))
+			if(modDelayTick1ms(&modOperationalStateBatteryDeadDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryDead))
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 			modOperationalStateUpdateStates();
 			break;
@@ -152,7 +152,7 @@ void modOperationalStateTask(void) {
 			if(modOperationalStateLastState != modOperationalStateCurrentState)
 				modOperationalStateErrorDisplayTime = HAL_GetTick();
 			
-			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimoutBatteryError))
+			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryError))
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 		
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
@@ -166,7 +166,7 @@ void modOperationalStateTask(void) {
 			if(modOperationalStateLastState != modOperationalStateCurrentState)
 				modOperationalStateErrorDisplayTime = HAL_GetTick();
 			
-			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimoutBatteryErrorPreCharge))
+			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryErrorPreCharge))
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 		
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
@@ -176,23 +176,23 @@ void modOperationalStateTask(void) {
 			modDisplayShowInfo(DISP_MODE_ERROR_PRECHARGE,modOperationalStateDisplayData);
 			break;
 		case OP_STATE_BALANCING:
-			// update timout time for balancing and use charging manager for enable state charge input
+			// update timeout time for balancing and use charging manager for enable state charge input
 			if(modOperationalStatePackStatehandle->packCurrent < modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
-				if(modDelayTick1ms(&modOperationalStateChargerTimout,modOperationalStateGeneralConfigHandle->timoutChargeCompleted)) {
+				if(modDelayTick1ms(&modOperationalStateChargerTimeout,modOperationalStateGeneralConfigHandle->timeoutChargeCompleted)) {
 					modOperationalStateSetAllStates(OP_STATE_CHARGED);
 					modStateOfChargeVoltageEvent(EVENT_FULL);
 				}
 			}else{
-				modOperationalStateChargerTimout = HAL_GetTick();
+				modOperationalStateChargerTimeout = HAL_GetTick();
 			};
 			
 			if(!modOperationalStatePackStatehandle->chargeAllowed && (modOperationalStatePackStatehandle->cellVoltageMisMatch < modOperationalStateGeneralConfigHandle->maxMismatchThreshold)){
-				if(modDelayTick1ms(&modOperationalStateChargedTimout,modOperationalStateGeneralConfigHandle->timoutChargingCompletedMinimalMismatch)) {
+				if(modDelayTick1ms(&modOperationalStateChargedTimeout,modOperationalStateGeneralConfigHandle->timeoutChargingCompletedMinimalMismatch)) {
 					modOperationalStateSetAllStates(OP_STATE_CHARGED);
 					modStateOfChargeVoltageEvent(EVENT_FULL);
 				}
 			}else{
-				modOperationalStateChargedTimout = HAL_GetTick();
+				modOperationalStateChargedTimeout = HAL_GetTick();
 			};
 		
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
@@ -219,7 +219,7 @@ void modOperationalStateTask(void) {
 			if(fabs(modOperationalStatePackStatehandle->packCurrent) >= modOperationalStateGeneralConfigHandle->notUsedCurrentThreshold)
 				modOperationalStateNotUsedTime = HAL_GetTick();
 			
-			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimout))
+			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimeout))
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 			
 			modDisplayShowInfo(DISP_MODE_FORCED_ON,modOperationalStateDisplayData);
@@ -271,7 +271,7 @@ void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState
 	if((modPowerStateChargerDetected() && !(modOperationalStatePackStatehandle->chargeDesired && modOperationalStatePackStatehandle->chargeAllowed)) || ((modOperationalStatePackStatehandle->packCurrent > modOperationalStateGeneralConfigHandle->chargerEnabledThreshold ) && modOperationalStatePackStatehandle->chargeDesired && modOperationalStatePackStatehandle->chargeAllowed)) {
 		modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
 	}else{
-		if(modDelayTick1ms(&modOperationalStateChargerDisconnectDetectDelay,modOperationalStateGeneralConfigHandle->timoutChargerDisconnected)){
+		if(modDelayTick1ms(&modOperationalStateChargerDisconnectDetectDelay,modOperationalStateGeneralConfigHandle->timeoutChargerDisconnected)){
 			modOperationalStateSetAllStates(newState);
 		}
 	}

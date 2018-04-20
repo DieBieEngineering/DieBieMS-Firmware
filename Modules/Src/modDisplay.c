@@ -3,6 +3,7 @@
 modDisplayInfoType modDisplayCurrentState;
 uint32_t modDisplayLastRefresh;
 uint32_t modDisplayStartupDelay;
+bool     modDisplayPresent;
 
 extern modDisplayDataTypedef modDisplayData;
 
@@ -11,6 +12,10 @@ void modDisplayInit(void) {
 	libGraphicsInit(SSD1306_LCDWIDTH,SSD1306_LCDHEIGHT);
 	while(!modDelayTick1ms(&modDisplayStartupDelay,STARTUPDELAY)) {};
 	driverSWSSD1306Init(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
+	driverSWSSD1306ClearDisplay();
+	driverSWSSD1306ClearDisplayBuffers();
+		
+	modDisplayPresent = true;
 			
 	modDisplayCurrentState = DISP_MODE_OFF;												//  Default content is nothing
 	modDisplayLastRefresh = HAL_GetTick();
@@ -145,5 +150,16 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 };
 
 void modDisplayTask(void) {
-	driverSWSSD1306DisplayAsyncEfficient();
+	static uint32_t displayRefreshLastTick;
+	
+	if(modDelayTick1ms(&displayRefreshLastTick,10000)){
+		if(!modDisplayPresent){
+			driverSWSSD1306Init(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
+			modDisplayPresent = true;
+		}
+		driverSWSSD1306ClearDisplayBuffers();
+	}
+	
+	if(driverSWSSD1306DisplayAsync() != HAL_OK)
+		modDisplayPresent = false;
 };

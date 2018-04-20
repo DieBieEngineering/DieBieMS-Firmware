@@ -1,5 +1,6 @@
 #include "driverHWSPI1.h"
 #include "stdlib.h"
+#include "math.h"
 
 #define PEC_POLY 												0x07
 #define PEC_SEED 												0x41
@@ -87,7 +88,7 @@ typedef struct {
 } driverLTC6803CellsTypedef;
 
 typedef struct {
-	bool WatchDogFlag;																																			// Read the watchdog timer io pin, this pin is open drain and internally controlled by HW 0=WDT timout
+	bool WatchDogFlag;																																			// Read the watchdog timer io pin, this pin is open drain and internally controlled by HW 0=WDT timeout
 	bool GPIO1;																																							// Read/Write opendrain GPIO0
 	bool GPIO2;																																							// Read/Write opendrain GPIO1
 	bool LevelPolling;																																			// Look at page 20 of 680324fa.pdf (LTC6803-2 datasheet), for now make this bit high by default.
@@ -106,7 +107,7 @@ void driverSWLTC6803StartCellVoltageConversion(void);
 void driverSWLTC6803StartTemperatureVoltageConversion(void);
 void driverSWLTC6803ResetCellVoltageRegisters(void);
 bool driverSWLTC6803ReadCellVoltages(driverLTC6803CellsTypedef cellVoltages[12]);
-bool driverSWLTC6803ReadTempVoltages(uint8_t total_ic, uint16_t temp_codes[][3]);
+bool driverSWLTC6803ReadTempVoltages(uint16_t tempVoltages[3]);
 void driverSWLTC6803WriteConfigRegisters(uint8_t total_ic, uint8_t config[][6]);
 void driverSWLTC6803WriteConfig(driverLTC6803ConfigStructTypedef configStruct);
 bool driverSWLTC6803ReadConfigRegisters(uint8_t total_ic, uint8_t r_config[][7]);
@@ -122,3 +123,7 @@ uint8_t driverSWLTC6803CalcPEC(uint8_t len, uint8_t *data	);
 void driverSWLTC6803SendCommand(driverSWLTC6803Registers command);
 void driverSWLTC6803Write(uint8_t *writeBytes, uint8_t writeLength);
 void driverSWLTC6803WriteRead(uint8_t *writeBytes, uint8_t writeLength, uint8_t *readBytes, uint8_t readLength);
+
+// Temperature calculation
+float driverSWLTC6803ConvertTemperatureExt(uint16_t inputValue,uint32_t ntcNominal,uint32_t ntcSeriesResistance,uint16_t ntcBetaFactor, float ntcNominalTemp);
+float driverSWLTC6803ConvertTemperatureInt(uint16_t inputValue);

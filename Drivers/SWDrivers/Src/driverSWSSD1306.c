@@ -1,7 +1,7 @@
 #include "driverSWSSD1306.h"
 
-static uint8_t displayBufferReal[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8];
-static uint8_t displayBufferDesired[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8];
+volatile uint8_t displayBufferReal[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8];
+volatile uint8_t displayBufferDesired[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8];
 
 int8_t _i2caddr, _vccstate;
 
@@ -61,7 +61,6 @@ void driverSWSSD1306Init(uint8_t switchvcc, uint8_t i2caddr){
   driverSWSSD1306Command(SSD1306_NORMALDISPLAY);                 // 0xA6
   driverSWSSD1306Command(SSD1306_DEACTIVATE_SCROLL);
   driverSWSSD1306Command(SSD1306_DISPLAYON);//--turn on oled panel
-	driverSWSSD1306ClearDisplay();
 };
 
 void driverSWSSD1306Command(uint8_t c){
@@ -69,13 +68,16 @@ void driverSWSSD1306Command(uint8_t c){
 	driverHWI2C1Write(_i2caddr,false,writeData,2);
 };
 
+void driverSWSSD1306ClearDisplayBuffers(void){
+  memset((uint8_t *)displayBufferReal, 0xFF, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));	
+}
+
 void driverSWSSD1306ClearDisplay(void){
-  memset(displayBufferDesired, 0x00, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
-  memset(displayBufferReal, 0xFF, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));	
+  memset((uint8_t *)displayBufferDesired, 0x00, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
 };
 
 void driverSWSSD1306FillBuffer(const uint8_t *newContents,uint16_t size){
-	memcpy(displayBufferDesired,newContents,size);
+	memcpy((uint8_t *)displayBufferDesired,newContents,size);
 };
 
 void driverSWSSD1306InvertDisplay(uint8_t i){
@@ -86,110 +88,40 @@ void driverSWSSD1306InvertDisplay(uint8_t i){
   }
 };
 
-void driverSWSSD1306Display(void){	
-  driverSWSSD1306Command(SSD1306_COLUMNADDR);
-  driverSWSSD1306Command(0);   // Column start address (0 = reset)
-  driverSWSSD1306Command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
-
-  driverSWSSD1306Command(SSD1306_PAGEADDR);
-  driverSWSSD1306Command(0); // Page start address (0 = reset)
-  #if SSD1306_LCDHEIGHT == 64
-    driverSWSSD1306Command(7); // Page end address
-  #endif
-  #if SSD1306_LCDHEIGHT == 32
-    driverSWSSD1306Command(3); // Page end address
-  #endif
-  #if SSD1306_LCDHEIGHT == 16
-    driverSWSSD1306Command(1); // Page end address
-  #endif
-
-	uint8_t writeData[1+16];
-	writeData[0] = SSD1306_SETSTARTLINE;
-	
-	for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i += 16) {
-		memcpy(writeData + 1,displayBufferDesired + i,16);									// Dont overwrite the register pointer
-		memcpy(displayBufferReal,displayBufferDesired + i,16);							// Update what is written to the display
-		driverHWI2C1Write(_i2caddr,false,writeData,(1+16));
-	}
-	
-	/*
-	//This code update a single vertical line on the display
-	uint8_t temp[9] = {SSD1306_SETSTARTLINE, 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
-  driverSWSSD1306Command(SSD1306_COLUMNADDR);
-  driverSWSSD1306Command(tempColumn);   // Column start address (0 = reset)
-  driverSWSSD1306Command(tempColumn); // Column end address (127 = reset)
-	
-	memcpy(temp + 1,displayBufferDesired + tempColumn*8,8);									// Dont overwrite the register pointer
-	
-	driverHWI2C1Write(_i2caddr,false,temp,(1+9));
-	
-	tempColumn++;
-	tempColumn %= 127;
-	*/
-};
-
-void driverSWSSD1306DisplayAsync(void){
+bool driverSWSSD1306DisplayAsync(void) {
 	static uint8_t writeData[1+16];
 	static uint16_t pixelByte = 0;
+	bool returnResult = HAL_OK;
 	writeData[0] = SSD1306_SETSTARTLINE;
 	
-	if(!pixelByte) {
-		driverSWSSD1306Command(SSD1306_COLUMNADDR);
-		driverSWSSD1306Command(0);   // Column start address (0 = reset)
-		driverSWSSD1306Command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
+	if(memcmp((uint8_t *)displayBufferReal,(uint8_t *)displayBufferDesired,SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8)) {
+		if(!pixelByte) {
+			driverSWSSD1306Command(SSD1306_COLUMNADDR);
+			driverSWSSD1306Command(0);   // Column start address (0 = reset)
+			driverSWSSD1306Command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
 
-		driverSWSSD1306Command(SSD1306_PAGEADDR);
-		driverSWSSD1306Command(0); // Page start address (0 = reset)
-		#if SSD1306_LCDHEIGHT == 64
-			driverSWSSD1306Command(7); // Page end address
-		#endif
-		#if SSD1306_LCDHEIGHT == 32
-			driverSWSSD1306Command(3); // Page end address
-		#endif
-		#if SSD1306_LCDHEIGHT == 16
-			driverSWSSD1306Command(1); // Page end address
-		#endif
-	}
-	
-	memcpy(writeData + 1,displayBufferDesired + pixelByte,16);									// Dont overwrite the register pointer
-	memcpy(displayBufferReal,displayBufferDesired + pixelByte,16);							// Update what is written to the display
-	driverHWI2C1Write(_i2caddr,false,writeData,(1+16));
-	
-	pixelByte += 16;
-	pixelByte %= SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8;
-};
-
-void driverSWSSD1306DisplayAsyncEfficient(void) {
-	static uint8_t writeData[1+16];
-	static uint16_t pixelByte = 0;
-	writeData[0] = SSD1306_SETSTARTLINE;
-	
-	if(!pixelByte) {
-		driverSWSSD1306Command(SSD1306_COLUMNADDR);
-		driverSWSSD1306Command(0);   // Column start address (0 = reset)
-		driverSWSSD1306Command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
-
-		driverSWSSD1306Command(SSD1306_PAGEADDR);
-		driverSWSSD1306Command(0); // Page start address (0 = reset)
-		#if SSD1306_LCDHEIGHT == 64
-			driverSWSSD1306Command(7); // Page end address
-		#endif
-		#if SSD1306_LCDHEIGHT == 32
-			driverSWSSD1306Command(3); // Page end address
-		#endif
-		#if SSD1306_LCDHEIGHT == 16
-			driverSWSSD1306Command(1); // Page end address
-		#endif
-	}
-	
-	if(memcmp(displayBufferReal,displayBufferDesired,SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8)) {
-		memcpy(writeData + 1,displayBufferDesired + pixelByte,16);									// Dont overwrite the register pointer
-		memcpy(displayBufferReal + pixelByte,displayBufferDesired + pixelByte,16);							// Update what is written to the display
-		driverHWI2C1Write(_i2caddr,false,writeData,(1+16));
+			driverSWSSD1306Command(SSD1306_PAGEADDR);
+			driverSWSSD1306Command(0); // Page start address (0 = reset)
+			#if SSD1306_LCDHEIGHT == 64
+				driverSWSSD1306Command(7); // Page end address
+			#endif
+			#if SSD1306_LCDHEIGHT == 32
+				driverSWSSD1306Command(3); // Page end address
+			#endif
+			#if SSD1306_LCDHEIGHT == 16
+				driverSWSSD1306Command(1); // Page end address
+			#endif
+		}
+		
+		memcpy(writeData + 1,(uint8_t *)displayBufferDesired + pixelByte,16);									// Dont overwrite the register pointer
+		memcpy((uint8_t *)displayBufferReal + pixelByte,(uint8_t *)displayBufferDesired + pixelByte,16);	// Update what is written to the display
+		returnResult = driverHWI2C1Write(_i2caddr,false,writeData,(1+16));
 		
 		pixelByte += 16;
 		pixelByte %= SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8;
 	};
+	
+	return returnResult;
 };
 
 void driverSWSSD1306Startscrollright(uint8_t start, uint8_t stop){
@@ -396,7 +328,7 @@ inline void driverSWSSD1306DrawFastVLineInternal(int16_t x, int16_t __y, int16_t
 
 
   // set up the pointer for fast movement through the buffer
-  register uint8_t *pBuf = displayBufferDesired;
+  register uint8_t *pBuf = (uint8_t *)displayBufferDesired;
   // adjust the buffer pointer for the current row
   pBuf += ((y/8) * SSD1306_LCDWIDTH);
   // and offset x columns in
@@ -502,7 +434,7 @@ inline void driverSWSSD1306DrawFastHLineInternal(int16_t x, int16_t y, int16_t w
   if(w <= 0) { return; }
 
   // set up the pointer for  movement through the buffer
-  register uint8_t *pBuf = displayBufferDesired;
+  register uint8_t *pBuf = (uint8_t *)displayBufferDesired;
   // adjust the buffer pointer for the current row
   pBuf += ((y/8) * SSD1306_LCDWIDTH);
   // and offset x columns in
