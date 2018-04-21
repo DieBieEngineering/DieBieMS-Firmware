@@ -98,7 +98,7 @@ void terminal_process_string(char *str) {
 				modCommandsPrintf("Operational state     : %s","Unknown");
 				break;
 		}
-		modCommandsPrintf("Load voltage          : %.2fV",packState.loadVoltage);
+		modCommandsPrintf("Load voltage          : %.2fV",packState.loCurrentLoadVoltage);
 		modCommandsPrintf("Cell voltage high     : %.3fV",packState.cellVoltageHigh);
 		modCommandsPrintf("Cell voltage low      : %.3fV",packState.cellVoltageLow);
 		modCommandsPrintf("Cell voltage average  : %.3fV",packState.cellVoltageAverage);

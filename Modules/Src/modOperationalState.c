@@ -83,7 +83,7 @@ void modOperationalStateTask(void) {
 				modOperationalStatePreChargeTimeout = HAL_GetTick();
 			}
 			
-			if((modOperationalStatePackStatehandle->loadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)) {
+			if((modOperationalStatePackStatehandle->loCurrentLoadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)) {
 				if(modOperationalStateForceOn) {
 					modOperationalStateSetNewState(OP_STATE_FORCEON);								// Goto force on
 					//modMessageQueMessage(MESSAGE_DEBUG,"Switching to 'OP_STATE_FORCEON'\r\n");
@@ -125,7 +125,6 @@ void modOperationalStateTask(void) {
 			modOperationalStateUpdateStates();
 			
 			modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
-			//modOperationalStateDisplayData.StateOfCharge = fabs(modOperationalStatePackStatehandle->packCurrent)*20.0f;
 
 			modDisplayShowInfo(DISP_MODE_LOAD,modOperationalStateDisplayData);
 			break;

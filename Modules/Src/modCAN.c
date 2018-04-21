@@ -1,43 +1,13 @@
-/*
-	Copyright 2016 Benjamin Vedder	benjamin@vedder.se
-
-	This file is part of the VESC firmware.
-
-	The VESC firmware is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    The VESC firmware is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "modCAN.h"
 
-// Settings
-#define RX_FRAMES_SIZE	100
-#define RX_BUFFER_SIZE	PACKET_MAX_PL_LEN
-
-// Private functions
-static void send_packet_wrapper(unsigned char *data, unsigned int len);
-void cancom_process_task(void);
-
 // Variables
-CAN_HandleTypeDef modCANHandle;
-//uint32_t modCANTransmitLastTick;
-uint32_t modCANErrorLastTick;
-
-static can_status_msg stat_msgs[CAN_STATUS_MSGS_TO_STORE];
-static uint8_t rx_buffer[RX_BUFFER_SIZE];
-static unsigned int rx_buffer_last_id;
-static CanRxMsgTypeDef rx_frames[RX_FRAMES_SIZE];
-static int rx_frame_read;
-static int rx_frame_write;
+CAN_HandleTypeDef      modCANHandle;
+uint32_t               modCANErrorLastTick;
+static uint8_t         modCANRxBuffer[RX_CAN_BUFFER_SIZE];
+static uint8_t         modCANRxBufferLastID;
+static CanRxMsgTypeDef modCANRxFrames[RX_CAN_FRAMES_SIZE];
+static uint8_t         modCANRxFrameRead;
+static uint8_t         modCANRxFrameWrite;
 
 extern modConfigGeneralConfigStructTypedef *generalConfig;
 
@@ -81,16 +51,13 @@ void modCANInit(void){
 
   if (HAL_CAN_Receive_IT(&modCANHandle, CAN_FIFO0) != HAL_OK)
     while(true){};
-			
-	for (int i = 0;i < CAN_STATUS_MSGS_TO_STORE;i++) {
-		stat_msgs[i].id = -1;
-	}
 
-	rx_frame_read = 0;
-	rx_frame_write = 0;
+	modCANRxFrameRead = 0;
+	modCANRxFrameWrite = 0;
 }
 
 void modCANTask(void){		
+	// Manage HAL CAN driver's active state
 	if((modCANHandle.State != HAL_CAN_STATE_BUSY_RX)) {
 		if(modDelayTick1ms(&modCANErrorLastTick,1000))
 	    modCANInit();
@@ -98,29 +65,35 @@ void modCANTask(void){
 		modCANErrorLastTick = HAL_GetTick();
 	}
 	
+	// Send status messages with interval
+	
+	
+	// Handle received CAN bus data
 	cancom_process_task();
 }
 
+uint8_t       modCANGetDestinationID(CanRxMsgTypeDef canMsg) {
+	return 0;
+}
+
+
+CAN_PACKET_ID modCANGetPacketID(CanRxMsgTypeDef canMsg) {
+  return (CAN_PACKET_ID)0;
+}
+
 void CAN_RX0_IRQHandler(void) {
-  /* USER CODE BEGIN CAN_RX1_IRQn 0 */
-
-  /* USER CODE END CAN_RX1_IRQn 0 */
   HAL_CAN_IRQHandler(&modCANHandle);
-  /* USER CODE BEGIN CAN_RX1_IRQn 1 */
-
-  /* USER CODE END CAN_RX1_IRQn 1 */
 }
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *CanHandle) {
 	// Handle CAN message	
 	
-	rx_frames[rx_frame_write++] = *CanHandle->pRxMsg;
-	if (rx_frame_write == RX_FRAMES_SIZE)
-		rx_frame_write = 0;
+	modCANRxFrames[modCANRxFrameWrite++] = *CanHandle->pRxMsg;
+	if (modCANRxFrameWrite >= RX_CAN_FRAMES_SIZE)
+		modCANRxFrameWrite = 0;
 	
   HAL_CAN_Receive_IT(&modCANHandle, CAN_FIFO0);
 }
-
 
 void cancom_process_task(void) {
 	static int32_t ind = 0;
@@ -130,58 +103,57 @@ void cancom_process_task(void) {
 	static uint8_t crc_high;
 	static bool commands_send;
 
-	while (rx_frame_read != rx_frame_write) {
-		CanRxMsgTypeDef rxmsg = rx_frames[rx_frame_read++];
+	while (modCANRxFrameRead != modCANRxFrameWrite) {
+		CanRxMsgTypeDef rxmsg = modCANRxFrames[modCANRxFrameRead++];
 
 		if (rxmsg.IDE == CAN_ID_EXT) {
 			uint8_t id = rxmsg.ExtId & 0xFF;
 			CAN_PACKET_ID cmd = (CAN_PACKET_ID) (rxmsg.ExtId >> 8);
-			can_status_msg *stat_tmp;
 
 			if (id == 255 || id == generalConfig->CANID) {
 				switch (cmd) {
 					case CAN_PACKET_FILL_RX_BUFFER:
-  					memcpy(rx_buffer + rxmsg.Data[0], rxmsg.Data + 1, rxmsg.DLC - 1);
+  					memcpy(modCANRxBuffer + rxmsg.Data[0], rxmsg.Data + 1, rxmsg.DLC - 1);
 						break;
 
 					case CAN_PACKET_FILL_RX_BUFFER_LONG:
 						rxbuf_ind = (unsigned int)rxmsg.Data[0] << 8;
 						rxbuf_ind |= rxmsg.Data[1];
-						if (rxbuf_ind < RX_BUFFER_SIZE) {
-							memcpy(rx_buffer + rxbuf_ind, rxmsg.Data + 2, rxmsg.DLC - 2);
+						if (rxbuf_ind < RX_CAN_BUFFER_SIZE) {
+							memcpy(modCANRxBuffer + rxbuf_ind, rxmsg.Data + 2, rxmsg.DLC - 2);
 						}
 						break;
 
 					case CAN_PACKET_PROCESS_RX_BUFFER:
 						ind = 0;
-						rx_buffer_last_id = rxmsg.Data[ind++];
+						modCANRxBufferLastID = rxmsg.Data[ind++];
 						commands_send = rxmsg.Data[ind++];
 						rxbuf_len = (unsigned int)rxmsg.Data[ind++] << 8;
 						rxbuf_len |= (unsigned int)rxmsg.Data[ind++];
 
-						if (rxbuf_len > RX_BUFFER_SIZE) {
+						if (rxbuf_len > RX_CAN_BUFFER_SIZE) {
 							break;
 						}
 
 						crc_high = rxmsg.Data[ind++];
 						crc_low = rxmsg.Data[ind++];
 
-						if (libCRCCalcCRC16(rx_buffer, rxbuf_len)
+						if (libCRCCalcCRC16(modCANRxBuffer, rxbuf_len)
 								== ((unsigned short) crc_high << 8
 										| (unsigned short) crc_low)) {
 
 							if (commands_send) {
-								modCommandsSendPacket(rx_buffer, rxbuf_len);
+								modCommandsSendPacket(modCANRxBuffer, rxbuf_len);
 							} else {
 								modCommandsSetSendFunction(send_packet_wrapper);
-								modCommandsProcessPacket(rx_buffer, rxbuf_len);
+								modCommandsProcessPacket(modCANRxBuffer, rxbuf_len);
 							}
 						}
 						break;
 
 					case CAN_PACKET_PROCESS_SHORT_BUFFER:
 						ind = 0;
-						rx_buffer_last_id = rxmsg.Data[ind++];
+						modCANRxBufferLastID = rxmsg.Data[ind++];
 						commands_send = rxmsg.Data[ind++];
 
 						if (commands_send) {
@@ -195,31 +167,10 @@ void cancom_process_task(void) {
 						break;
 					}
 				}
+		}
 
-				switch (cmd) {
-				case CAN_PACKET_STATUS:
-					for (int i = 0;i < CAN_STATUS_MSGS_TO_STORE;i++) {
-						stat_tmp = &stat_msgs[i];
-						if (stat_tmp->id == id || stat_tmp->id == -1) {
-							ind = 0;
-							stat_tmp->id = id;
-							stat_tmp->rx_time = HAL_GetTick();
-							stat_tmp->rpm = (float)buffer_get_int32(rxmsg.Data, &ind);
-							stat_tmp->current = (float)buffer_get_int16(rxmsg.Data, &ind) / 10.0f;
-							stat_tmp->duty = (float)buffer_get_int16(rxmsg.Data, &ind) / 1000.0f;
-							break;
-						}
-					}
-					break;
-
-				default:
-					break;
-				}
-			}
-
-			if (rx_frame_read == RX_FRAMES_SIZE) {
-				rx_frame_read = 0;
-			}
+		if (modCANRxFrameRead >= RX_CAN_FRAMES_SIZE)
+			modCANRxFrameRead = 0;
 	}
 }
 
@@ -232,7 +183,7 @@ void comm_can_transmit_eid(uint32_t id, uint8_t *data, uint8_t len) {
 	memcpy(txmsg.Data, data, len);
 	
 	modCANHandle.pTxMsg = &txmsg;
-	HAL_CAN_Transmit(&modCANHandle,200);
+	HAL_CAN_Transmit(&modCANHandle,1);
 }
 
 /**
@@ -353,15 +304,6 @@ void comm_can_set_pos(uint8_t controller_id, float pos) {
 	comm_can_transmit_eid(controller_id | ((uint32_t)CAN_PACKET_SET_POS << 8), buffer, send_index);
 }
 
-/**
- * Set current relative to the minimum and maximum current limits.
- *
- * @param controller_id
- * The ID of the VESC to set the current on.
- *
- * @param current_rel
- * The relative current value, range [-1.0 1.0]
- */
 void comm_can_set_current_rel(uint8_t controller_id, float current_rel) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
@@ -369,15 +311,6 @@ void comm_can_set_current_rel(uint8_t controller_id, float current_rel) {
 	comm_can_transmit_eid(controller_id | ((uint32_t)CAN_PACKET_SET_CURRENT_REL << 8), buffer, send_index);
 }
 
-/**
- * Set brake current relative to the minimum current limit.
- *
- * @param controller_id
- * The ID of the VESC to set the current on.
- *
- * @param current_rel
- * The relative current value, range [0.0 1.0]
- */
 void comm_can_set_current_brake_rel(uint8_t controller_id, float current_rel) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
@@ -385,42 +318,6 @@ void comm_can_set_current_brake_rel(uint8_t controller_id, float current_rel) {
 	comm_can_transmit_eid(controller_id | ((uint32_t)CAN_PACKET_SET_CURRENT_BRAKE_REL << 8), buffer, send_index);
 }
 
-/**
- * Get status message by index.
- *
- * @param index
- * Index in the array
- *
- * @return
- * The message or 0 for an invalid index.
- */
-can_status_msg *comm_can_get_status_msg_index(int index) {
-	if (index < CAN_STATUS_MSGS_TO_STORE) {
-		return &stat_msgs[index];
-	} else {
-		return 0;
-	}
-}
-
-/**
- * Get status message by id.
- *
- * @param id
- * Id of the controller that sent the status message.
- *
- * @return
- * The message or 0 for an invalid id.
- */
-can_status_msg *comm_can_get_status_msg_id(int id) {
-	for (int i = 0;i < CAN_STATUS_MSGS_TO_STORE;i++) {
-		if (stat_msgs[i].id == id) {
-			return &stat_msgs[i];
-		}
-	}
-
-	return 0;
-}
-
 static void send_packet_wrapper(unsigned char *data, unsigned int len) {
-	comm_can_send_buffer(rx_buffer_last_id, data, len, true);
+	comm_can_send_buffer(modCANRxBufferLastID, data, len, true);
 }

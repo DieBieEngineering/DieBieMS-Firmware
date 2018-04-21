@@ -57,7 +57,7 @@ float driverSWDCDCGetAuxVoltage(void) {
 
 float driverSWDCDCGetAuxCurrent(void) {
 	float auxCurrent = 0.0f;
-	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_AUX_ADDRES,ISL28022_SHIELD_AUX_BUS,&auxCurrent,0.000489f);
+	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_AUX_ADDRES,ISL28022_SHIELD_AUX_BUS,&auxCurrent,0,0.000489f);
 	return auxCurrent;
 };
 

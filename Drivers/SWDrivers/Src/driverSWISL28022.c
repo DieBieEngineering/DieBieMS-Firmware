@@ -13,7 +13,7 @@ void driverSWISL28022Init(uint8_t i2cAddres, uint8_t i2cBus, driverSWISL28022Ini
 	}
 };
 
-bool driverSWISL28022GetBusCurrent(uint8_t i2cAddres, uint8_t i2cBus, float *busCurrent, float scalar){
+bool driverSWISL28022GetBusCurrent(uint8_t i2cAddres, uint8_t i2cBus, float *busCurrent, int16_t offset, float scalar) {
 	// ToDo make register to current conversion register dependent
 	uint8_t writeDataC[1] = {REG_SHUNTVOLTAGE};
 	uint8_t readDataC[2];
@@ -28,7 +28,7 @@ bool driverSWISL28022GetBusCurrent(uint8_t i2cAddres, uint8_t i2cBus, float *bus
 	}
 	
 	busCurrentInt = (readDataC[0] << 9) | (readDataC[1] << 1);
-	*busCurrent = scalar*busCurrentInt;
+	*busCurrent = scalar*(busCurrentInt+offset);
 	
 	return false;
 };

@@ -40,7 +40,10 @@ bool modConfigStoreDefaultConfig(void) {
 	defaultConfig.cellBalanceStart													= 3.80f;												// Start balancing above X.XXV.
 	defaultConfig.cellThrottleUpperStart										= 0.20f;												// Upper range of cell voltage for discharge throttling.
 	defaultConfig.cellThrottleLowerStart										= 0.40f;												// Upper range of cell voltage for discharge throttling.
-	defaultConfig.cellThrottleEndMargin											= 0.05f;												// Margin of throttle from soft limits.
+	defaultConfig.cellThrottleUpperMargin										= 0.05f;												// Margin of throttle from upper soft limits.
+	defaultConfig.cellThrottleLowerMargin										= 0.50f;												// Margin of throttle from lower soft limits.	
+	defaultConfig.throttleChargeIncreaseRate                = 1;                            // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
+	defaultConfig.throttleDisChargeIncreaseRate             = 2;                            // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	defaultConfig.cellBalanceUpdateInterval									= 4*1000;											  // Keep calculated resistors enabled for this amount of time in miliseconds.
 	defaultConfig.maxSimultaneousDischargingCells						= 5;														// Allow a maximum of X cells simultinous discharging trough bleeding resistors.
 	defaultConfig.timeoutDischargeRetry											= 4*1000;												// Wait for X seconds before retrying to enable load.
@@ -61,7 +64,7 @@ bool modConfigStoreDefaultConfig(void) {
 	defaultConfig.displayTimeoutSplashScreen								=	1000;													// Display / INIT splash screen time.
 	defaultConfig.maxUnderAndOverVoltageErrorCount 					= 5;														// Max count of hard cell voltage errors.
 	defaultConfig.notUsedCurrentThreshold										= 0.5f;													// If abs(packcurrent) < X.XA consider pack as not used.
-	defaultConfig.notUsedTimeout														= 120*60*1000;									// If pack is not used for longer than XX minutes disable bms.
+	defaultConfig.notUsedTimeout														= 30*60*1000;									  // If pack is not used for longer than XX minutes disable bms.
 	defaultConfig.stateOfChargeStoreInterval								= 60*1000;											// Interval in ms to store state of charge information.
 	defaultConfig.CANID																			= 10;														// CAN ID for CAN communication.
 	defaultConfig.tempEnableMaskBMS                         = 0x1C0C;												// Bitwise select what sensor to enable for the BMS (internal sensors).
@@ -80,6 +83,7 @@ bool modConfigStoreDefaultConfig(void) {
 	defaultConfig.NTCBetaFactor[modConfigNTCGroupHiAmpPCB]       = 3590;                    // NTC Beta factor
 	defaultConfig.NTCBetaFactor[modConfigNTCGroupLTCExt]         = 4390;                    // NTC Beta factor
 	defaultConfig.NTCBetaFactor[modConfigNTCGroupMasterPCB]      = 3590;                    // NTC Beta factor
+	defaultConfig.HCUseRelay                                     = false;                    // Enable or disable the relay output
 	defaultConfig.HCUsePrecharge                                 = true;                    // choice whether to precharge or not
 	defaultConfig.timeoutHCPreCharge													   = 300;											// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
 	defaultConfig.timeoutHCPreChargeRetryInterval						     = 20000;										// When pre charge failes wait this long in ms

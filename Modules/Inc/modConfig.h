@@ -24,7 +24,10 @@ typedef struct {
 	float cellBalanceStart;																												// If an upper cell is above this voltage and higher than the cellBalanceDifferenceThreshold voltage then average, start discharging 
 	float cellThrottleUpperStart;																									// Charge throttle range
 	float cellThrottleLowerStart;																									// Discharge throttle rande
-	float cellThrottleEndMargin;																									// Margin from the cell voltage extremes
+	float cellThrottleUpperMargin;																								// Margin from the upper cell voltage extremes
+  float cellThrottleLowerMargin;                                                // Margin from the lower cell voltage extremes
+	uint8_t throttleChargeIncreaseRate;																						// The rate of charge throttle percentage increase per 100ms
+	uint8_t throttleDisChargeIncreaseRate;                                        // The rate of discharge throttle percentage instrease per 100ms
 	uint32_t cellBalanceUpdateInterval;																						// Amount of time that the balance resistor enable mask is kept
 	uint8_t maxSimultaneousDischargingCells;																			// Set the maximum amount of discharging cells. This is to limit dissepated power (and thus board temperature)
 	uint32_t timeoutDischargeRetry;																								// If soft lower threshold limit was tripped wait this amount of time to re-enable load if cell is within threshold
@@ -55,6 +58,7 @@ typedef struct {
 	uint32_t NTCTopResistor[modConfigNoOfNTCTypes];                               // NTC Pullup resistor value
 	uint32_t NTC25DegResistance[modConfigNoOfNTCTypes];                           // NTC resistance at 25 degree
 	uint16_t NTCBetaFactor[modConfigNoOfNTCTypes];                                // NTC Beta factor
+	uint8_t  HCUseRelay;                                                          // Enable or disable relay output
 	uint8_t  HCUsePrecharge;                                                      // choice whether to precharge or not
 	uint32_t timeoutHCPreCharge;																									// If threshold is not reached within this time in ms goto error state
 	uint32_t timeoutHCPreChargeRetryInterval;                                     // When pre charge failed, wait this long

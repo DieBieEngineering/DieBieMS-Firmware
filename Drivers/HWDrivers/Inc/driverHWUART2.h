@@ -2,7 +2,7 @@
 #include "stdbool.h"
 #include "string.h"
 
-#define RX_BUFFER_SIZE					1024
+#define RX_UART_BUFFER_SIZE					1024
 
 extern FILE driverSWUART2IOStream;
 

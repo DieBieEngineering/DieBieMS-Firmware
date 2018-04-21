@@ -6,6 +6,7 @@
 #include "driverSWLTC6803.h"
 #include "driverHWSwitches.h"
 #include "driverSWEMC2305.h"
+#include "driverHWPowerState.h"
 #include "modDelay.h"
 #include "modConfig.h"
 #include "stdbool.h"
@@ -45,18 +46,24 @@ typedef struct {
 	uint8_t  throttleDutyDischarge;
 	float    packVoltage;
 	float    packCurrent;
-	float    loadVoltage;
+	float    packPower;
+	float    loCurrentLoadCurrent;
+	float    loCurrentLoadVoltage;
 	float    cellVoltageHigh;
 	float    cellVoltageLow;
 	float    cellVoltageAverage;
 	float    cellVoltageMisMatch;
 	uint16_t cellBalanceResistorEnableMask;
-	driverLTC6803CellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnChip];
+	float    tempBMSHigh;
+	float    tempBMSLow;
+	float    tempBMSAverage;
 	uint8_t  preChargeDesired;
 	uint8_t  disChargeDesired;
 	uint8_t  disChargeAllowed;
 	uint8_t  chargeDesired;
 	uint8_t  chargeAllowed;
+	uint8_t  powerButtonActuated;
+	driverLTC6803CellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnChip];
 	modPowerElectronicsPackOperationalCellStatesTypedef packOperationalCellState;
 	
 	// Slave BMS
@@ -67,21 +74,18 @@ typedef struct {
 	float    auxVoltage;
 	float    auxCurrent;
 	float		 auxPower;
-	uint8_t  axu0LoadPresent;
 	uint8_t  aux0EnableDesired;
 	uint8_t  aux0Enabled;
-	uint8_t  aux1LoadPresent;
+	uint8_t  axu0LoadIncorrect;
 	uint8_t  aux1EnableDesired;
 	uint8_t  aux1Enabled;
+	uint8_t  aux1LoadIncorrect;
 	uint8_t  auxDCDCEnabled;
 	uint8_t  auxDCDCOutputOK;
 	float    temperatures[NoOfTempSensors];
 	float    tempBatteryHigh;
 	float    tempBatteryLow;
 	float    tempBatteryAverage;
-	float    tempBMSHigh;
-	float    tempBMSLow;
-	float    tempBMSAverage;
 	float    humidity;
 	uint8_t  hiLoadEnabled;
 	uint8_t  hiLoadPreChargeEnabled;
@@ -105,6 +109,8 @@ void modPowerElectronicsSubTaskVoltageWatch(void);
 void modPowerElectronicsUpdateSwitches(void);
 void modPowerElectronicsSortCells(driverLTC6803CellsTypedef cells[12]);
 void modPowerElectronicsCalcTempStats(void);
-int32_t modPowerElectronicsMapVariable(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);
+void modPowerElectronicsCalcThrottle(void);
+int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);
+float modPowerElectronicsMapVariableFloat(float inputVariable, float inputLowerLimit, float inputUpperLimit, float outputLowerLimit, float outputUpperLimit);
 
 #endif

@@ -4,7 +4,7 @@ UART_HandleTypeDef driverHWUART2Handle;
 DMA_HandleTypeDef driverHWUART2HDMAHandleRX;
 uint8_t driverHWUART2ReceivedChar;
 
-uint8_t driverHWUART2ReceiveBuffer[RX_BUFFER_SIZE];															// Buffer that stores received chars
+uint8_t driverHWUART2ReceiveBuffer[RX_UART_BUFFER_SIZE];															// Buffer that stores received chars
 
 void driverHWUART2Init(uint32_t baudRate) {
 	memset(driverHWUART2ReceiveBuffer,0,sizeof(driverHWUART2ReceiveBuffer)/sizeof(uint8_t));

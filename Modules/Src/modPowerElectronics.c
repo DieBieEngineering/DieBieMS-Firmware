@@ -13,7 +13,6 @@ driverLTC6803ConfigStructTypedef modPowerElectronicsLTCconfigStruct;
 bool     modPowerElectronicsAllowForcedOnState;
 float    modPowerElectronicsCellVoltagesTemp[12];
 uint16_t modPowerElectronicsTemperatureArray[3];
-
 uint16_t tempTemperature;
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
@@ -23,11 +22,13 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsAllowForcedOnState = false;
 	
 	// Init pack status
-	modPowerElectronicsPackStateHandle->throttleDutyCharge       = 100;
-	modPowerElectronicsPackStateHandle->throttleDutyDischarge    = 100;
+	modPowerElectronicsPackStateHandle->throttleDutyCharge       = 0;
+	modPowerElectronicsPackStateHandle->throttleDutyDischarge    = 0;
 	modPowerElectronicsPackStateHandle->packVoltage              = 0.0f;
 	modPowerElectronicsPackStateHandle->packCurrent              = 0.0f;
-	modPowerElectronicsPackStateHandle->loadVoltage              = 0.0f;
+	modPowerElectronicsPackStateHandle->packPower                = 0.0f;
+	modPowerElectronicsPackStateHandle->loCurrentLoadCurrent     = 0.0f;
+	modPowerElectronicsPackStateHandle->loCurrentLoadVoltage     = 0.0f;
 	modPowerElectronicsPackStateHandle->cellVoltageHigh          = 0.0f;
 	modPowerElectronicsPackStateHandle->cellVoltageLow           = 0.0f;
 	modPowerElectronicsPackStateHandle->cellVoltageAverage       = 0.0;
@@ -47,6 +48,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->tempBMSHigh              = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSLow               = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSAverage           = 0.0f;
+	modPowerElectronicsPackStateHandle->powerButtonActuated      = false;
 	
 	// Init BUS monitor
 	driverSWISL28022InitStruct ISLInitStruct;
@@ -84,10 +86,14 @@ bool modPowerElectronicsTask(void) {
 		// reset tick for LTC Temp start conversion delay
 		modPowerElectronicsTempMeasureDelayLastTick = HAL_GetTick();
 		
-		// Collect main current path data
-		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packCurrent,-0.004494f);
+		// Collect low current current path data
+		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,0,-0.004494f);
 		driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packVoltage,0.004f);
-		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loadVoltage);
+		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
+		
+		// Combine the two currents and calculate pack power.
+		modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent + modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
+		modPowerElectronicsPackStateHandle->packPower   = modPowerElectronicsPackStateHandle->packCurrent * modPowerElectronicsPackStateHandle->packVoltage;
 		
 		// Check if LTC is still running
 		driverSWLTC6803ReadConfig(&modPowerElectronicsLTCconfigStruct);
@@ -111,6 +117,9 @@ bool modPowerElectronicsTask(void) {
 		// Calculate temperature statisticks
 		modPowerElectronicsCalcTempStats();
 		
+		// When temperature and cellvoltages are known calculate charge and discharge throttle.
+		modPowerElectronicsCalcThrottle();
+		
 		// Do the balancing task
 		modPowerElectronicsSubTaskBalaning();
 		
@@ -123,6 +132,8 @@ bool modPowerElectronicsTask(void) {
 		
 		// Check and respond to the measured temperature values
 		// modPowerElectronicsSubTaskTemperatureWatch();
+		
+		modPowerElectronicsPackStateHandle->powerButtonActuated = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
 		
 		returnValue = true;
 	}else
@@ -164,7 +175,7 @@ bool modPowerElectronicsSetDisCharge(bool newState) {
 		dischargeLastState = newState;
 	}
 	
-	if(modPowerElectronicsPackStateHandle->loadVoltage < PRECHARGE_PERCENTAGE*(modPowerElectronicsPackStateHandle->packVoltage)) // Prevent turn on with to low output voltage
+	if(modPowerElectronicsPackStateHandle->loCurrentLoadVoltage < PRECHARGE_PERCENTAGE*(modPowerElectronicsPackStateHandle->packVoltage)) // Prevent turn on with to low output voltage
 		return false;																																						                                   // Load voltage to low (output not precharged enough)
 	else
 		return true;
@@ -413,7 +424,66 @@ void modPowerElectronicsCalcTempStats(void) {
 		modPowerElectronicsPackStateHandle->tempBMSAverage = 0.0f;
 };
 
-int32_t modPowerElectronicsMapVariable(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit) {
+void modPowerElectronicsCalcThrottle(void) {
+	uint8_t calculatedChargeThrottle = 0;
+	uint8_t calculatedDisChargeThrottle = 0;
+	
+	static uint8_t filteredChargeThrottle = 0;
+	static uint8_t filteredDisChargeThrottle = 0;
+	
+	float inputLowerLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperStart;
+	float inputUpperLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin;
+	float outputLowerLimitCharge = 100.0f;
+	float outputUpperLimitCharge = 5.0f;
+	
+	float inputLowerLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin;
+  float inputUpperLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerStart;
+  float outputLowerLimitDisCharge = 5.0f;
+	float outputUpperLimitDisCharge = 100.0f;
+
+	// Calculate (dis)charge throttle
+	calculatedChargeThrottle    = (uint8_t)modPowerElectronicsMapVariableFloat(modPowerElectronicsPackStateHandle->cellVoltageHigh,inputLowerLimitCharge,inputUpperLimitCharge,outputLowerLimitCharge,outputUpperLimitCharge);
+	calculatedDisChargeThrottle = (uint8_t)modPowerElectronicsMapVariableFloat(modPowerElectronicsPackStateHandle->cellVoltageLow,inputLowerLimitDisCharge,inputUpperLimitDisCharge,outputLowerLimitDisCharge,outputUpperLimitDisCharge);
+	
+	// Filter the calculated throttle
+	if(calculatedChargeThrottle > filteredChargeThrottle){
+		if((calculatedChargeThrottle-filteredChargeThrottle) > modPowerElectronicsGeneralConfigHandle->throttleChargeIncreaseRate)
+			filteredChargeThrottle += modPowerElectronicsGeneralConfigHandle->throttleChargeIncreaseRate;
+		else
+			filteredChargeThrottle = calculatedChargeThrottle;
+	}else{
+		filteredChargeThrottle = calculatedChargeThrottle;
+	}
+	
+	if(calculatedDisChargeThrottle > filteredDisChargeThrottle){
+		if((calculatedDisChargeThrottle-filteredDisChargeThrottle) > modPowerElectronicsGeneralConfigHandle->throttleDisChargeIncreaseRate)
+			filteredDisChargeThrottle += modPowerElectronicsGeneralConfigHandle->throttleDisChargeIncreaseRate;
+		else
+			filteredDisChargeThrottle = calculatedDisChargeThrottle;
+	}else{
+		filteredDisChargeThrottle = calculatedDisChargeThrottle;
+	}
+	
+  // Output the filtered output
+	if(modPowerElectronicsPackStateHandle->chargeAllowed && modPowerElectronicsPackStateHandle->chargeDesired)
+		modPowerElectronicsPackStateHandle->throttleDutyCharge = filteredChargeThrottle;
+	else 
+		modPowerElectronicsPackStateHandle->throttleDutyCharge = 0;
+	
+	if(modPowerElectronicsPackStateHandle->disChargeAllowed && modPowerElectronicsPackStateHandle->disChargeDesired)
+		modPowerElectronicsPackStateHandle->throttleDutyDischarge = filteredDisChargeThrottle;
+	else 
+		modPowerElectronicsPackStateHandle->throttleDutyDischarge = 0;
+}
+
+int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit) {
+	inputVariable = inputVariable < inputLowerLimit ? inputLowerLimit : inputVariable;
+	inputVariable = inputVariable > inputUpperLimit ? inputUpperLimit : inputVariable;
+	
+	return (inputVariable - inputLowerLimit) * (outputUpperLimit - outputLowerLimit) / (inputUpperLimit - inputLowerLimit) + outputLowerLimit;
+}
+
+float modPowerElectronicsMapVariableFloat(float inputVariable, float inputLowerLimit, float inputUpperLimit, float outputLowerLimit, float outputUpperLimit) {
 	inputVariable = inputVariable < inputLowerLimit ? inputLowerLimit : inputVariable;
 	inputVariable = inputVariable > inputUpperLimit ? inputUpperLimit : inputVariable;
 	

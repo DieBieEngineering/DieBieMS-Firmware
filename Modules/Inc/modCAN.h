@@ -34,11 +34,16 @@
 
 // Settings
 #define CAN_STATUS_MSG_INT_MS		1
-#define CAN_STATUS_MSGS_TO_STORE	10
+#define RX_CAN_FRAMES_SIZE	100       // max 255
+#define RX_CAN_BUFFER_SIZE	PACKET_MAX_PL_LEN
 
-void modCANInit(void);
-void modCANTask(void);
+void          modCANInit(void);
+void          modCANTask(void);
+uint8_t       modCANGetDestinationID(CanRxMsgTypeDef canMsg);
+CAN_PACKET_ID modCANGetPacketID(CanRxMsgTypeDef canMsg);
 
+static void send_packet_wrapper(unsigned char *data, unsigned int len);
+void cancom_process_task(void);
 void comm_can_transmit_eid(uint32_t id, uint8_t *data, uint8_t len);
 void comm_can_send_buffer(uint8_t controller_id, uint8_t *data, unsigned int len, bool send);
 void comm_can_set_duty(uint8_t controller_id, float duty);

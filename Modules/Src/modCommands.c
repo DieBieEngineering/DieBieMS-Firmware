@@ -119,6 +119,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		case COMM_SET_MCCONF:
 			break;
 		case COMM_GET_MCCONF:
+			break;
 		case COMM_GET_MCCONF_DEFAULT:
 			break;
 		case COMM_TERMINAL_CMD:

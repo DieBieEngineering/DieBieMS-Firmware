@@ -13,7 +13,7 @@ relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
 bool modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
 
 void modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer){
-	modHiAmpPackStateHandle     = packStateHandle;																				// Store pack state pointer.
+	modHiAmpPackStateHandle     = packStateHandle;																		// Store pack state pointer.
 	modHiAmpGeneralConfigHandle = generalConfigPointer;
 	
 	driverHWI2C1Init();																																// Init the communication bus
@@ -91,12 +91,14 @@ void modHiAmpShieldResetVariables(void) {
 	modHiAmpPackStateHandle->auxVoltage                   = 0.0f;
 	modHiAmpPackStateHandle->auxCurrent                   = 0.0f;
 	modHiAmpPackStateHandle->auxPower                     = 0.0f;
-	modHiAmpPackStateHandle->aux0EnableDesired            = 0;
-	modHiAmpPackStateHandle->aux0Enabled                  = 0;
-	modHiAmpPackStateHandle->aux1EnableDesired            = 0;
-	modHiAmpPackStateHandle->aux1Enabled                  = 0;
-	modHiAmpPackStateHandle->auxDCDCEnabled               = 0;
-	modHiAmpPackStateHandle->auxDCDCOutputOK              = 0;
+	modHiAmpPackStateHandle->aux0EnableDesired            = false;
+	modHiAmpPackStateHandle->aux0Enabled                  = false;
+	modHiAmpPackStateHandle->axu0LoadIncorrect            = false;
+	modHiAmpPackStateHandle->aux1EnableDesired            = false;
+	modHiAmpPackStateHandle->aux1Enabled                  = false;
+	modHiAmpPackStateHandle->aux1LoadIncorrect            = false;
+	modHiAmpPackStateHandle->auxDCDCEnabled               = false;
+	modHiAmpPackStateHandle->auxDCDCOutputOK              = false;
 	modHiAmpPackStateHandle->temperatures[4]              = 0.0f;
 	modHiAmpPackStateHandle->temperatures[5]              = 0.0f;
 	modHiAmpPackStateHandle->temperatures[6]              = 0.0f;
@@ -107,15 +109,15 @@ void modHiAmpShieldResetVariables(void) {
 	modHiAmpPackStateHandle->temperatures[11]             = 0.0f;
 	modHiAmpPackStateHandle->temperatures[12]             = 0.0f;
 	modHiAmpPackStateHandle->humidity                     = 0.0f;
-	modHiAmpPackStateHandle->hiLoadEnabled                = 0;
-	modHiAmpPackStateHandle->hiLoadPreChargeEnabled       = 0;
-	modHiAmpPackStateHandle->hiLoadPreChargeError         = 0;
-	modHiAmpPackStateHandle->IOIN1                        = 0;
-	modHiAmpPackStateHandle->IOOUT0                       = 0;
+	modHiAmpPackStateHandle->hiLoadEnabled                = false;
+	modHiAmpPackStateHandle->hiLoadPreChargeEnabled       = false;
+	modHiAmpPackStateHandle->hiLoadPreChargeError         = false;
+	modHiAmpPackStateHandle->IOIN1                        = false;
+	modHiAmpPackStateHandle->IOOUT0                       = false;
 	modHiAmpPackStateHandle->FANSpeedDutyDesired          = 0;
-	modHiAmpPackStateHandle->FANStatus.FANEnabled         = 0;
-	modHiAmpPackStateHandle->FANStatus.FANError           = 0;
-	modHiAmpPackStateHandle->FANStatus.FANOK              = 0;
+	modHiAmpPackStateHandle->FANStatus.FANEnabled         = false;
+	modHiAmpPackStateHandle->FANStatus.FANError           = false;
+	modHiAmpPackStateHandle->FANStatus.FANOK              = false;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[0]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[1]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[2]     = 0;
@@ -139,7 +141,7 @@ float modHiAmpShieldShuntMonitorGetVoltage(void) {
 
 float modHiAmpShieldShuntMonitorGetCurrent(void) {
   float measuredCurrent;
-	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,-0.02239f);
+	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,6,-0.0066464f);
 	return measuredCurrent;
 }
 
@@ -150,7 +152,7 @@ void modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed) {
 
 void modHiAmpShieldRelayControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage) {
 	if(modHiAmpShieldRelayControllerRelayEnabledDesiredLastState != relayStateDesired) {
-		if(relayStateDesired){
+		if(relayStateDesired && modHiAmpGeneralConfigHandle->HCUseRelay){
 			if(modHiAmpGeneralConfigHandle->HCUsePrecharge)
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_PRECHARGING;
 			else
