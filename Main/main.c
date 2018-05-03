@@ -35,7 +35,7 @@ int main(void) {
 	// Until here
 	
 	modUARTInit();																	  												// Will act on UART message requests
-	modCANInit();																															// Will act on CAN message requests
+	modCANInit(&packState,generalConfig);																			// Will act on CAN message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
 	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState

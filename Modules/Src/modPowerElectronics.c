@@ -18,12 +18,15 @@ uint16_t tempTemperature;
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
 	modPowerElectronicsPackStateHandle = packState;
+	//modPowerElectronicsGeneralStateOfCharge = generalStateOfCharge;
 	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
 	modPowerElectronicsAllowForcedOnState = false;
 	
 	// Init pack status
 	modPowerElectronicsPackStateHandle->throttleDutyCharge       = 0;
 	modPowerElectronicsPackStateHandle->throttleDutyDischarge    = 0;
+	modPowerElectronicsPackStateHandle->SoC                      = 0.0f;
+	modPowerElectronicsPackStateHandle->SoCCapacityAh            = 0.0f;
 	modPowerElectronicsPackStateHandle->packVoltage              = 0.0f;
 	modPowerElectronicsPackStateHandle->packCurrent              = 0.0f;
 	modPowerElectronicsPackStateHandle->packPower                = 0.0f;
@@ -465,12 +468,12 @@ void modPowerElectronicsCalcThrottle(void) {
 	}
 	
   // Output the filtered output
-	if(modPowerElectronicsPackStateHandle->chargeAllowed && modPowerElectronicsPackStateHandle->chargeDesired)
+	if(modPowerElectronicsPackStateHandle->chargeAllowed)
 		modPowerElectronicsPackStateHandle->throttleDutyCharge = filteredChargeThrottle;
 	else 
 		modPowerElectronicsPackStateHandle->throttleDutyCharge = 0;
 	
-	if(modPowerElectronicsPackStateHandle->disChargeAllowed && modPowerElectronicsPackStateHandle->disChargeDesired)
+	if(modPowerElectronicsPackStateHandle->disChargeAllowed)
 		modPowerElectronicsPackStateHandle->throttleDutyDischarge = filteredDisChargeThrottle;
 	else 
 		modPowerElectronicsPackStateHandle->throttleDutyDischarge = 0;

@@ -10,7 +10,6 @@
 #include "modDelay.h"
 #include "modConfig.h"
 #include "stdbool.h"
-#include "modEffect.h"
 
 #define NoOfCellsPossibleOnChip	12
 #define NoOfTempSensors         13
@@ -44,6 +43,8 @@ typedef struct {
 	// Master BMS
 	uint8_t  throttleDutyCharge;
 	uint8_t  throttleDutyDischarge;
+	float    SoC;
+	float    SoCCapacityAh;
 	float    packVoltage;
 	float    packCurrent;
 	float    packPower;
@@ -54,6 +55,10 @@ typedef struct {
 	float    cellVoltageAverage;
 	float    cellVoltageMisMatch;
 	uint16_t cellBalanceResistorEnableMask;
+	float    temperatures[NoOfTempSensors];
+	float    tempBatteryHigh;
+	float    tempBatteryLow;
+	float    tempBatteryAverage;
 	float    tempBMSHigh;
 	float    tempBMSLow;
 	float    tempBMSAverage;
@@ -76,16 +81,12 @@ typedef struct {
 	float		 auxPower;
 	uint8_t  aux0EnableDesired;
 	uint8_t  aux0Enabled;
-	uint8_t  axu0LoadIncorrect;
+	uint8_t  aux0LoadIncorrect;
 	uint8_t  aux1EnableDesired;
 	uint8_t  aux1Enabled;
 	uint8_t  aux1LoadIncorrect;
 	uint8_t  auxDCDCEnabled;
 	uint8_t  auxDCDCOutputOK;
-	float    temperatures[NoOfTempSensors];
-	float    tempBatteryHigh;
-	float    tempBatteryLow;
-	float    tempBatteryAverage;
 	float    humidity;
 	uint8_t  hiLoadEnabled;
 	uint8_t  hiLoadPreChargeEnabled;

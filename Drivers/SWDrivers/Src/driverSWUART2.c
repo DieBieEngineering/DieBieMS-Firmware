@@ -12,6 +12,10 @@ void driverSWUART2Init(uint32_t baudRate) {
 		while(true);																																// Out of memory error
 	
 	driverHWUART2Init(baudRate);																									// Initialize serial port and pass function that should be called when a byte is received
+	
+	driverSWUART2PutCharInOutputBuffer('H',&driverSWUART2IOStream);
+	driverSWUART2PutCharInOutputBuffer('O',&driverSWUART2IOStream);
+	driverSWUART2PutCharInOutputBuffer('I',&driverSWUART2IOStream);	
 };
 
 char driverSWUART2PutCharInOutputBuffer(char character, FILE *stream) {

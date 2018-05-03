@@ -53,6 +53,8 @@ typedef struct {
 	uint32_t CANID;																																// Stores the CAN ID of the device
 	uint16_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
 	uint16_t tempEnableMaskBattery;																								// Stores the mask to select what temperature sensor is enabled for the battery.
+	uint8_t  LCUseDischarge;                                                          // Enable or disable switch output
+	uint8_t  LCUsePrecharge;                                                      // choice whether to precharge or not
 	
 	// Slave - HiAmp Config
 	uint32_t NTCTopResistor[modConfigNoOfNTCTypes];                               // NTC Pullup resistor value

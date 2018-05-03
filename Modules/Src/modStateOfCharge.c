@@ -1,7 +1,7 @@
 #include "modStateOfCharge.h"
 
 modStateOfChargeStructTypeDef modStateOfChargeGeneralStateOfCharge;
-modPowerElectricsPackStateTypedef *modStateStateOfChargePackStatehandle;
+modPowerElectricsPackStateTypedef *modStateOfChargePackStatehandle;
 modConfigGeneralConfigStructTypedef *modStateOfChargeGeneralConfigHandle;
 uint32_t modStateOfChargeLargeCoulombTick;
 uint32_t modStateOfChargeStoreSoCTick;
@@ -9,7 +9,7 @@ uint32_t modStateOfChargeStoreSoCTick;
 bool modStateOfChargePowerDownSavedFlag = false;
 
 modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
-	modStateStateOfChargePackStatehandle = packState;
+	modStateOfChargePackStatehandle = packState;
 	modStateOfChargeGeneralConfigHandle = generalConfigPointer;
 	driverSWStorageManagerStateOfChargeStructSize = (sizeof(modStateOfChargeStructTypeDef)/sizeof(uint16_t)); // Calculate the space needed for the config struct in EEPROM
 	
@@ -27,7 +27,7 @@ void modStateOfChargeProcess(void){
 	lastGeneralStateOfCharge = modStateOfChargeGeneralStateOfCharge;
 	
 	modStateOfChargeLargeCoulombTick = HAL_GetTick();
-	modStateOfChargeGeneralStateOfCharge.remainingCapacityAh += dt*modStateStateOfChargePackStatehandle->packCurrent/(3600*1000);// (miliseconds * amps)/(3600*1000) accumulatedCharge in AmpHour.
+	modStateOfChargeGeneralStateOfCharge.remainingCapacityAh += dt*modStateOfChargePackStatehandle->packCurrent/(3600*1000);// (miliseconds * amps)/(3600*1000) accumulatedCharge in AmpHour.
 	
 	// Cap the max stored energy to the configured battery capacity.
 	if(modStateOfChargeGeneralStateOfCharge.remainingCapacityAh > modStateOfChargeGeneralConfigHandle->batteryCapacity)
@@ -42,10 +42,12 @@ void modStateOfChargeProcess(void){
 	if(modStateOfChargeGeneralStateOfCharge.generalStateOfCharge >= 100.0f)
 		modStateOfChargeGeneralStateOfCharge.generalStateOfCharge = 100.0f;
 	
+	modStateOfChargePackStatehandle->SoC = modStateOfChargeGeneralStateOfCharge.generalStateOfCharge;
+	modStateOfChargePackStatehandle->SoCCapacityAh = modStateOfChargeGeneralStateOfCharge.remainingCapacityAh;
+	
 	// Store SoC every 'stateOfChargeStoreInterval'
 	if(modDelayTick1ms(&modStateOfChargeStoreSoCTick,modStateOfChargeGeneralConfigHandle->stateOfChargeStoreInterval) && !modStateOfChargePowerDownSavedFlag && (lastGeneralStateOfCharge.remainingCapacityAh != modStateOfChargeGeneralStateOfCharge.remainingCapacityAh))
 		modStateOfChargeStoreStateOfCharge();
-	  // TODO_EEPROM
 };
 
 bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){

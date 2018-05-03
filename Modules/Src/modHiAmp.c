@@ -93,7 +93,7 @@ void modHiAmpShieldResetVariables(void) {
 	modHiAmpPackStateHandle->auxPower                     = 0.0f;
 	modHiAmpPackStateHandle->aux0EnableDesired            = false;
 	modHiAmpPackStateHandle->aux0Enabled                  = false;
-	modHiAmpPackStateHandle->axu0LoadIncorrect            = false;
+	modHiAmpPackStateHandle->aux0LoadIncorrect            = false;
 	modHiAmpPackStateHandle->aux1EnableDesired            = false;
 	modHiAmpPackStateHandle->aux1Enabled                  = false;
 	modHiAmpPackStateHandle->aux1LoadIncorrect            = false;
@@ -141,7 +141,7 @@ float modHiAmpShieldShuntMonitorGetVoltage(void) {
 
 float modHiAmpShieldShuntMonitorGetCurrent(void) {
   float measuredCurrent;
-	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,6,-0.0066464f);
+	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,4,-0.038f);
 	return measuredCurrent;
 }
 

@@ -29,7 +29,7 @@ void modUARTProcessPacket(unsigned char *data, unsigned int len) {
 void modUARTSendPacket(unsigned char *data, unsigned int len) {
 	static uint8_t buffer[PACKET_MAX_PL_LEN + 5];
 	memcpy(buffer, data, len);
-	fwrite (buffer , sizeof(uint8_t), len, &driverSWUART2IOStream);
+	fwrite(buffer , sizeof(uint8_t), len, &driverSWUART2IOStream);
 }
 
 void modUARTQueMessage(modMessageMessageTypeDef messageType, const char* format, ...) {

@@ -132,7 +132,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		case COMM_ALIVE:
 			break;
 		case COMM_FORWARD_CAN:
-			comm_can_send_buffer(data[0], data + 1, len - 1, false);
+			modCANSendBuffer(data[0], data + 1, len - 1, false);
 			break;
 		default:
 			break;
