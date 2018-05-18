@@ -18,8 +18,9 @@ typedef struct {
 	float batteryCapacity;																												// Battery capacity in Ah
 	float cellHardUnderVoltage;																										// If the lowest cell is under this voltage -> Error situation, turn all off and power down
 	float cellHardOverVoltage;																										// If the upper cell is above this voltage -> Error situation, turn all off and power down
-	float cellSoftUnderVoltage;																										// If the lowest cell is under this voltage -> disable load and indicate empty battery
-	float cellSoftOverVoltage;																										// If the upper cell is above this voltage -> disable charging, but keep bms enabled
+	float cellLCSoftUnderVoltage;																									// If the lowest cell is under this voltage -> disable low current load
+	float cellHCSoftUnderVoltage;																									// If the lowest cell is under this voltage -> disable high current load
+	float cellSoftOverVoltage;																								    // If the upper cell is above this voltage -> disable charging, but keep bms enabled
 	float cellBalanceDifferenceThreshold;																					// If the upper cell is more than this voltage away from the average -> start discharging this cell
 	float cellBalanceStart;																												// If an upper cell is above this voltage and higher than the cellBalanceDifferenceThreshold voltage then average, start discharging 
 	float cellThrottleUpperStart;																									// Charge throttle range
@@ -53,8 +54,9 @@ typedef struct {
 	uint32_t CANID;																																// Stores the CAN ID of the device
 	uint16_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
 	uint16_t tempEnableMaskBattery;																								// Stores the mask to select what temperature sensor is enabled for the battery.
-	uint8_t  LCUseDischarge;                                                          // Enable or disable switch output
-	uint8_t  LCUsePrecharge;                                                      // choice whether to precharge or not
+	uint8_t LCUseDischarge;                                                       // Enable or disable switch output
+	uint8_t LCUsePrecharge;                                                       // choice whether to precharge or not
+	uint8_t allowChargingDuringDischarge;																					// Allow charging during discharge
 	
 	// Slave - HiAmp Config
 	uint32_t NTCTopResistor[modConfigNoOfNTCTypes];                               // NTC Pullup resistor value

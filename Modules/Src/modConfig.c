@@ -30,16 +30,17 @@ bool modConfigStoreDefaultConfig(void) {
 	// VALUES WILL ONLY AUTIMATICALLY UPDATE AFTER FLASH ERASE!
 	// Master BMS
 	modConfigGeneralConfigStructTypedef defaultConfig;
-	defaultConfig.noOfCells 																     = 6;											// X Cells in series
-	defaultConfig.batteryCapacity														     = 8.00f;									// XXAh battery
+	defaultConfig.noOfCells 																     = 12;											// X Cells in series
+	defaultConfig.batteryCapacity														     = 40.00f;									// XXAh battery
 	defaultConfig.cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	defaultConfig.cellHardOverVoltage												     = 4.40f;										// Worst case X.XXV as highest cell voltage
-	defaultConfig.cellSoftUnderVoltage											     = 2.50f;										// Normal lowest cell voltage X.XXV.
+	defaultConfig.cellLCSoftUnderVoltage											   = 2.50f;										// Low current lowest cell voltage X.XXV.
+  defaultConfig.cellHCSoftUnderVoltage                         = 3.00f;                   // High current lowest cell voltage X.XXV.
 	defaultConfig.cellSoftOverVoltage												     = 4.25f;										// Normal highest cell voltage X.XXV.
 	defaultConfig.cellBalanceDifferenceThreshold                 = 0.01f;										// Start balancing @ XmV difference, stop if below.
 	defaultConfig.cellBalanceStart													     = 3.80f;										// Start balancing above X.XXV.
-	defaultConfig.cellThrottleUpperStart										     = 0.20f;										// Upper range of cell voltage for charge throttling.
-	defaultConfig.cellThrottleLowerStart										     = 0.40f;									  // Lower range of cell voltage for discharge throttling.
+	defaultConfig.cellThrottleUpperStart										     = 0.10f;										// Upper range of cell voltage for charge throttling.
+	defaultConfig.cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
 	defaultConfig.cellThrottleUpperMargin										     = 0.05f;										// Margin of throttle from upper soft limits.
 	defaultConfig.cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
 	defaultConfig.throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
@@ -53,7 +54,7 @@ bool modConfigStoreDefaultConfig(void) {
 	defaultConfig.timeoutChargeCompleted										     = 30*60*1000;							// Wait for XX minutes before setting charge state to charged.
 	defaultConfig.timeoutChargingCompletedMinimalMismatch 	     = 6*1000;									// If cell mismatch is under threshold and (charging is not allowed) wait this delay time to set "charged" state.
 	defaultConfig.maxMismatchThreshold											     = 0.020f;									// If mismatch is under this threshold for timeoutChargingCompletedMinimalMismatch determin fully charged.
-	defaultConfig.chargerEnabledThreshold										     = 0.2f;										// If charge current > X.XA stay in charging mode and dont power off.
+	defaultConfig.chargerEnabledThreshold										     = 0.5f;										// If charge current > X.XA stay in charging mode and dont power off.
 	defaultConfig.timeoutChargerDisconnected								     = 2000;										// Wait for X seconds to respond to charger disconnect.
 	defaultConfig.minimalPrechargePercentage								     = 0.80f;										// output should be at a minimal of 80% of input voltage.
 	defaultConfig.timeoutLCPreCharge												     = 300;											// Precharge error timeout, allow 300ms pre-charge time before declaring load error.
@@ -77,6 +78,7 @@ bool modConfigStoreDefaultConfig(void) {
 	defaultConfig.NTC25DegResistance[modConfigNTCGroupMasterPCB] = 100000;                  // NTC resistance at 25 degree
 	defaultConfig.NTCBetaFactor[modConfigNTCGroupLTCExt]         = 4390;                    // NTC Beta factor
 	defaultConfig.NTCBetaFactor[modConfigNTCGroupMasterPCB]      = 3590;                    // NTC Beta factor
+	defaultConfig.allowChargingDuringDischarge                   = true;
 	// Slave - HiAmp Config
 	defaultConfig.NTCTopResistor[modConfigNTCGroupHiAmpExt]      = 100000;                  // NTC Pullup resistor value
 	defaultConfig.NTCTopResistor[modConfigNTCGroupHiAmpPCB]      = 100000;                  // NTC Pullup resistor value

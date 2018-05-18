@@ -100,7 +100,7 @@ void modCANSendSimpleStatus(void) {
 	flagHolder |= (modCANPackStateHandle->disChargeDesired       << 3);
 	flagHolder |= (modCANPackStateHandle->hiLoadEnabled          << 4);
 	flagHolder |= (modCANPackStateHandle->hiLoadPreChargeEnabled << 5);
-	flagHolder |= (modCANPackStateHandle->aux0LoadIncorrect      << 6);
+	flagHolder |= (modCANPackStateHandle->chargeBalanceActive    << 6);
 	flagHolder |= (modCANPackStateHandle->powerButtonActuated    << 7);
 	
 	// Send voltage and current

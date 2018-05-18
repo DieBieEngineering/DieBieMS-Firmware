@@ -10,11 +10,13 @@
 #include "modDelay.h"
 #include "modConfig.h"
 #include "stdbool.h"
+#include "math.h"
 
 #define NoOfCellsPossibleOnChip	12
 #define NoOfTempSensors         13
 #define PRECHARGE_PERCENTAGE 		0.75f
 #define TotalLTCICs							1
+#define ISLErrorThreshold       10
 
 typedef enum {
 	TEMP_EXT_LTC_NTC0 = 0,									// EXT on master BMS on LTC
@@ -67,7 +69,10 @@ typedef struct {
 	uint8_t  disChargeAllowed;
 	uint8_t  chargeDesired;
 	uint8_t  chargeAllowed;
+	uint8_t  chargeCurrentDetected;
+	uint8_t  chargeBalanceActive;
 	uint8_t  powerButtonActuated;
+	uint8_t  packInSOA;
 	driverLTC6803CellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnChip];
 	modPowerElectronicsPackOperationalCellStatesTypedef packOperationalCellState;
 	
@@ -113,5 +118,6 @@ void modPowerElectronicsCalcTempStats(void);
 void modPowerElectronicsCalcThrottle(void);
 int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);
 float modPowerElectronicsMapVariableFloat(float inputVariable, float inputLowerLimit, float inputUpperLimit, float outputLowerLimit, float outputUpperLimit);
+void modPowerElectronicsInitISL(void);
 
 #endif

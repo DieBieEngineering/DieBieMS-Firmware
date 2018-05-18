@@ -2,18 +2,22 @@
 
 modPowerElectricsPackStateTypedef *modPowerElectronicsPackStateHandle;
 modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
-uint32_t modPowerElectronicsISLIntervalLastTick;
+uint32_t modPowerElectronicsMeasureIntervalLastTick;
 
 uint32_t modPowerElectronicsChargeRetryLastTick;
 uint32_t modPowerElectronicsDisChargeRetryLastTick;
 uint32_t modPowerElectronicsCellBalanceUpdateLastTick;
 uint32_t modPowerElectronicsTempMeasureDelayLastTick;
+uint32_t modPowerElectronicsChargeCurrentDetectionLastTick;
+uint32_t modPowerElectronicsBalanceModeActiveLastTick;
 uint8_t  modPowerElectronicsUnderAndOverVoltageErrorCount;
 driverLTC6803ConfigStructTypedef modPowerElectronicsLTCconfigStruct;
 bool     modPowerElectronicsAllowForcedOnState;
 float    modPowerElectronicsCellVoltagesTemp[12];
 uint16_t modPowerElectronicsTemperatureArray[3];
 uint16_t tempTemperature;
+float    modPowerElectronicsTempPackVoltage;
+uint8_t  modPowerElectronicsISLErrorCount;
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
@@ -21,6 +25,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	//modPowerElectronicsGeneralStateOfCharge = generalStateOfCharge;
 	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
 	modPowerElectronicsAllowForcedOnState = false;
+	modPowerElectronicsISLErrorCount = 0;
 	
 	// Init pack status
 	modPowerElectronicsPackStateHandle->throttleDutyCharge       = 0;
@@ -40,6 +45,10 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->preChargeDesired         = false;
 	modPowerElectronicsPackStateHandle->chargeDesired            = false;
 	modPowerElectronicsPackStateHandle->chargeAllowed 					 = true;
+	modPowerElectronicsPackStateHandle->chargeBalanceActive      = false;
+	modPowerElectronicsPackStateHandle->chargeCurrentDetected    = false;
+	modPowerElectronicsPackStateHandle->powerButtonActuated      = false;
+	modPowerElectronicsPackStateHandle->packInSOA                = true;
 	modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
 	modPowerElectronicsPackStateHandle->temperatures[0]          = 0.0f;
 	modPowerElectronicsPackStateHandle->temperatures[1]          = 0.0f;
@@ -51,15 +60,8 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->tempBMSHigh              = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSLow               = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSAverage           = 0.0f;
-	modPowerElectronicsPackStateHandle->powerButtonActuated      = false;
 	
-	// Init BUS monitor
-	driverSWISL28022InitStruct ISLInitStruct;
-	ISLInitStruct.ADCSetting = ADC_128_64010US;
-	ISLInitStruct.busVoltageRange = BRNG_60V_1;
-	ISLInitStruct.currentShuntGain = PGA_4_160MV;
-	ISLInitStruct.Mode = MODE_SHUNTANDBUS_CONTINIOUS;
-	driverSWISL28022Init(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,ISLInitStruct);
+  modPowerElectronicsInitISL();
 	
 	// Init internal ADC
 	driverHWADCInit();
@@ -76,23 +78,37 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	configStruct.DisChargeEnableMask = 0x0000;																							// Disable all discharge resistors
 	configStruct.noOfCells = modPowerElectronicsGeneralConfigHandle->noOfCells;							// Number of cells that can cause interrupt
 	configStruct.CellVoltageConversionMode = LTC6803StartCellVoltageADCConversionAll;				// Use normal cell conversion mode, in the future -> check for lose wires on initial startup.
-  configStruct.CellUnderVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage;	// Set under limit to XV	-> This should cause error state
-	configStruct.CellOverVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;		// Set upper limit to X.XXV  -> This should cause error state
+  configStruct.CellUnderVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage;// Set under limit to XV	-> This should cause error state
+	configStruct.CellOverVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;	// Set upper limit to X.XXV  -> This should cause error state
 	
 	driverSWLTC6803Init(configStruct,TotalLTCICs);																					// Config the LTC6803 and start measuring
+	
+	modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
+	modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
 };
 
 bool modPowerElectronicsTask(void) {
 	bool returnValue = false;
 	
-	if(modDelayTick1ms(&modPowerElectronicsISLIntervalLastTick,100)) {
+	if(modDelayTick1ms(&modPowerElectronicsMeasureIntervalLastTick,100)) {
 		// reset tick for LTC Temp start conversion delay
 		modPowerElectronicsTempMeasureDelayLastTick = HAL_GetTick();
 		
-		// Collect low current current path data
-		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,0,-0.004494f);
-		driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packVoltage,0.004f);
-		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
+		// Collect low current current path data and check validity + recover if invalid.
+		driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsTempPackVoltage,0.004f);
+		if(fabs(modPowerElectronicsTempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCells*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 1.0f) {    // If the error is smaller than one volt continue normal operation. 
+			modPowerElectronicsPackStateHandle->packVoltage = modPowerElectronicsTempPackVoltage;
+			driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,0,-0.004494f);
+			driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
+			modPowerElectronicsISLErrorCount = 0;																								// Reset error count.
+		}else{																																								// Error in voltage measurement.
+			if(modPowerElectronicsISLErrorCount++ >= ISLErrorThreshold){																				// Increase error count
+				modPowerElectronicsISLErrorCount = ISLErrorThreshold;
+				// Make BMS signal error state and power down.
+			}else{
+			modPowerElectronicsInitISL();																												// Reinit I2C and ISL	
+			}
+		}
 		
 		// Combine the two currents and calculate pack power.
 		modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent + modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
@@ -135,6 +151,25 @@ bool modPowerElectronicsTask(void) {
 		
 		// Check and respond to the measured temperature values
 		// modPowerElectronicsSubTaskTemperatureWatch();
+		
+		// Check and determine whether or not there is a charge current and we need to balance.
+		if(modPowerElectronicsPackStateHandle->packCurrent >= modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold) {
+			if(modDelayTick1ms(&modPowerElectronicsChargeCurrentDetectionLastTick,5000)) {
+				modPowerElectronicsPackStateHandle->chargeBalanceActive = modPowerElectronicsGeneralConfigHandle->allowChargingDuringDischarge;
+				modPowerElectronicsPackStateHandle->chargeCurrentDetected = true;																																								// Charge current is detected after 2 seconds
+			}
+			
+			if(modPowerElectronicsPackStateHandle->chargeCurrentDetected) {
+				modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
+			}
+		}else{
+			modPowerElectronicsPackStateHandle->chargeCurrentDetected = false;
+			modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
+		}
+		
+		if(modDelayTick1ms(&modPowerElectronicsBalanceModeActiveLastTick,10*60*1000)) {																																			// When a charge current is derected, balance for 10 minutes
+			modPowerElectronicsPackStateHandle->chargeBalanceActive = false;
+		}
 		
 		modPowerElectronicsPackStateHandle->powerButtonActuated = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
 		
@@ -242,7 +277,7 @@ void modPowerElectronicsSubTaskBalaning(void) {
 			
 			modPowerElectronicsSortCells(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
 			
-			if(modPowerElectronicsPackStateHandle->chargeDesired) {																							// Check if charging is desired
+			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || !modPowerElectronicsPackStateHandle->chargeAllowed) {																							// Check if charging is desired
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
 					if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
 						// This cell voltage should be lowered if the voltage is above threshold:
@@ -271,7 +306,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	
 	if(modPowerElectronicsPackStateHandle->packOperationalCellState != PACK_STATE_ERROR_HARD_CELLVOLTAGE) {
 		// Handle soft cell voltage limits
-		if(modPowerElectronicsPackStateHandle->cellVoltageLow <= modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage) {
+		if(modPowerElectronicsPackStateHandle->cellVoltageLow <= modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage) {
 			modPowerElectronicsPackStateHandle->disChargeAllowed = false;
 			modPowerElectronicsDisChargeRetryLastTick = HAL_GetTick();
 		}
@@ -281,7 +316,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 			modPowerElectronicsChargeRetryLastTick = HAL_GetTick();
 		}
 		
-		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisDischarge)) {
+		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisDischarge)) {
 			if(modDelayTick1ms(&modPowerElectronicsDisChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutDischargeRetry))
 				modPowerElectronicsPackStateHandle->disChargeAllowed = true;
 		}
@@ -439,8 +474,8 @@ void modPowerElectronicsCalcThrottle(void) {
 	float outputLowerLimitCharge = 100.0f;
 	float outputUpperLimitCharge = 5.0f;
 	
-	float inputLowerLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin;
-  float inputUpperLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerStart;
+	float inputLowerLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin;
+  float inputUpperLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerStart;
   float outputLowerLimitDisCharge = 5.0f;
 	float outputUpperLimitDisCharge = 100.0f;
 
@@ -491,4 +526,31 @@ float modPowerElectronicsMapVariableFloat(float inputVariable, float inputLowerL
 	inputVariable = inputVariable > inputUpperLimit ? inputUpperLimit : inputVariable;
 	
 	return (inputVariable - inputLowerLimit) * (outputUpperLimit - outputLowerLimit) / (inputUpperLimit - inputLowerLimit) + outputLowerLimit;
+}
+
+void modPowerElectronicsInitISL(void) {
+	// Init BUS monitor
+	driverSWISL28022InitStruct ISLInitStruct;
+	ISLInitStruct.ADCSetting = ADC_128_64010US;
+	ISLInitStruct.busVoltageRange = BRNG_60V_1;
+	ISLInitStruct.currentShuntGain = PGA_4_160MV;
+	ISLInitStruct.Mode = MODE_SHUNTANDBUS_CONTINIOUS;
+	driverSWISL28022Init(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,ISLInitStruct);
+}
+
+void modPowerElectronicsCheckPackSOA(void) {
+	bool packOutsideLimits = false;
+	
+	if(modPowerElectronicsGeneralConfigHandle->tempEnableMaskBMS) {
+		packOutsideLimits |= (modPowerElectronicsPackStateHandle->tempBMSHigh > 70.0f) ? true : false;
+	}
+	
+	if(modPowerElectronicsGeneralConfigHandle->tempEnableMaskBattery) {
+		packOutsideLimits |= (modPowerElectronicsPackStateHandle->tempBatteryHigh > 70.0f) ? true : false;
+	}
+	
+	packOutsideLimits |= (modPowerElectronicsISLErrorCount >= ISLErrorThreshold) ? true : false;
+	
+	// TODO: timout when restoring SOA state.
+  modPowerElectronicsPackStateHandle->packInSOA = packOutsideLimits;
 }

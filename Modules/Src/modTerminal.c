@@ -128,7 +128,7 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("batteryCapacity            : %.2fAh",generalConfig->batteryCapacity);
 		modCommandsPrintf("cellHardUnderVoltage       : %.3fV",generalConfig->cellHardUnderVoltage);
 		modCommandsPrintf("cellHardOverVoltage        : %.3fV",generalConfig->cellHardOverVoltage);
-		modCommandsPrintf("cellSoftUnderVoltage       : %.3fV",generalConfig->cellSoftUnderVoltage);
+		modCommandsPrintf("cellLCSoftUnderVoltage     : %.3fV",generalConfig->cellLCSoftUnderVoltage);
 		modCommandsPrintf("cellSoftOverVoltage        : %.3fV",generalConfig->cellSoftOverVoltage);
 		modCommandsPrintf("cellBalanceStart           : %.3fV",generalConfig->cellBalanceStart);
 		modCommandsPrintf("cellBalanceDiffThreshold   : %.3fV",generalConfig->cellBalanceDifferenceThreshold);
@@ -230,7 +230,7 @@ void terminal_process_string(char *str) {
 			sscanf(argv[1], "%f", &newVoltage);
 			if(newVoltage <= 5.0f && newVoltage >= 0.0f) {
 				modCommandsPrintf("New voltage is set to: %.3fV.",newVoltage);
-				generalConfig->cellSoftUnderVoltage = newVoltage;
+				generalConfig->cellLCSoftUnderVoltage = newVoltage;
 			} else {
 				modCommandsPrintf("Invalid cell voltage (should be between 0V and 5V).");
 			}
