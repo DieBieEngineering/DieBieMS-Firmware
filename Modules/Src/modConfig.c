@@ -67,7 +67,7 @@ bool modConfigStoreDefaultConfig(void) {
 	defaultConfig.notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
 	defaultConfig.notUsedTimeout														     = 60*60*1000;							// If pack is not used for longer than XX minutes disable bms.
 	defaultConfig.stateOfChargeStoreInterval								     = 60*1000;									// Interval in ms to store state of charge information.
-	defaultConfig.CANID																			     = 8;											// CAN ID for CAN communication.
+	defaultConfig.CANID																			     = 10;											// CAN ID for CAN communication.
 	defaultConfig.CANIDStyle                                     = CANIDStyleFoiler;        // CAN ID default Style
 	defaultConfig.tempEnableMaskBMS                              = 0x1C0F;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	defaultConfig.tempEnableMaskBattery                          = 0x03F0;									// Bitwise select what sensor to enable for the battery (external sensors).

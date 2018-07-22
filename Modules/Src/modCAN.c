@@ -346,7 +346,7 @@ void modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, boo
 		send_buffer[ind++] = send;
 		memcpy(send_buffer + ind, data, len);
 		ind += len;
-		modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_PROCESS_SHORT_BUFFER << 8), send_buffer, ind);
+		modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_PROCESS_SHORT_BUFFER), send_buffer, ind);
 	}else{
 		unsigned int end_a = 0;
 		for(unsigned int i = 0;i < len;i += 7) {
@@ -366,7 +366,7 @@ void modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, boo
 				memcpy(send_buffer + 1, data + i, send_len);
 			}
 
-			modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_FILL_RX_BUFFER << 8), send_buffer, send_len + 1);
+			modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_FILL_RX_BUFFER), send_buffer, send_len + 1);
 		}
 
 		for(unsigned int i = end_a;i < len;i += 6) {
@@ -381,7 +381,7 @@ void modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, boo
 				memcpy(send_buffer + 2, data + i, send_len);
 			}
 
-			modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_FILL_RX_BUFFER_LONG << 8), send_buffer, send_len + 2);
+			modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_FILL_RX_BUFFER_LONG), send_buffer, send_len + 2);
 		}
 
 		uint32_t ind = 0;
@@ -403,49 +403,49 @@ void modCANSetESCDuty(uint8_t controllerID, float duty) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[4];
 	buffer_append_int32(buffer, (int32_t)(duty * 100000.0f), &sendIndex);
-	modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_ESC_SET_DUTY << 8), buffer, sendIndex);
+	modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_ESC_SET_DUTY), buffer, sendIndex);
 }
 
 void modCANSetESCCurrent(uint8_t controllerID, float current) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[4];
 	buffer_append_int32(buffer, (int32_t)(current * 1000.0f), &sendIndex);
-	modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_ESC_SET_CURRENT << 8), buffer, sendIndex);
+	modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_ESC_SET_CURRENT), buffer, sendIndex);
 }
 
 void modCANSetESCBrakeCurrent(uint8_t controllerID, float current) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[4];
 	buffer_append_int32(buffer, (int32_t)(current * 1000.0f), &sendIndex);
-	modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_ESC_SET_CURRENT_BRAKE << 8), buffer, sendIndex);
+	modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_ESC_SET_CURRENT_BRAKE), buffer, sendIndex);
 }
 
 void modCANSetESCRPM(uint8_t controllerID, float rpm) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[4];
 	buffer_append_int32(buffer, (int32_t)rpm, &sendIndex);
-	modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_ESC_SET_RPM << 8), buffer, sendIndex);
+	modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_ESC_SET_RPM), buffer, sendIndex);
 }
 
 void modCANSetESCPosition(uint8_t controllerID, float pos) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[4];
 	buffer_append_int32(buffer, (int32_t)(pos * 1000000.0f), &sendIndex);
-	modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_ESC_SET_POS << 8), buffer, sendIndex);
+	modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_ESC_SET_POS), buffer, sendIndex);
 }
 
 void modCANSetESCCurrentRelative(uint8_t controllerID, float currentRel) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[4];
 	buffer_append_float32(buffer, currentRel, 1e5, &sendIndex);
-	modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_ESC_SET_CURRENT_REL << 8), buffer, sendIndex);
+	modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_ESC_SET_CURRENT_REL), buffer, sendIndex);
 }
 
 void modCANSetESCBrakeCurrentRelative(uint8_t controllerID, float currentRel) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[4];
 	buffer_append_float32(buffer, currentRel, 1e5, &sendIndex);
-	modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_ESC_SET_CURRENT_BRAKE_REL << 8), buffer, sendIndex);
+	modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_ESC_SET_CURRENT_BRAKE_REL), buffer, sendIndex);
 }
 
 static void modCANSendPacketWrapper(unsigned char *data, unsigned int length) {
