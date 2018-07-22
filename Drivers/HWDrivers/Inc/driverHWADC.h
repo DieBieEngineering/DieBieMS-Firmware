@@ -1,6 +1,7 @@
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
 #include "math.h"
+#include "generalDefines.h"
 
 #define NoOfADCPorts 2
 #define NoOfAverages 10

@@ -57,7 +57,7 @@ void terminal_process_string(char *str) {
 	if (strcmp(argv[0], "ping") == 0) {
 		modCommandsPrintf("pong\n");
 	} else if (strcmp(argv[0], "status") == 0) {
-		bool disChargeEnabled = packState.disChargeDesired && packState.disChargeAllowed;
+		bool disChargeEnabled = packState.disChargeDesired && packState.disChargeLCAllowed;
 		bool chargeEnabled = packState.chargeDesired && packState.chargeAllowed;
 		 
 		modCommandsPrintf("-----Battery Pack Status-----");		

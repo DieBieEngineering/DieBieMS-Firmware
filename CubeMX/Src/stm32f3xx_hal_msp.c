@@ -150,6 +150,9 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
     GPIO_InitStruct.Alternate = GPIO_AF9_CAN;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(USB_LP_CAN_RX0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USB_LP_CAN_RX0_IRQn);
   /* USER CODE BEGIN CAN_MspInit 1 */
 
   /* USER CODE END CAN_MspInit 1 */
@@ -173,6 +176,9 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
     PA12     ------> CAN_TX 
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
+
+    /* Peripheral interrupt DeInit*/
+    HAL_NVIC_DisableIRQ(USB_LP_CAN_RX0_IRQn);
 
   }
   /* USER CODE BEGIN CAN_MspDeInit 1 */

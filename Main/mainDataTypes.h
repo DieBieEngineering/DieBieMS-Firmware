@@ -469,6 +469,11 @@ typedef enum {
 	COMM_NRF_START_PAIRING
 } COMM_PACKET_ID;
 
+typedef enum {
+	CANIDStyleVESC = 0,
+	CANIDStyleFoiler
+} CAN_ID_STYLE;
+
 // CAN commands
 typedef enum {
 	CAN_PACKET_ESC_SET_DUTY = 0,
@@ -487,8 +492,13 @@ typedef enum {
 	CAN_PACKET_BMS_STATUS_CELLVOLTAGE,
 	CAN_PACKET_BMS_STATUS_THROTTLE_CH_DISCH_BOOL,
 	CAN_PACKET_BMS_STATUS_TEMPERATURES,
+	CAN_PACKET_BMS_STATUS_AUX_IV_SAFETY_WATCHDOG,
+	CAN_PACKET_BMS_KEEP_ALIVE_SAFETY,
 	CAN_PACKET_SLS_STATUS_CURRENT_RPM = 40,
-	CAN_PACKET_SLS_STATUS_TEMPERATURE
+	CAN_PACKET_SLS_STATUS_TEMPERATURE,
+	CAN_PACKET_SSR_STATUS_MAIN_V_TEMP = 60,
+	CAN_PACKET_SSR_STATUS_MAIN_LOAD0,
+	CAN_PACKET_SSR_STATUS_MAIN_LOAD1	
 } CAN_PACKET_ID;
 
 // Logged fault data
@@ -565,20 +575,20 @@ typedef struct {
 	float temp_mos2;
 	float temp_mos3;
 	float temp_mos4;
-    float temp_mos5;
-    float temp_mos6;
-    float temp_pcb;
-    float current_motor;
-    float current_in;
-    float rpm;
-    float duty_now;
-    float amp_hours;
-    float amp_hours_charged;
-    float watt_hours;
-    float watt_hours_charged;
-    int tachometer;
-    int tachometer_abs;
-    mc_fault_code fault_code;
+	float temp_mos5;
+	float temp_mos6;
+	float temp_pcb;
+	float current_motor;
+	float current_in;
+	float rpm;
+	float duty_now;
+	float amp_hours;
+	float amp_hours_charged;
+	float watt_hours;
+	float watt_hours_charged;
+	int tachometer;
+	int tachometer_abs;
+	mc_fault_code fault_code;
 } mc_values;
 
 typedef enum {

@@ -45,8 +45,14 @@ void modHiAmpTask(void) {
 	
 	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100) && modHiAmpPackStateHandle->hiAmpShieldPresent){
 		// Determin whether discharge should be allowed
-		bool dischargeEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeAllowed;
+		bool dischargeHCEnable;
 		
+		if(modHiAmpGeneralConfigHandle->togglePowerModeDirectHCDelay || modHiAmpGeneralConfigHandle->pulseToggleButton){
+			dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+		}else{
+		  dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modHiAmpPackStateHandle->powerButtonActuated && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+		}
+
 		// Update inputs
 		modHiAmpPackStateHandle->FANStatus = driverEMC2305GetFANStatus(I2CADDRFANDriver);
 		modHiAmpPackStateHandle->auxDCDCEnabled = driverSWDCDCGetEnabledState();
@@ -60,7 +66,7 @@ void modHiAmpTask(void) {
 		modHiAmpShieldTemperatureHumidityMeasureTask();
 		
 		// Update outputs
-		modHiAmpShieldRelayControllerPassSampledInput(dischargeEnable,modHiAmpPackStateHandle->hiCurrentLoadVoltage,modHiAmpPackStateHandle->packVoltage);
+		modHiAmpShieldRelayControllerPassSampledInput(dischargeHCEnable,modHiAmpPackStateHandle->hiCurrentLoadVoltage,modHiAmpPackStateHandle->packVoltage);
 	}
 	
 
@@ -141,7 +147,7 @@ float modHiAmpShieldShuntMonitorGetVoltage(void) {
 
 float modHiAmpShieldShuntMonitorGetCurrent(void) {
   float measuredCurrent;
-	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,4,-0.038f);
+	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,2,-0.0041f);
 	return measuredCurrent;
 }
 

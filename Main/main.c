@@ -14,18 +14,24 @@
 #include "modCAN.h"
 #include "modHiAmp.h"
 
+// This next define enables / disables the watchdog
+//#define AllowDebug
+
+IWDG_HandleTypeDef handleIWDG;
 modConfigGeneralConfigStructTypedef *generalConfig;
 modStateOfChargeStructTypeDef       *generalStateOfCharge;
 modPowerElectricsPackStateTypedef   packState;
 
 void SystemClock_Config(void);
+void mainWatchDogInitAndStart(void);
+void mainWatchDogReset(void);
 void Error_Handler(void);
 
 int main(void) {			
   HAL_Init();
   SystemClock_Config();
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
-	
+	mainWatchDogInitAndStart();
 	// All following functions should be called in exactly this order
 	generalConfig            = modConfigInit();																// Tell EEPROM the needed size for ConfigStruct
 	generalStateOfCharge     = modStateOfChargeInit(&packState,generalConfig);// Tell EEPROM the needed size for StatOfChargeStruct
@@ -34,6 +40,7 @@ int main(void) {
 	modStateOfChargeStoreAndLoadDefaultStateOfCharge();												// Determin SoC from cell voltage if needed -> load StateOfCharge from EEPROM
 	// Until here
 	
+	modPowerStateSetConfigHandle(generalConfig);                              // Tell the power state what input method is used en power on mode.
 	modUARTInit();																	  												// Will act on UART message requests
 	modCANInit(&packState,generalConfig);																			// Will act on CAN message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
@@ -49,6 +56,7 @@ int main(void) {
 		modUARTTask();
 		modCANTask();
 		modHiAmpTask();
+		mainWatchDogReset();
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
@@ -61,11 +69,12 @@ void SystemClock_Config(void) {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
@@ -96,6 +105,29 @@ void SystemClock_Config(void) {
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/* IWDG init function */
+void mainWatchDogInitAndStart(void) {
+#ifndef AllowDebug
+  handleIWDG.Instance = IWDG;
+  handleIWDG.Init.Prescaler = IWDG_PRESCALER_256;
+  handleIWDG.Init.Window = 4095;
+  handleIWDG.Init.Reload = 4095;
+  if (HAL_IWDG_Init(&handleIWDG) != HAL_OK) {
+    Error_Handler();
+  }
+	
+  if(HAL_IWDG_Start(&handleIWDG) != HAL_OK) {
+    Error_Handler();
+  }
+#endif
+}
+
+void mainWatchDogReset(void) {
+#ifndef AllowDebug
+	HAL_IWDG_Refresh(&handleIWDG);
+#endif
 }
 
 /**

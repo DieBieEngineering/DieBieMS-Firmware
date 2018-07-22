@@ -5,7 +5,8 @@ modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
 uint32_t modPowerElectronicsMeasureIntervalLastTick;
 
 uint32_t modPowerElectronicsChargeRetryLastTick;
-uint32_t modPowerElectronicsDisChargeRetryLastTick;
+uint32_t modPowerElectronicsDisChargeLCRetryLastTick;
+uint32_t modPowerElectronicsDisChargeHCRetryLastTick;
 uint32_t modPowerElectronicsCellBalanceUpdateLastTick;
 uint32_t modPowerElectronicsTempMeasureDelayLastTick;
 uint32_t modPowerElectronicsChargeCurrentDetectionLastTick;
@@ -22,7 +23,6 @@ uint8_t  modPowerElectronicsISLErrorCount;
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
 	modPowerElectronicsPackStateHandle = packState;
-	//modPowerElectronicsGeneralStateOfCharge = generalStateOfCharge;
 	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
 	modPowerElectronicsAllowForcedOnState = false;
 	modPowerElectronicsISLErrorCount = 0;
@@ -41,14 +41,17 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->cellVoltageLow           = 0.0f;
 	modPowerElectronicsPackStateHandle->cellVoltageAverage       = 0.0;
 	modPowerElectronicsPackStateHandle->disChargeDesired         = false;
-	modPowerElectronicsPackStateHandle->disChargeAllowed         = true;
+	modPowerElectronicsPackStateHandle->disChargeLCAllowed       = true;
+	modPowerElectronicsPackStateHandle->disChargeHCAllowed       = true;
 	modPowerElectronicsPackStateHandle->preChargeDesired         = false;
 	modPowerElectronicsPackStateHandle->chargeDesired            = false;
 	modPowerElectronicsPackStateHandle->chargeAllowed 					 = true;
+	modPowerElectronicsPackStateHandle->safetyOverCANHCSafeNSafe = false;
 	modPowerElectronicsPackStateHandle->chargeBalanceActive      = false;
 	modPowerElectronicsPackStateHandle->chargeCurrentDetected    = false;
 	modPowerElectronicsPackStateHandle->powerButtonActuated      = false;
 	modPowerElectronicsPackStateHandle->packInSOA                = true;
+	modPowerElectronicsPackStateHandle->watchDogTime             = 255;
 	modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
 	modPowerElectronicsPackStateHandle->temperatures[0]          = 0.0f;
 	modPowerElectronicsPackStateHandle->temperatures[1]          = 0.0f;
@@ -102,7 +105,7 @@ bool modPowerElectronicsTask(void) {
 			driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
 			modPowerElectronicsISLErrorCount = 0;																								// Reset error count.
 		}else{																																								// Error in voltage measurement.
-			if(modPowerElectronicsISLErrorCount++ >= ISLErrorThreshold){																				// Increase error count
+			if(modPowerElectronicsISLErrorCount++ >= ISLErrorThreshold){												// Increase error count
 				modPowerElectronicsISLErrorCount = ISLErrorThreshold;
 				// Make BMS signal error state and power down.
 			}else{
@@ -160,18 +163,18 @@ bool modPowerElectronicsTask(void) {
 			}
 			
 			if(modPowerElectronicsPackStateHandle->chargeCurrentDetected) {
-				modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
+				modPowerElectronicsResetBalanceModeActiveTimeout();
 			}
 		}else{
 			modPowerElectronicsPackStateHandle->chargeCurrentDetected = false;
 			modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
 		}
-		
+		// TODO: have balance time configureable
 		if(modDelayTick1ms(&modPowerElectronicsBalanceModeActiveLastTick,10*60*1000)) {																																			// When a charge current is derected, balance for 10 minutes
 			modPowerElectronicsPackStateHandle->chargeBalanceActive = false;
 		}
 		
-		modPowerElectronicsPackStateHandle->powerButtonActuated = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
+		modPowerElectronicsPackStateHandle->powerButtonActuated = modPowerStateGetButtonPressedState();
 		
 		returnValue = true;
 	}else
@@ -297,7 +300,7 @@ void modPowerElectronicsSubTaskBalaning(void) {
 };
 
 void modPowerElectronicsSubTaskVoltageWatch(void) {
-	static bool lastDischargeAllowed = false;
+	static bool lastdisChargeLCAllowed = false;
 	static bool lastChargeAllowed = false;
 	uint16_t hardUnderVoltageFlags, hardOverVoltageFlags;
 	
@@ -306,9 +309,16 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	
 	if(modPowerElectronicsPackStateHandle->packOperationalCellState != PACK_STATE_ERROR_HARD_CELLVOLTAGE) {
 		// Handle soft cell voltage limits
+		// Low current
 		if(modPowerElectronicsPackStateHandle->cellVoltageLow <= modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage) {
-			modPowerElectronicsPackStateHandle->disChargeAllowed = false;
-			modPowerElectronicsDisChargeRetryLastTick = HAL_GetTick();
+			modPowerElectronicsPackStateHandle->disChargeLCAllowed = false;
+			modPowerElectronicsDisChargeLCRetryLastTick = HAL_GetTick();
+		}
+		
+		// High current
+		if(modPowerElectronicsPackStateHandle->cellVoltageLow <= modPowerElectronicsGeneralConfigHandle->cellHCSoftUnderVoltage) {
+			modPowerElectronicsPackStateHandle->disChargeHCAllowed = false;
+			modPowerElectronicsDisChargeHCRetryLastTick = HAL_GetTick();
 		}
 		
 		if(modPowerElectronicsPackStateHandle->cellVoltageHigh >= modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage) {
@@ -316,17 +326,24 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 			modPowerElectronicsChargeRetryLastTick = HAL_GetTick();
 		}
 		
+		// Low current
 		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisDischarge)) {
-			if(modDelayTick1ms(&modPowerElectronicsDisChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutDischargeRetry))
-				modPowerElectronicsPackStateHandle->disChargeAllowed = true;
+			if(modDelayTick1ms(&modPowerElectronicsDisChargeLCRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutDischargeRetry))
+				modPowerElectronicsPackStateHandle->disChargeLCAllowed = true;
 		}
+		
+		// High current
+		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellHCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisDischarge)) {
+			if(modDelayTick1ms(&modPowerElectronicsDisChargeHCRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutDischargeRetry))
+				modPowerElectronicsPackStateHandle->disChargeHCAllowed = true;
+		}		
 		
 		if(modPowerElectronicsPackStateHandle->cellVoltageHigh <= (modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->hysteresisCharge)) {
 			if(modDelayTick1ms(&modPowerElectronicsChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutChargeRetry))
 				modPowerElectronicsPackStateHandle->chargeAllowed = true;
 		}
 		
-		if(modPowerElectronicsPackStateHandle->chargeAllowed && modPowerElectronicsPackStateHandle->disChargeAllowed)
+		if(modPowerElectronicsPackStateHandle->chargeAllowed && modPowerElectronicsPackStateHandle->disChargeLCAllowed)
 			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
 		else
 			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_ERROR_SOFT_CELLVOLTAGE;
@@ -336,16 +353,16 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	if(hardUnderVoltageFlags || hardOverVoltageFlags || (modPowerElectronicsPackStateHandle->packVoltage > modPowerElectronicsGeneralConfigHandle->noOfCells*modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage)) {
 		if(modPowerElectronicsUnderAndOverVoltageErrorCount++ > modPowerElectronicsGeneralConfigHandle->maxUnderAndOverVoltageErrorCount)
 			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_ERROR_HARD_CELLVOLTAGE;
-		modPowerElectronicsPackStateHandle->disChargeAllowed = false;
+		modPowerElectronicsPackStateHandle->disChargeLCAllowed = false;
 		modPowerElectronicsPackStateHandle->chargeAllowed = false;
 	}else
 		modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
 	
 	
 	// update outputs directly if needed
-	if((lastChargeAllowed != modPowerElectronicsPackStateHandle->chargeAllowed) || (lastDischargeAllowed != modPowerElectronicsPackStateHandle->disChargeAllowed)) {
+	if((lastChargeAllowed != modPowerElectronicsPackStateHandle->chargeAllowed) || (lastdisChargeLCAllowed != modPowerElectronicsPackStateHandle->disChargeLCAllowed)) {
 		lastChargeAllowed = modPowerElectronicsPackStateHandle->chargeAllowed;
-		lastDischargeAllowed = modPowerElectronicsPackStateHandle->disChargeAllowed;
+		lastdisChargeLCAllowed = modPowerElectronicsPackStateHandle->disChargeLCAllowed;
 		modPowerElectronicsUpdateSwitches();
 	}
 };
@@ -355,13 +372,13 @@ void modPowerElectronicsUpdateSwitches(void) {
 	// Do the actual power switching in here
 	
 	//Handle pre charge output
-	if(modPowerElectronicsPackStateHandle->preChargeDesired && (modPowerElectronicsPackStateHandle->disChargeAllowed || modPowerElectronicsAllowForcedOnState))
+	if(modPowerElectronicsPackStateHandle->preChargeDesired && (modPowerElectronicsPackStateHandle->disChargeLCAllowed || modPowerElectronicsAllowForcedOnState))
 		driverHWSwitchesSetSwitchState(SWITCH_PRECHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	else
 		driverHWSwitchesSetSwitchState(SWITCH_PRECHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	
 	//Handle discharge output
-	if(modPowerElectronicsPackStateHandle->disChargeDesired && (modPowerElectronicsPackStateHandle->disChargeAllowed || modPowerElectronicsAllowForcedOnState))
+	if(modPowerElectronicsPackStateHandle->disChargeDesired && (modPowerElectronicsPackStateHandle->disChargeLCAllowed || modPowerElectronicsAllowForcedOnState))
 		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	else
 		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
@@ -472,7 +489,7 @@ void modPowerElectronicsCalcThrottle(void) {
 	float inputLowerLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperStart;
 	float inputUpperLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin;
 	float outputLowerLimitCharge = 100.0f;
-	float outputUpperLimitCharge = 5.0f;
+	float outputUpperLimitCharge = 10.0f;
 	
 	float inputLowerLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin;
   float inputUpperLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerStart;
@@ -508,7 +525,7 @@ void modPowerElectronicsCalcThrottle(void) {
 	else 
 		modPowerElectronicsPackStateHandle->throttleDutyCharge = 0;
 	
-	if(modPowerElectronicsPackStateHandle->disChargeAllowed)
+	if(modPowerElectronicsPackStateHandle->disChargeLCAllowed)
 		modPowerElectronicsPackStateHandle->throttleDutyDischarge = filteredDisChargeThrottle;
 	else 
 		modPowerElectronicsPackStateHandle->throttleDutyDischarge = 0;
@@ -554,3 +571,15 @@ void modPowerElectronicsCheckPackSOA(void) {
 	// TODO: timout when restoring SOA state.
   modPowerElectronicsPackStateHandle->packInSOA = packOutsideLimits;
 }
+
+bool modPowerElectronicsHCSafetyCANAndPowerButtonCheck(void) {
+	if(modPowerElectronicsGeneralConfigHandle->useCANSafetyInput)	
+		return (modPowerElectronicsPackStateHandle->safetyOverCANHCSafeNSafe && modPowerElectronicsPackStateHandle->powerButtonActuated);
+	else
+		return true;
+}
+
+void modPowerElectronicsResetBalanceModeActiveTimeout(void) {
+	modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
+}
+

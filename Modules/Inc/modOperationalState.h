@@ -33,5 +33,6 @@ void modOperationalStateSetAllStates(OperationalStateTypedef newState);
 void modOperationalStateSetNewState(OperationalStateTypedef newState);
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState);
 void modOperationalStateTerminateOperation(void);
+bool modOperationalStateDelayedDisable(bool delayedPowerDownDesired);
 
 #endif

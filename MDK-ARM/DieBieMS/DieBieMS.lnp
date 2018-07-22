@@ -20,6 +20,7 @@
 "diebiems\stm32f3xx_hal_adc.o"
 "diebiems\stm32f3xx_hal_gpio.o"
 "diebiems\stm32f3xx_hal_dma.o"
+"diebiems\stm32f3xx_hal_iwdg.o"
 "diebiems\driverhwadc.o"
 "diebiems\driverhweeprom.o"
 "diebiems\driverhwi2c1.o"

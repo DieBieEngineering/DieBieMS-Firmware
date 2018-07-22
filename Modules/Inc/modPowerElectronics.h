@@ -6,9 +6,10 @@
 #include "driverSWLTC6803.h"
 #include "driverHWSwitches.h"
 #include "driverSWEMC2305.h"
-#include "driverHWPowerState.h"
+//#include "driverHWPowerState.h"
 #include "modDelay.h"
 #include "modConfig.h"
+#include "modPowerState.h"
 #include "stdbool.h"
 #include "math.h"
 
@@ -66,13 +67,16 @@ typedef struct {
 	float    tempBMSAverage;
 	uint8_t  preChargeDesired;
 	uint8_t  disChargeDesired;
-	uint8_t  disChargeAllowed;
+	uint8_t  disChargeLCAllowed;
+	uint8_t  disChargeHCAllowed;
 	uint8_t  chargeDesired;
 	uint8_t  chargeAllowed;
+	uint8_t  safetyOverCANHCSafeNSafe;
 	uint8_t  chargeCurrentDetected;
 	uint8_t  chargeBalanceActive;
 	uint8_t  powerButtonActuated;
 	uint8_t  packInSOA;
+	uint8_t  watchDogTime;
 	driverLTC6803CellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnChip];
 	modPowerElectronicsPackOperationalCellStatesTypedef packOperationalCellState;
 	
@@ -119,5 +123,7 @@ void modPowerElectronicsCalcThrottle(void);
 int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);
 float modPowerElectronicsMapVariableFloat(float inputVariable, float inputLowerLimit, float inputUpperLimit, float outputLowerLimit, float outputUpperLimit);
 void modPowerElectronicsInitISL(void);
+bool modPowerElectronicsHCSafetyCANAndPowerButtonCheck(void);
+void modPowerElectronicsResetBalanceModeActiveTimeout(void);
 
 #endif

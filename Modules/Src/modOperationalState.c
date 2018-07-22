@@ -15,7 +15,10 @@ uint32_t modOperationalStateStartupDelay;
 uint32_t modOperationalStateChargerDisconnectDetectDelay;
 uint32_t modOperationalStateBatteryDeadDisplayTime;
 uint32_t modOperationalStateErrorDisplayTime;
+uint32_t modOperationalStateNotUsedResetDelay;
 uint32_t modOperationalStateNotUsedTime;
+uint32_t modOperationalStatePSPDisableDelay;
+uint32_t modOperationalStateWatchDogCountdownLastTick;
 bool modOperationalStateForceOn;
 
 void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer, modStateOfChargeStructTypeDef *generalStateOfCharge) {
@@ -30,6 +33,7 @@ void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modDisplayInit();
 	
 	modOperationalStateNotUsedTime = HAL_GetTick();
+	modOperationalStateNotUsedResetDelay = HAL_GetTick();
 };
 
 void modOperationalStateTask(void) {	
@@ -43,12 +47,13 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
-				modOperationalStateSetNewState(OP_STATE_EXTERNAL);									  // Serve external forces
+				//modOperationalStateSetNewState(OP_STATE_EXTERNAL);									// Serve external forces
+				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 			}
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
 			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimeoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
-				if(!modOperationalStatePackStatehandle->disChargeAllowed && !modPowerStateChargerDetected()) {						// If discharge is not allowed
+				if(!modOperationalStatePackStatehandle->disChargeLCAllowed && !modPowerStateChargerDetected()) {						// If discharge is not allowed
 					modOperationalStateSetNewState(OP_STATE_BATTERY_DEAD);							// Then the battery is dead
 					modOperationalStateBatteryDeadDisplayTime = HAL_GetTick();
 				}
@@ -75,14 +80,14 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetCharge(false);
 			}
 		
-			if(modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)
+			if(modOperationalStatePackStatehandle->disChargeLCAllowed || modOperationalStateForceOn)
 				modPowerElectronicsSetPreCharge(true);
 			else{
 				modPowerElectronicsSetPreCharge(false);
 				modOperationalStatePreChargeTimeout = HAL_GetTick();
 			}
 			
-			if((modOperationalStatePackStatehandle->loCurrentLoadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeAllowed || modOperationalStateForceOn)) {
+			if((modOperationalStatePackStatehandle->loCurrentLoadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeLCAllowed || modOperationalStateForceOn)) {
 				if(modOperationalStateForceOn) {
 					modOperationalStateSetNewState(OP_STATE_FORCEON);								// Goto force on
 				}else{
@@ -110,14 +115,18 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetCharge(false);
 			};
 			
-			if(!modOperationalStatePackStatehandle->disChargeAllowed) {							// Battery is empty?
+			if(!modOperationalStatePackStatehandle->disChargeLCAllowed) {							// Battery is empty?
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetCharge(false);
 			}
 			
-			if(fabs(modOperationalStatePackStatehandle->packCurrent) >= modOperationalStateGeneralConfigHandle->notUsedCurrentThreshold)
-				modOperationalStateNotUsedTime = HAL_GetTick();
+			if(fabs(modOperationalStatePackStatehandle->packCurrent) >= modOperationalStateGeneralConfigHandle->notUsedCurrentThreshold) {
+				if(modDelayTick1ms(&modOperationalStateNotUsedResetDelay,1000))
+					modOperationalStateNotUsedTime = HAL_GetTick();
+			}else{
+				modOperationalStateNotUsedResetDelay = HAL_GetTick();
+			}
 			
 			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimeout))
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
@@ -146,16 +155,27 @@ void modOperationalStateTask(void) {
 			modOperationalStateUpdateStates();
 			break;
 		case OP_STATE_POWER_DOWN:
-			// disable balancing
+			if(modOperationalStateLastState != modOperationalStateCurrentState) {
+			  modOperationalStatePSPDisableDelay = HAL_GetTick();
+			}
 			modPowerElectronicsDisableAll();																				// Disable all power paths
 			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
-			modOperationalStateTerminateOperation();																// Disable psp and store SoC
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
+		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,1000))	{					// Wait for a second
+			  modOperationalStateTerminateOperation();															// Disable psp and store SoC
+			}
 			break;
 		case OP_STATE_EXTERNAL:																										// BMS is turned on by external force IE CAN or USB
 			modOperationalStateTerminateOperation();																// Disable power and store SoC
 			modDisplayShowInfo(DISP_MODE_EXTERNAL,modOperationalStateDisplayData);
+			
+		  if(modOperationalStatePackStatehandle->disChargeLCAllowed || modOperationalStateForceOn)
+				modPowerElectronicsSetPreCharge(true);
+			else{
+				modPowerElectronicsSetPreCharge(false);
+			}
+			
 			break;
 		case OP_STATE_ERROR:
 			// Go to save state and in the future -> try to handle error situation
@@ -225,9 +245,13 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
 				modPowerElectronicsSetDisCharge(false);
 			}
-			
-			if(fabs(modOperationalStatePackStatehandle->packCurrent) >= modOperationalStateGeneralConfigHandle->notUsedCurrentThreshold)
-				modOperationalStateNotUsedTime = HAL_GetTick();
+						
+			if(fabs(modOperationalStatePackStatehandle->packCurrent) >= modOperationalStateGeneralConfigHandle->notUsedCurrentThreshold) {
+				if(modDelayTick1ms(&modOperationalStateNotUsedResetDelay,1000))
+					modOperationalStateNotUsedTime = HAL_GetTick();
+			}else{
+				modOperationalStateNotUsedResetDelay = HAL_GetTick();
+			}
 			
 			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimeout))
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
@@ -243,8 +267,10 @@ void modOperationalStateTask(void) {
 	
 	// Check for power button longpress -> if so power down BMS
 	if(modPowerStatePowerdownRequest()){
-		modOperationalStateSetAllStates(OP_STATE_POWER_DOWN);
-		modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
+		if(modOperationalStateDelayedDisable(modOperationalStateGeneralConfigHandle->useCANDelayedPowerDown)){
+			modOperationalStateSetAllStates(OP_STATE_POWER_DOWN);
+			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
+		}
 	};
 	
 	if(modPowerStateForceOnRequest()){
@@ -293,4 +319,19 @@ void modOperationalStateTerminateOperation(void) {
 	
 	// Disable the power supply
 	modPowerStateSetState(P_STAT_RESET);																				// Turn off the power
+}
+
+bool modOperationalStateDelayedDisable(bool delayedPowerDownDesired) {
+	if(delayedPowerDownDesired){
+		if(modOperationalStatePackStatehandle->watchDogTime){
+			if(modDelayTick1ms(&modOperationalStateWatchDogCountdownLastTick,1000))
+				modOperationalStatePackStatehandle->watchDogTime--;
+			
+			return false;
+		}else{
+			return true;
+		}
+	}else{
+	  return true;
+	}
 }

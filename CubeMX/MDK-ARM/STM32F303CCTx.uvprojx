@@ -361,7 +361,7 @@
               <MiscControls />
               <Define>USE_HAL_DRIVER,STM32F303xC</Define>
               <Undefine />
-              <IncludePath>../Inc;  ../Drivers/STM32F3xx_HAL_Driver/Inc;  ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;  ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;  ../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Inc;   ../Drivers/STM32F3xx_HAL_Driver/Inc;   ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;   ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;   ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -544,7 +544,11 @@
               <FilePath>../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c</FilePath>
               
             </File>
-          </Files>
+          <File>
+              <FileName>stm32f3xx_hal_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.c</FilePath>
+            </File></Files>
         </Group>
         <Group>
           <GroupName>Drivers/CMSIS</GroupName>

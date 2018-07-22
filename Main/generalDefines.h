@@ -8,7 +8,7 @@
 // Firmware version
 #define FW_VERSION_MAJOR		3
 #define FW_VERSION_MINOR		38
-#define FW_REAL_VERSION			"V0.16"
+#define FW_REAL_VERSION			"V0.17"
 
 // UUID
 #define STM32_UUID					((uint32_t*)0x1FFFF7AC)

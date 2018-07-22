@@ -38,7 +38,7 @@ bool driverSWDCDCGetOKState(void){
 };
 
 void driverSWDCDCEnableTask(void){
-	if(driverSWDCDCEnabledState != (driverSWDCDCEnabledDesiredState && driverSWDCDCPackStateHandle->disChargeAllowed && driverSWDCDCPackStateHandle->disChargeDesired)){
+	if(driverSWDCDCEnabledState != (driverSWDCDCEnabledDesiredState && driverSWDCDCPackStateHandle->disChargeLCAllowed && driverSWDCDCPackStateHandle->disChargeDesired)){
 		driverSWDCDCEnabledState = driverSWDCDCEnabledDesiredState;
 		
 		if(driverSWDCDCEnabledState){
