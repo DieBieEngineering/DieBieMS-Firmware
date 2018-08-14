@@ -24,6 +24,5 @@ void modUARTTask(void);
 void modUARTSendPacketWrapper(unsigned char *data, unsigned int len);
 void modUARTProcessPacket(unsigned char *data, unsigned int len);
 void modUARTSendPacket(unsigned char *data, unsigned int len);
-void modUARTQueMessage(modMessageMessageTypeDef messageType, const char* format, ...);
 
 #endif

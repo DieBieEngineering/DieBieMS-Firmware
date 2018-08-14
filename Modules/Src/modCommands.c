@@ -1,68 +1,28 @@
-/*
-	Copyright 2016 Benjamin Vedder	benjamin@vedder.se
-
-	This file is part of the VESC firmware.
-
-	The VESC firmware is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    The VESC firmware is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "modCommands.h"
 
 // Private variables
 static uint8_t modCommandsSendBuffer[PACKET_MAX_PL_LEN];
 static void(*modCommandsSendFunction)(unsigned char *data, unsigned int len) = 0;
-
 bool jumpBootloaderTrue;
+modConfigGeneralConfigStructTypedef *modCommandsGeneralConfig;
+modConfigGeneralConfigStructTypedef *modCommandsToBeSendConfig;
+modConfigGeneralConfigStructTypedef modCommandsConfigStorage;
 
-void modCommandsInit(void) {
+void modCommandsInit(modConfigGeneralConfigStructTypedef *configPointer) {
+	modCommandsGeneralConfig = configPointer;
 	jumpBootloaderTrue = false;
 }
 
-/**
- * Provide a function to use the next time there are packets to be sent.
- *
- * @param func
- * A pointer to the packet sending function.
- */
 void modCommandsSetSendFunction(void(*func)(unsigned char *data, unsigned int len)) {
 	modCommandsSendFunction = func;
 }
 
-/**
- * Send a packet using the set send function.
- *
- * @param data
- * The packet data.
- *
- * @param len
- * The data length.
- */
 void modCommandsSendPacket(unsigned char *data, unsigned int len) {
 	if (modCommandsSendFunction) {
 		modCommandsSendFunction(data, len);
 	}
 }
 
-/**
- * Process a received buffer with commands and data.
- *
- * @param data
- * The buffer to process.
- *
- * @param len
- * The length of the buffer.
- */
 void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 	if (!len) {
 		return;
@@ -92,7 +52,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_JUMP_TO_BOOTLOADER:
-			//jumpBootloaderTrue = true;
+			jumpBootloaderTrue = true;
 			delayTick = HAL_GetTick();
 			break;
 		case COMM_ERASE_NEW_APP:
@@ -117,10 +77,160 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		case COMM_GET_VALUES:
 			break;
 		case COMM_SET_MCCONF:
+			ind = 0;
+		  modCommandsGeneralConfig->noOfCells                      = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->batteryCapacity                = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellHardUnderVoltage           = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellHardOverVoltage            = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellLCSoftUnderVoltage         = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellHCSoftUnderVoltage         = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellSoftOverVoltage            = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellBalanceDifferenceThreshold = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellBalanceStart               = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellThrottleUpperStart         = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellThrottleLowerStart         = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellThrottleUpperMargin        = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->cellThrottleLowerMargin        = buffer_get_float32_auto(data,&ind);
+		  modCommandsGeneralConfig->throttleChargeIncreaseRate     = buffer_get_uint8(data,&ind);
+		  modCommandsGeneralConfig->throttleDisChargeIncreaseRate  = buffer_get_uint8(data,&ind);
+		  modCommandsGeneralConfig->cellBalanceUpdateInterval      = buffer_get_uint32(data,&ind);
+		  modCommandsGeneralConfig->maxSimultaneousDischargingCells = buffer_get_uint8(data,&ind);
+		  modCommandsGeneralConfig->timeoutDischargeRetry          = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->hysteresisDischarge            = buffer_get_float32_auto(data,&ind);
+		  modCommandsGeneralConfig->timeoutChargeRetry             = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->hysteresisCharge               = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->timeoutChargeCompleted         = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->timeoutChargingCompletedMinimalMismatch = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->maxMismatchThreshold           = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->chargerEnabledThreshold        = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->timeoutChargerDisconnected     = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->minimalPrechargePercentage     = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->timeoutLCPreCharge             = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->maxAllowedCurrent              = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->displayTimeoutBatteryDead      = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->displayTimeoutBatteryError     = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->displayTimeoutBatteryErrorPreCharge = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->displayTimeoutSplashScreen     = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->maxUnderAndOverVoltageErrorCount = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->notUsedCurrentThreshold        = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->notUsedTimeout                 = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->stateOfChargeStoreInterval     = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->CANID                          = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->CANIDStyle                     = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->tempEnableMaskBMS              = buffer_get_uint16(data,&ind);
+			modCommandsGeneralConfig->tempEnableMaskBattery          = buffer_get_uint16(data,&ind);
+		  modCommandsGeneralConfig->LCUseDischarge                 = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->LCUsePrecharge                 = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->allowChargingDuringDischarge   = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->allowForceOn                   = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->pulseToggleButton              = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->togglePowerModeDirectHCDelay   = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->useCANSafetyInput              = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->useCANDelayedPowerDown         = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->HCUseRelay                     = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->HCUsePrecharge                 = buffer_get_uint8(data,&ind);
+			modCommandsGeneralConfig->timeoutHCPreCharge             = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->timeoutHCPreChargeRetryInterval= buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->timeoutHCRelayOverlap          = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupLTCExt]         = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupLTCExt]     = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupLTCExt]          = buffer_get_uint16(data,&ind);
+			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupMasterPCB]      = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupMasterPCB]  = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupMasterPCB]       = buffer_get_uint16(data,&ind);
+			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupHiAmpExt]       = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupHiAmpExt]   = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupHiAmpExt]        = buffer_get_uint16(data,&ind);
+			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupHiAmpPCB]       = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupHiAmpPCB]   = buffer_get_uint32(data,&ind);
+			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupHiAmpPCB]        = buffer_get_uint16(data,&ind);
+		
+			ind = 0;
+			modCommandsSendBuffer[ind++] = packet_id;
+			modCommandsSendPacket(modCommandsSendBuffer, ind);
+		
 			break;
 		case COMM_GET_MCCONF:
-			break;
 		case COMM_GET_MCCONF_DEFAULT:
+      if(packet_id == COMM_GET_MCCONF_DEFAULT){
+				modConfigLoadDefaultConfig(&modCommandsConfigStorage);
+				modCommandsToBeSendConfig = &modCommandsConfigStorage;
+			}else{
+				modCommandsToBeSendConfig = modCommandsGeneralConfig;
+			}
+		
+      ind = 0;
+		  modCommandsSendBuffer[ind++] = packet_id;
+		  
+		  buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->noOfCells,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->batteryCapacity,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellHardUnderVoltage,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellHardOverVoltage,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellLCSoftUnderVoltage,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellHCSoftUnderVoltage,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellSoftOverVoltage,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceDifferenceThreshold,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceStart,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperStart,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerStart,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperMargin,&ind);
+		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerMargin,&ind);
+		  buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->throttleChargeIncreaseRate,&ind);
+		  buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->throttleDisChargeIncreaseRate,&ind);
+		  buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceUpdateInterval,&ind);
+		  buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->maxSimultaneousDischargingCells,&ind);
+		  buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutDischargeRetry,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->hysteresisDischarge,&ind);
+		  buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutChargeRetry,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->hysteresisCharge,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutChargeCompleted,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutChargingCompletedMinimalMismatch,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->maxMismatchThreshold,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->chargerEnabledThreshold,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutChargerDisconnected,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->minimalPrechargePercentage,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutLCPreCharge,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->maxAllowedCurrent,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryDead,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryError,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryErrorPreCharge,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutSplashScreen,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->maxUnderAndOverVoltageErrorCount,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->notUsedCurrentThreshold,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->notUsedTimeout,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->stateOfChargeStoreInterval,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->CANID,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->CANIDStyle,&ind);
+			buffer_append_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBMS,&ind);
+			buffer_append_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBattery,&ind);
+		  buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->LCUseDischarge,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->LCUsePrecharge,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->allowChargingDuringDischarge,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->allowForceOn,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->pulseToggleButton,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->togglePowerModeDirectHCDelay,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->useCANSafetyInput,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->useCANDelayedPowerDown,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->HCUseRelay,&ind);
+			buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->HCUsePrecharge,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreCharge,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreChargeRetryInterval,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCRelayOverlap,&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupLTCExt],&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupLTCExt],&ind);
+			buffer_append_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupLTCExt],&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupMasterPCB],&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupMasterPCB],&ind);
+			buffer_append_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupMasterPCB],&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupHiAmpExt],&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupHiAmpExt],&ind);
+			buffer_append_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupHiAmpExt],&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupHiAmpPCB],&ind);
+			buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupHiAmpPCB],&ind);
+			buffer_append_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupHiAmpPCB],&ind);
+
+		  modCommandsSendPacket(modCommandsSendBuffer, ind);
+		
 			break;
 		case COMM_TERMINAL_CMD:
 		  data[len] = '\0';
@@ -133,6 +243,13 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			break;
 		case COMM_FORWARD_CAN:
 			modCANSendBuffer(data[0], data + 1, len - 1, false);
+			break;
+		case COMM_STORE_BMS_CONF:
+			modConfigStoreConfig();
+		
+			ind = 0;
+			modCommandsSendBuffer[ind++] = packet_id;
+			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		default:
 			break;

@@ -27,29 +27,9 @@ void modUARTProcessPacket(unsigned char *data, unsigned int len) {
 }
 
 void modUARTSendPacket(unsigned char *data, unsigned int len) {
-	static uint8_t buffer[PACKET_MAX_PL_LEN + 5];
-	memcpy(buffer, data, len);
-	fwrite(buffer , sizeof(uint8_t), len, &driverSWUART2IOStream);
+	uint32_t outputCharPointer;
+	
+	for(outputCharPointer = 0; outputCharPointer < len; outputCharPointer++) {
+	  driverHWUART2SendChar(data[outputCharPointer]);
+	}
 }
-
-void modUARTQueMessage(modMessageMessageTypeDef messageType, const char* format, ...) {
-	uint32_t timeStamp = HAL_GetTick();
-	switch(messageType) {
-		case MESSAGE_DEBUG:
-			fprintf(&driverSWUART2IOStream,"[%10.03f] [DEBUG] ",((float)timeStamp)/1000);
-			break;
-		case MESSAGE_ERROR:
-			fprintf(&driverSWUART2IOStream,"[%10.03f] [ERROR] ",((float)timeStamp)/1000);
-			break;
-		case MESSAGE_NORMAL:
-			fprintf(&driverSWUART2IOStream,"[%10.03f] ",((float)timeStamp)/1000);
-			break;
-	};
-	
-	va_list argptr;
-	va_start(argptr, format);
-	vfprintf(&driverSWUART2IOStream, format, argptr);
-	va_end(argptr);
-	
-	while(driverSWUART2Task());
-};

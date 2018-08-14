@@ -329,6 +329,27 @@ void terminal_process_string(char *str) {
 	} else if (strcmp(argv[0], "bootloader_jump") == 0) {
 		modFlashJumpToBootloader();
 		
+	} else if (strcmp(argv[0], "slave_scan") == 0) {
+		uint8_t bitPointer;
+		char    outputString[9];
+		uint8_t presence = modHiAmpShieldScanI2CDevices();
+		
+		modCommandsPrintf("------  Slave BMS I2C scan  ------");
+		
+		for(bitPointer = 0; bitPointer < 8; bitPointer++){
+		  if(presence & (1 << bitPointer))
+				outputString[7-bitPointer] = '1';
+			else
+				outputString[7-bitPointer] = '0';
+		}
+
+		outputString[8] = 0;
+		
+		modCommandsPrintf("Presence: 0b%s",outputString);
+		modCommandsPrintf("Bit order: 0(MSB) - 0 - FANDriver - NTCADC - IOExt - SHT - ISLAux - ISLMain(LSB). ");
+		modCommandsPrintf("SHT does not respond when it is doing a conversion.");
+		modCommandsPrintf("------  Slave BMS I2C scan end  ------");
+		
 	} else if (strcmp(argv[0], "help") == 0) {
 		modCommandsPrintf("------- Start of help -------");
 		modCommandsPrintf("Valid commands for the DieBieMS are:");
@@ -336,6 +357,8 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("  Show this help.");
 		modCommandsPrintf("ping");
 		modCommandsPrintf("  Print pong here to see if the reply works.");
+		modCommandsPrintf("slave_scan");
+		modCommandsPrintf("  Scan the I2C devices on the slave.");		
 		modCommandsPrintf("status");
 		modCommandsPrintf("  Print battery measurements summary.");
 		modCommandsPrintf("cells");

@@ -453,22 +453,26 @@ static void modCANSendPacketWrapper(unsigned char *data, unsigned int length) {
 }
 
 void modCANHandleKeepAliveSafetyMessage(CanRxMsgTypeDef canMsg) {
-	if(canMsg.Data[0] & 0x01){
-		modCANSafetyCANMessageTimeout = HAL_GetTick();
-		modCANPackStateHandle->safetyOverCANHCSafeNSafe = (canMsg.Data[0] & 0x02) ? true : false;
-	}
-	
-	if(canMsg.Data[0] & 0x04){
-		if(canMsg.Data[0] & 0x08){
-			modCANPackStateHandle->watchDogTime = 255;
-		}else{
-		  modCANPackStateHandle->watchDogTime = 0;
+	if(canMsg.DLC >= 1){
+		if(canMsg.Data[0] & 0x01){
+			modCANSafetyCANMessageTimeout = HAL_GetTick();
+			modCANPackStateHandle->safetyOverCANHCSafeNSafe = (canMsg.Data[0] & 0x02) ? true : false;
+		}
+		
+		if(canMsg.Data[0] & 0x04){
+			if(canMsg.Data[0] & 0x08){
+				modCANPackStateHandle->watchDogTime = 255;
+			}else{
+				modCANPackStateHandle->watchDogTime = 5;
+			}
 		}
 	}
 	
-	if(canMsg.Data[1] & 0x10){
-	  modCANPackStateHandle->chargeBalanceActive = modCANGeneralConfigHandle->allowChargingDuringDischarge;
-		modPowerElectronicsResetBalanceModeActiveTimeout();
+	if(canMsg.DLC >= 2){
+		if(canMsg.Data[1] & 0x10){
+			modCANPackStateHandle->chargeBalanceActive = modCANGeneralConfigHandle->allowChargingDuringDischarge;
+			modPowerElectronicsResetBalanceModeActiveTimeout();
+		}
 	}
 }
 

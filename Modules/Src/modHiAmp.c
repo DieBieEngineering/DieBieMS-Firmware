@@ -90,6 +90,20 @@ bool modHiAmpShieldPresentCheck(void) {
 		return false;
 }
 
+uint8_t modHiAmpShieldScanI2CDevices(void) {
+	uint8_t I2CWrite = 0;
+	uint8_t PresenceMask = 0;
+	
+	PresenceMask |= (driverHWI2C1Write(I2CADDRISLMain    ,false,&I2CWrite,0) == HAL_OK) ? (1 << 0) : false; // ISL Main
+	PresenceMask |= (driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0) == HAL_OK) ? (1 << 1) : false; // ISL Aux
+	PresenceMask |= (driverHWI2C1Write(I2CADDRSHT        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 2) : false; // ISL Aux
+	PresenceMask |= (driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0) == HAL_OK) ? (1 << 3) : false; // IO Ext
+	PresenceMask |= (driverHWI2C1Write(I2CADDRADC        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 4) : false; // NTC ADC
+	PresenceMask |= (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? (1 << 5) : false; // FAN Driver
+	
+  return PresenceMask;
+}
+
 void modHiAmpShieldResetVariables(void) {
 	modHiAmpPackStateHandle->hiCurrentLoadVoltage         = 0.0f;
 	modHiAmpPackStateHandle->hiCurrentLoadCurrent         = 0.0f;
@@ -147,7 +161,7 @@ float modHiAmpShieldShuntMonitorGetVoltage(void) {
 
 float modHiAmpShieldShuntMonitorGetCurrent(void) {
   float measuredCurrent;
-	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,2,-0.0041f);
+	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,4,-0.038f);
 	return measuredCurrent;
 }
 

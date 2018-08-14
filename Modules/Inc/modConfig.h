@@ -5,6 +5,7 @@
 #include "stdbool.h"
 #include "mainDataTypes.h"
 #include "driverSWStorageManager.h"
+#include "generalDefines.h"
 
 #define modConfigNoOfNTCTypes 4
 #define modConfigNTCGroupHiAmpExt  0
@@ -27,7 +28,7 @@ typedef struct {
 	float    cellThrottleUpperStart;																							// Charge throttle range
 	float    cellThrottleLowerStart;																							// Discharge throttle rande
 	float    cellThrottleUpperMargin;																							// Margin from the upper cell voltage extremes
-  float    cellThrottleLowerMargin;                                             // Margin from the lower cell voltage extremes
+    float    cellThrottleLowerMargin;                                             // Margin from the lower cell voltage extremes
 	uint8_t  throttleChargeIncreaseRate;																					// The rate of charge throttle percentage increase per 100ms
 	uint8_t  throttleDisChargeIncreaseRate;                                       // The rate of discharge throttle percentage instrease per 100ms
 	uint32_t cellBalanceUpdateInterval;																						// Amount of time that the balance resistor enable mask is kept
@@ -52,7 +53,7 @@ typedef struct {
 	float    notUsedCurrentThreshold;																							// Threshold that defines whether or not pack is in use.
 	uint32_t notUsedTimeout;																											// Delay time that defines max amount of no operation on-time. When absolute battery curren < notUsedCurrentThreshold for longer than this amount of time -> the system is disabled
 	uint32_t stateOfChargeStoreInterval;																					// Interval to store state of charge information.
-	uint32_t CANID;																																// Stores the CAN ID of the device.
+	uint8_t  CANID;																																// Stores the CAN ID of the device.
 	uint8_t  CANIDStyle;                                                          // Store the ID style used to communicate over CAN
 	uint16_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
 	uint16_t tempEnableMaskBattery;																								// Stores the mask to select what temperature sensor is enabled for the battery.
@@ -81,5 +82,6 @@ bool modConfigStoreAndLoadDefaultConfig(void);
 bool modConfigStoreConfig(void);
 bool modConfigLoadConfig(void);
 bool modConfigStoreDefaultConfig(void);
+void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocation);
 
 #endif

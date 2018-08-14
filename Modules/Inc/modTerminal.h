@@ -26,6 +26,7 @@
 #include "modStateOfCharge.h"
 #include "modPowerElectronics.h"
 #include "modOperationalState.h"
+#include "modHiAmp.h"
 #include "modConfig.h"
 
 #include <string.h>

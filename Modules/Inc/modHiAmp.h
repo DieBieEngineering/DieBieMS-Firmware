@@ -35,6 +35,7 @@ typedef enum {
 void  modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void  modHiAmpTask(void);
 bool  modHiAmpShieldPresentCheck(void);
+uint8_t modHiAmpShieldScanI2CDevices(void);
 void  modHiAmpShieldResetVariables(void);
 void  modHiAmpShieldMainShuntMonitorInit(void);
 float modHiAmpShieldShuntMonitorGetVoltage(void);

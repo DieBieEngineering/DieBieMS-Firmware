@@ -41,6 +41,7 @@ int main(void) {
 	// Until here
 	
 	modPowerStateSetConfigHandle(generalConfig);                              // Tell the power state what input method is used en power on mode.
+	modCommandsInit(generalConfig);
 	modUARTInit();																	  												// Will act on UART message requests
 	modCANInit(&packState,generalConfig);																			// Will act on CAN message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
