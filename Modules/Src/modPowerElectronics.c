@@ -32,6 +32,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->throttleDutyDischarge    = 0;
 	modPowerElectronicsPackStateHandle->SoC                      = 0.0f;
 	modPowerElectronicsPackStateHandle->SoCCapacityAh            = 0.0f;
+	modPowerElectronicsPackStateHandle->operationalState         = OP_STATE_INIT;
 	modPowerElectronicsPackStateHandle->packVoltage              = 0.0f;
 	modPowerElectronicsPackStateHandle->packCurrent              = 0.0f;
 	modPowerElectronicsPackStateHandle->packPower                = 0.0f;
@@ -101,7 +102,7 @@ bool modPowerElectronicsTask(void) {
 		driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsTempPackVoltage,0.004f);
 		if(fabs(modPowerElectronicsTempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCells*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 1.0f) {    // If the error is smaller than one volt continue normal operation. 
 			modPowerElectronicsPackStateHandle->packVoltage = modPowerElectronicsTempPackVoltage;
-			driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,0,-0.004494f);
+			driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,modPowerElectronicsGeneralConfigHandle->shuntLCOffset,modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 			driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
 			modPowerElectronicsISLErrorCount = 0;																								// Reset error count.
 		}else{																																								// Error in voltage measurement.

@@ -475,6 +475,21 @@ typedef enum {
 	CANIDStyleFoiler
 } CAN_ID_STYLE;
 
+typedef enum {
+	OP_STATE_INIT = 0,											// 0
+	OP_STATE_CHARGING,											// 1
+	OP_STATE_PRE_CHARGE,										// 2
+	OP_STATE_LOAD_ENABLED,									// 3
+	OP_STATE_BATTERY_DEAD,									// 4
+	OP_STATE_POWER_DOWN,										// 5
+	OP_STATE_EXTERNAL,											// 6
+	OP_STATE_ERROR,													// 7
+	OP_STATE_ERROR_PRECHARGE,								// 8
+	OP_STATE_BALANCING,											// 9
+	OP_STATE_CHARGED,												// 10
+	OP_STATE_FORCEON,												// 11
+} OperationalStateTypedef;
+
 // CAN commands
 typedef enum {
 	CAN_PACKET_ESC_SET_DUTY = 0,
@@ -502,46 +517,6 @@ typedef enum {
 	CAN_PACKET_SSR_STATUS_MAIN_LOAD1	
 } CAN_PACKET_ID;
 
-// Logged fault data
-typedef struct {
-	mc_fault_code fault;
-	float current;
-	float current_filtered;
-	float voltage;
-	float duty;
-	float rpm;
-	int tacho;
-	int cycles_running;
-	int tim_val_samp;
-	int tim_current_samp;
-	int tim_top;
-	int comm_step;
-	float temperature;
-	int drv8301_faults;
-} fault_data;
-
-// External LED state
-typedef enum {
-	LED_EXT_OFF = 0,
-	LED_EXT_NORMAL,
-	LED_EXT_BRAKE,
-	LED_EXT_TURN_LEFT,
-	LED_EXT_TURN_RIGHT,
-	LED_EXT_BRAKE_TURN_LEFT,
-	LED_EXT_BRAKE_TURN_RIGHT,
-	LED_EXT_BATT
-} LED_EXT_STATE;
-
-typedef struct {
-	int js_x;
-	int js_y;
-	int acc_x;
-	int acc_y;
-	int acc_z;
-	bool bt_c;
-	bool bt_z;
-} chuck_data;
-
 typedef struct {
 	int id;
 	systime_t rx_time;
@@ -549,15 +524,6 @@ typedef struct {
 	float current;
 	float duty;
 } can_status_msg;
-
-typedef struct {
-	uint8_t js_x;
-	uint8_t js_y;
-	bool bt_c;
-	bool bt_z;
-	bool bt_push;
-	float vbat;
-} mote_state;
 
 typedef enum {
 	MOTE_PACKET_BATT_LEVEL = 0,
@@ -569,28 +535,6 @@ typedef enum {
 	MOTE_PACKET_PROCESS_SHORT_BUFFER,
 	MOTE_PACKET_PAIRING_INFO
 } MOTE_PACKET;
-
-typedef struct {
-	float v_in;
-	float temp_mos1;
-	float temp_mos2;
-	float temp_mos3;
-	float temp_mos4;
-	float temp_mos5;
-	float temp_mos6;
-	float temp_pcb;
-	float current_motor;
-	float current_in;
-	float rpm;
-	float duty_now;
-	float amp_hours;
-	float amp_hours_charged;
-	float watt_hours;
-	float watt_hours_charged;
-	int tachometer;
-	int tachometer_abs;
-	mc_fault_code fault_code;
-} mc_values;
 
 typedef enum {
 	NRF_PAIR_STARTED = 0,

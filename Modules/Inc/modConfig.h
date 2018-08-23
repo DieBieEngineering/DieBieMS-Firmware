@@ -28,7 +28,11 @@ typedef struct {
 	float    cellThrottleUpperStart;																							// Charge throttle range
 	float    cellThrottleLowerStart;																							// Discharge throttle rande
 	float    cellThrottleUpperMargin;																							// Margin from the upper cell voltage extremes
-    float    cellThrottleLowerMargin;                                             // Margin from the lower cell voltage extremes
+  float    cellThrottleLowerMargin;                                             // Margin from the lower cell voltage extremes
+	float    shuntLCFactor;                                                       // Shunt multiplication factor Low current
+	uint16_t shuntLCOffset;                                                       // Shunt low current offset
+	float    shuntHCFactor;                                                       // Shunt multiplication factor High current	
+  uint16_t shuntHCOffset;                                                       // Shunt high current offset	
 	uint8_t  throttleChargeIncreaseRate;																					// The rate of charge throttle percentage increase per 100ms
 	uint8_t  throttleDisChargeIncreaseRate;                                       // The rate of discharge throttle percentage instrease per 100ms
 	uint32_t cellBalanceUpdateInterval;																						// Amount of time that the balance resistor enable mask is kept

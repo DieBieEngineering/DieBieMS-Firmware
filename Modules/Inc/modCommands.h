@@ -28,16 +28,18 @@
 #include "modCAN.h"
 #include "modFlash.h"
 #include "modConfig.h"
+#include "modPowerElectronics.h"
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 
 // Functions
-void modCommandsInit(modConfigGeneralConfigStructTypedef *configPointer);
+void modCommandsInit(modPowerElectricsPackStateTypedef   *generalState,modConfigGeneralConfigStructTypedef *configPointer);
 void modCommandsSetSendFunction(void(*func)(unsigned char *data, unsigned int len));
 void modCommandsSendPacket(unsigned char *data, unsigned int len);
 void modCommandsProcessPacket(unsigned char *data, unsigned int len);
 void modCommandsPrintf(const char* format, ...);
+void modCommandsJumpToMainApplication(void);
 
 #endif /* COMMANDS_H_ */

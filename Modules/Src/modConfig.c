@@ -49,7 +49,11 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleUpperStart										     = 0.03f;										// Upper range of cell voltage for charge throttling.
 	configLocation->cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
-	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
+	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.
+  configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
+	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
+  configLocation->shuntHCFactor	                                 = -0.038f;                 // Shunt factor high current
+	configLocation->shuntHCOffset                                  = 4;                       // Shunt offset high current
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.
@@ -121,6 +125,10 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
+  configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
+	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
+  configLocation->shuntHCFactor	                                 = -0.038f;                 // Shunt factor high current
+	configLocation->shuntHCOffset                                  = 4;                       // Shunt offset high current
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.
@@ -192,6 +200,10 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
+  configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
+	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
+  configLocation->shuntHCFactor	                                 = -0.038f;                 // Shunt factor high current
+	configLocation->shuntHCOffset                                  = 4;                       // Shunt offset high current
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.

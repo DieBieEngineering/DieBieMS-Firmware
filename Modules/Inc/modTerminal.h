@@ -39,7 +39,6 @@
 
 // Functions
 void terminal_process_string(char *str);
-void terminal_add_fault_data(fault_data *data);
 void terminal_register_command_callback(
 		const char* command,
 		const char *help,

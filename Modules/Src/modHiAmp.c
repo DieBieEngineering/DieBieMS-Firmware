@@ -161,7 +161,7 @@ float modHiAmpShieldShuntMonitorGetVoltage(void) {
 
 float modHiAmpShieldShuntMonitorGetCurrent(void) {
   float measuredCurrent;
-	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,4,-0.038f);
+	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,modHiAmpGeneralConfigHandle->shuntHCOffset,modHiAmpGeneralConfigHandle->shuntHCFactor);
 	return measuredCurrent;
 }
 

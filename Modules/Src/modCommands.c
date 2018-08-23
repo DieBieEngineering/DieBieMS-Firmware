@@ -7,9 +7,11 @@ bool jumpBootloaderTrue;
 modConfigGeneralConfigStructTypedef *modCommandsGeneralConfig;
 modConfigGeneralConfigStructTypedef *modCommandsToBeSendConfig;
 modConfigGeneralConfigStructTypedef modCommandsConfigStorage;
+modPowerElectricsPackStateTypedef   *modCommandsGeneralState;
 
-void modCommandsInit(modConfigGeneralConfigStructTypedef *configPointer) {
+void modCommandsInit(modPowerElectricsPackStateTypedef   *generalState,modConfigGeneralConfigStructTypedef *configPointer) {
 	modCommandsGeneralConfig = configPointer;
+	modCommandsGeneralState  = generalState;
 	jumpBootloaderTrue = false;
 }
 
@@ -75,6 +77,37 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_GET_VALUES:
+			ind = 0;
+			modCommandsSendBuffer[ind++] = COMM_GET_VALUES;
+		
+		  buffer_append_float32(modCommandsSendBuffer, modCommandsGeneralState->packVoltage, 1e3, &ind);
+		  buffer_append_float32(modCommandsSendBuffer, modCommandsGeneralState->packCurrent, 1e3, &ind);
+		
+		  buffer_append_uint8(modCommandsSendBuffer, (uint8_t)round(modCommandsGeneralState->SoC), &ind);
+		
+		  buffer_append_float32(modCommandsSendBuffer, modCommandsGeneralState->cellVoltageHigh, 1e3, &ind);
+		  buffer_append_float32(modCommandsSendBuffer, modCommandsGeneralState->cellVoltageAverage, 1e3, &ind);
+		  buffer_append_float32(modCommandsSendBuffer, modCommandsGeneralState->cellVoltageLow, 1e3, &ind);
+		  buffer_append_float32(modCommandsSendBuffer, modCommandsGeneralState->cellVoltageMisMatch, 1e3, &ind);
+		
+		  buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->loCurrentLoadVoltage, 1e2, &ind);
+		  buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->loCurrentLoadCurrent, 1e2, &ind);
+		  buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->hiCurrentLoadVoltage, 1e2, &ind);
+		  buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->hiCurrentLoadCurrent, 1e2, &ind);
+		  buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->auxVoltage, 1e2, &ind);
+		  buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->auxCurrent, 1e2, &ind);
+		
+			buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBatteryHigh, 1e1, &ind);
+			buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBatteryAverage, 1e1, &ind);
+			buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSHigh, 1e1, &ind);
+			buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSAverage, 1e1, &ind);
+			
+			buffer_append_uint8(modCommandsSendBuffer, (uint8_t)modCommandsGeneralState->operationalState, &ind);
+			buffer_append_uint8(modCommandsSendBuffer, 0, &ind);
+		
+			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			modCommandsSendPacket(modCommandsSendBuffer, ind);
+		
 			break;
 		case COMM_SET_MCCONF:
 			ind = 0;
@@ -91,6 +124,10 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->cellThrottleLowerStart         = buffer_get_float32_auto(data,&ind);
 			modCommandsGeneralConfig->cellThrottleUpperMargin        = buffer_get_float32_auto(data,&ind);
 			modCommandsGeneralConfig->cellThrottleLowerMargin        = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->shuntLCFactor                  = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->shuntLCOffset                  = buffer_get_int16(data,&ind);
+			modCommandsGeneralConfig->shuntHCFactor	                 = buffer_get_float32_auto(data,&ind);
+			modCommandsGeneralConfig->shuntHCOffset                  = buffer_get_int16(data,&ind);
 		  modCommandsGeneralConfig->throttleChargeIncreaseRate     = buffer_get_uint8(data,&ind);
 		  modCommandsGeneralConfig->throttleDisChargeIncreaseRate  = buffer_get_uint8(data,&ind);
 		  modCommandsGeneralConfig->cellBalanceUpdateInterval      = buffer_get_uint32(data,&ind);
@@ -175,6 +212,12 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerStart,&ind);
 		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperMargin,&ind);
 		  buffer_append_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerMargin,&ind);
+			
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsGeneralConfig->shuntLCFactor,&ind);
+			buffer_append_int16(modCommandsSendBuffer,modCommandsGeneralConfig->shuntLCOffset,&ind);
+			buffer_append_float32_auto(modCommandsSendBuffer,modCommandsGeneralConfig->shuntHCFactor,&ind);
+			buffer_append_int16(modCommandsSendBuffer,modCommandsGeneralConfig->shuntHCOffset,&ind);
+			
 		  buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->throttleChargeIncreaseRate,&ind);
 		  buffer_append_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->throttleDisChargeIncreaseRate,&ind);
 		  buffer_append_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceUpdateInterval,&ind);
@@ -237,7 +280,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  terminal_process_string((char*)data);
 			break;
 		case COMM_REBOOT:
-			// Lock the system and enter an infinite loop. The watchdog will reboot.
+			modCommandsJumpToMainApplication();
 			break;
 		case COMM_ALIVE:
 			break;
@@ -272,4 +315,9 @@ void modCommandsPrintf(const char* format, ...) {
 	if(len > 0) {
 		modCommandsSendPacket((unsigned char*)print_buffer, (len<254)? len+1: 255);
 	}
+}
+
+
+void modCommandsJumpToMainApplication(void) {
+	NVIC_SystemReset();
 }

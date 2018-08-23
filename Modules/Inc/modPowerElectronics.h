@@ -48,6 +48,7 @@ typedef struct {
 	uint8_t  throttleDutyDischarge;
 	float    SoC;
 	float    SoCCapacityAh;
+	OperationalStateTypedef operationalState;
 	float    packVoltage;
 	float    packCurrent;
 	float    packPower;

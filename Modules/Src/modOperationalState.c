@@ -293,11 +293,11 @@ void modOperationalStateTask(void) {
 
 void modOperationalStateUpdateStates(void) {
 	modOperationalStateLastState = modOperationalStateCurrentState;
-	modOperationalStateCurrentState = modOperationalStateNewState;
+	modOperationalStatePackStatehandle->operationalState = modOperationalStateCurrentState = modOperationalStateNewState;
 };
 
 void modOperationalStateSetAllStates(OperationalStateTypedef newState) {
-	modOperationalStateLastState = modOperationalStateCurrentState = modOperationalStateNewState = newState;
+	modOperationalStatePackStatehandle->operationalState = modOperationalStateLastState = modOperationalStateCurrentState = modOperationalStateNewState = newState;
 };
 
 void modOperationalStateSetNewState(OperationalStateTypedef newState) {

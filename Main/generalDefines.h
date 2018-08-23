@@ -7,12 +7,11 @@
 
 // Hardware name
 #define HW_NAME "DieBieMS"
-#define HW_VERSION "V0.3"
 
 // Firmware version
 #define FW_VERSION_MAJOR		0
-#define FW_VERSION_MINOR		18
-#define FW_REAL_VERSION			"V0.18"
+#define FW_VERSION_MINOR		19
+#define FW_REAL_VERSION			"V0.19"
 
 // UUID
 #define STM32_UUID					((uint32_t*)0x1FFFF7AC)

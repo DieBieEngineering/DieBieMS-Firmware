@@ -28,8 +28,6 @@ typedef struct _terminal_callback_struct {
 } terminal_callback_struct;
 
 // Private variables
-static volatile fault_data fault_vec[FAULT_VEC_LEN];
-static volatile int fault_vec_write = 0;
 static terminal_callback_struct callbacks[CALLBACK_LEN];
 static int callback_write = 0;
 
@@ -63,6 +61,8 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("-----Battery Pack Status-----");		
 		modCommandsPrintf("Pack voltage          : %.2fV",packState.packVoltage);
 		modCommandsPrintf("Pack current          : %.2fA",packState.packCurrent);
+		modCommandsPrintf("Low  current          : %.2fA",packState.loCurrentLoadCurrent);
+		modCommandsPrintf("High current          : %.2fA",packState.hiCurrentLoadCurrent);		
 		modCommandsPrintf("State of charge       : %.1f%%",generalStateOfCharge->generalStateOfCharge);
 		modCommandsPrintf("Remaining capacity    : %.2fAh",generalStateOfCharge->remainingCapacityAh);
 		
@@ -306,7 +306,6 @@ void terminal_process_string(char *str) {
 	} else if (strcmp(argv[0], "hwinfo") == 0) {
 		modCommandsPrintf("-------    BMS Info   -------");		
 		modCommandsPrintf("Firmware: %s", FW_REAL_VERSION);
-		modCommandsPrintf("Hardware: %s", HW_VERSION);
 		modCommandsPrintf("Name    : %s", HW_NAME);
 		modCommandsPrintf("UUID: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
 				STM32_UUID_8[0], STM32_UUID_8[1], STM32_UUID_8[2], STM32_UUID_8[3],
@@ -422,13 +421,6 @@ void terminal_process_string(char *str) {
 		if (!found) {
 			modCommandsPrintf("Invalid command: %s\n type help to list all available commands\n", argv[0]);
 		}
-	}
-}
-
-void terminal_add_fault_data(fault_data *data) {
-	fault_vec[fault_vec_write++] = *data;
-	if (fault_vec_write >= FAULT_VEC_LEN) {
-		fault_vec_write = 0;
 	}
 }
 
