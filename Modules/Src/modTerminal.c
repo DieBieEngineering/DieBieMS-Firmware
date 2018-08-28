@@ -104,7 +104,8 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("Cell voltage average  : %.3fV",packState.cellVoltageAverage);
 		modCommandsPrintf("Cell voltage mismatch : %.3fV",packState.cellVoltageMisMatch);
 		modCommandsPrintf("Discharge enabled     : %s",disChargeEnabled ? "True" : "False");
-		modCommandsPrintf("Charge enabled        : %s",chargeEnabled ? "True" : "False");		
+		modCommandsPrintf("Charge enabled        : %s",chargeEnabled ? "True" : "False");	
+    modCommandsPrintf("Power button pressed  : %s",packState.powerButtonActuated ? "True" : "False");		
 		modCommandsPrintf("---End Battery Pack Status---");
 		modCommandsPrintf(" ");
 		

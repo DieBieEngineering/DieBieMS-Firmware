@@ -35,6 +35,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 	uint16_t flash_res;
 	uint32_t new_app_offset;
 	uint32_t delayTick;
+	uint8_t cellPointer;
 
 	packet_id = (COMM_PACKET_ID) data[0];
 	data++;
@@ -108,6 +109,19 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 		
+			break;
+    case COMM_GET_BMS_CELLS:
+			ind = 0;
+			modCommandsSendBuffer[ind++] = COMM_GET_BMS_CELLS;
+		
+		  buffer_append_uint8(modCommandsSendBuffer, modCommandsGeneralConfig->noOfCells, &ind);                // Cell count
+		
+		  for(cellPointer = 0; cellPointer < modCommandsGeneralConfig->noOfCells; cellPointer++){
+				buffer_append_float16(modCommandsSendBuffer, modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellVoltage, 1e3, &ind);    // Individual cells
+			}
+		
+			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_SET_MCCONF:
 			ind = 0;

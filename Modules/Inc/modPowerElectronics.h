@@ -6,7 +6,6 @@
 #include "driverSWLTC6803.h"
 #include "driverHWSwitches.h"
 #include "driverSWEMC2305.h"
-//#include "driverHWPowerState.h"
 #include "modDelay.h"
 #include "modConfig.h"
 #include "modPowerState.h"
