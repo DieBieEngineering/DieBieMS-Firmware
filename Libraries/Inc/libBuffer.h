@@ -22,23 +22,23 @@
 
 #include <stdint.h>
 
-void buffer_append_int8(uint8_t* buffer, int8_t number, int32_t *index);
-void buffer_append_uint8(uint8_t* buffer, uint8_t number, int32_t *index);
-void buffer_append_int16(uint8_t* buffer, int16_t number, int32_t *index);
-void buffer_append_uint16(uint8_t* buffer, uint16_t number, int32_t *index);
-void buffer_append_int32(uint8_t* buffer, int32_t number, int32_t *index);
-void buffer_append_uint32(uint8_t* buffer, uint32_t number, int32_t *index);
-void buffer_append_float16(uint8_t* buffer, float number, float scale, int32_t *index);
-void buffer_append_float32(uint8_t* buffer, float number, float scale, int32_t *index);
-void buffer_append_float32_auto(uint8_t* buffer, float number, int32_t *index);
-int8_t buffer_get_int8(const uint8_t *buffer, int32_t *index);
-uint8_t buffer_get_uint8(const uint8_t *buffer, int32_t *index);
-int16_t buffer_get_int16(const uint8_t *buffer, int32_t *index);
-uint16_t buffer_get_uint16(const uint8_t *buffer, int32_t *index);
-int32_t buffer_get_int32(const uint8_t *buffer, int32_t *index);
-uint32_t buffer_get_uint32(const uint8_t *buffer, int32_t *index);
-float buffer_get_float16(const uint8_t *buffer, float scale, int32_t *index);
-float buffer_get_float32(const uint8_t *buffer, float scale, int32_t *index);
-float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index);
+void     libBufferAppend_int8(uint8_t* buffer, int8_t number, int32_t *index);
+void     libBufferAppend_uint8(uint8_t* buffer, uint8_t number, int32_t *index);
+void     libBufferAppend_int16(uint8_t* buffer, int16_t number, int32_t *index);
+void     libBufferAppend_uint16(uint8_t* buffer, uint16_t number, int32_t *index);
+void     libBufferAppend_int32(uint8_t* buffer, int32_t number, int32_t *index);
+void     libBufferAppend_uint32(uint8_t* buffer, uint32_t number, int32_t *index);
+void     libBufferAppend_float16(uint8_t* buffer, float number, float scale, int32_t *index);
+void     libBufferAppend_float32(uint8_t* buffer, float number, float scale, int32_t *index);
+void     libBufferAppend_float32_auto(uint8_t* buffer, float number, int32_t *index);
+int8_t   libBufferGet_int8(const uint8_t *buffer, int32_t *index);
+uint8_t  libBufferGet_uint8(const uint8_t *buffer, int32_t *index);
+int16_t  libBufferGet_int16(const uint8_t *buffer, int32_t *index);
+uint16_t libBufferGet_uint16(const uint8_t *buffer, int32_t *index);
+int32_t  libBufferGet_int32(const uint8_t *buffer, int32_t *index);
+uint32_t libBufferGet_uint32(const uint8_t *buffer, int32_t *index);
+float    libBufferGet_float16(const uint8_t *buffer, float scale, int32_t *index);
+float    libBufferGet_float32(const uint8_t *buffer, float scale, int32_t *index);
+float    libBufferGet_float32_auto(const uint8_t *buffer, int32_t *index);
 
 #endif /* BUFFER_H_ */

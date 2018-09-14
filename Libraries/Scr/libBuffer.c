@@ -21,44 +21,44 @@
 #include <math.h>
 #include <stdbool.h>
 
-void buffer_append_int8(uint8_t* buffer, int8_t number, int32_t *index) {
+void libBufferAppend_int8(uint8_t* buffer, int8_t number, int32_t *index) {
 	buffer[(*index)++] = number;
 }
 
-void buffer_append_uint8(uint8_t* buffer, uint8_t number, int32_t *index) {
+void libBufferAppend_uint8(uint8_t* buffer, uint8_t number, int32_t *index) {
 	buffer[(*index)++] = number;
 }
 
-void buffer_append_int16(uint8_t* buffer, int16_t number, int32_t *index) {
+void libBufferAppend_int16(uint8_t* buffer, int16_t number, int32_t *index) {
 	buffer[(*index)++] = number >> 8;
 	buffer[(*index)++] = number;
 }
 
-void buffer_append_uint16(uint8_t* buffer, uint16_t number, int32_t *index) {
+void libBufferAppend_uint16(uint8_t* buffer, uint16_t number, int32_t *index) {
 	buffer[(*index)++] = number >> 8;
 	buffer[(*index)++] = number;
 }
 
-void buffer_append_int32(uint8_t* buffer, int32_t number, int32_t *index) {
+void libBufferAppend_int32(uint8_t* buffer, int32_t number, int32_t *index) {
 	buffer[(*index)++] = number >> 24;
 	buffer[(*index)++] = number >> 16;
 	buffer[(*index)++] = number >> 8;
 	buffer[(*index)++] = number;
 }
 
-void buffer_append_uint32(uint8_t* buffer, uint32_t number, int32_t *index) {
+void libBufferAppend_uint32(uint8_t* buffer, uint32_t number, int32_t *index) {
 	buffer[(*index)++] = number >> 24;
 	buffer[(*index)++] = number >> 16;
 	buffer[(*index)++] = number >> 8;
 	buffer[(*index)++] = number;
 }
 
-void buffer_append_float16(uint8_t* buffer, float number, float scale, int32_t *index) {
-    buffer_append_int16(buffer, (int16_t)(number * scale), index);
+void libBufferAppend_float16(uint8_t* buffer, float number, float scale, int32_t *index) {
+    libBufferAppend_int16(buffer, (int16_t)(number * scale), index);
 }
 
-void buffer_append_float32(uint8_t* buffer, float number, float scale, int32_t *index) {
-    buffer_append_int32(buffer, (int32_t)(number * scale), index);
+void libBufferAppend_float32(uint8_t* buffer, float number, float scale, int32_t *index) {
+    libBufferAppend_int32(buffer, (int32_t)(number * scale), index);
 }
 
 /*
@@ -101,7 +101,7 @@ void buffer_append_float32(uint8_t* buffer, float number, float scale, int32_t *
  * This should be a relatively fast and efficient way to serialize
  * floating point numbers in a fully defined manner.
  */
-void buffer_append_float32_auto(uint8_t* buffer, float number, int32_t *index) {
+void libBufferAppend_float32_auto(uint8_t* buffer, float number, int32_t *index) {
 	int e = 0;
 	float sig = frexpf(number, &e);
 	float sig_abs = fabsf(sig);
@@ -118,36 +118,36 @@ void buffer_append_float32_auto(uint8_t* buffer, float number, int32_t *index) {
 		res |= 0x80000000;
 	}
 
-	buffer_append_uint32(buffer, res, index);
+	libBufferAppend_uint32(buffer, res, index);
 }
 
-int8_t buffer_get_int8(const uint8_t *buffer, int32_t *index) {
+int8_t libBufferGet_int8(const uint8_t *buffer, int32_t *index) {
 	int8_t res =	((uint8_t) buffer[*index]);
 	*index += 1;
 	return res;
 }
 
-uint8_t buffer_get_uint8(const uint8_t *buffer, int32_t *index) {
+uint8_t libBufferGet_uint8(const uint8_t *buffer, int32_t *index) {
 	uint8_t res = 	((uint8_t) buffer[*index]);
 	*index += 1;
 	return res;
 }
 
-int16_t buffer_get_int16(const uint8_t *buffer, int32_t *index) {
+int16_t libBufferGet_int16(const uint8_t *buffer, int32_t *index) {
 	int16_t res =	((uint16_t) buffer[*index]) << 8 |
 					((uint16_t) buffer[*index + 1]);
 	*index += 2;
 	return res;
 }
 
-uint16_t buffer_get_uint16(const uint8_t *buffer, int32_t *index) {
+uint16_t libBufferGet_uint16(const uint8_t *buffer, int32_t *index) {
 	uint16_t res = 	((uint16_t) buffer[*index]) << 8 |
 					((uint16_t) buffer[*index + 1]);
 	*index += 2;
 	return res;
 }
 
-int32_t buffer_get_int32(const uint8_t *buffer, int32_t *index) {
+int32_t libBufferGet_int32(const uint8_t *buffer, int32_t *index) {
 	int32_t res =	((uint32_t) buffer[*index]) << 24 |
 					((uint32_t) buffer[*index + 1]) << 16 |
 					((uint32_t) buffer[*index + 2]) << 8 |
@@ -156,7 +156,7 @@ int32_t buffer_get_int32(const uint8_t *buffer, int32_t *index) {
 	return res;
 }
 
-uint32_t buffer_get_uint32(const uint8_t *buffer, int32_t *index) {
+uint32_t libBufferGet_uint32(const uint8_t *buffer, int32_t *index) {
 	uint32_t res =	((uint32_t) buffer[*index]) << 24 |
 					((uint32_t) buffer[*index + 1]) << 16 |
 					((uint32_t) buffer[*index + 2]) << 8 |
@@ -165,16 +165,16 @@ uint32_t buffer_get_uint32(const uint8_t *buffer, int32_t *index) {
 	return res;
 }
 
-float buffer_get_float16(const uint8_t *buffer, float scale, int32_t *index) {
-    return (float)buffer_get_int16(buffer, index) / scale;
+float libBufferGet_float16(const uint8_t *buffer, float scale, int32_t *index) {
+    return (float)libBufferGet_int16(buffer, index) / scale;
 }
 
-float buffer_get_float32(const uint8_t *buffer, float scale, int32_t *index) {
-    return (float)buffer_get_int32(buffer, index) / scale;
+float libBufferGet_float32(const uint8_t *buffer, float scale, int32_t *index) {
+    return (float)libBufferGet_int32(buffer, index) / scale;
 }
 
-float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index) {
-	uint32_t res = buffer_get_uint32(buffer, index);
+float libBufferGet_float32_auto(const uint8_t *buffer, int32_t *index) {
+	uint32_t res = libBufferGet_uint32(buffer, index);
 
 	int e = (res >> 23) & 0xFF;
 	uint32_t sig_i = res & 0x7FFFFF;
