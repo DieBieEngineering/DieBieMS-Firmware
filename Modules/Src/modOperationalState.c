@@ -47,7 +47,7 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
-				//modOperationalStateSetNewState(OP_STATE_EXTERNAL);									// Serve external forces
+				//modOperationalStateSetNewState(OP_STATE_EXTERNAL);									// Serve external control
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}
@@ -161,9 +161,10 @@ void modOperationalStateTask(void) {
 			}
 			modPowerElectronicsDisableAll();																				// Disable all power paths
 			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
+			modEffectChangeState(STAT_LED_DEBUG,STAT_RESET);
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
-		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,1000))	{					// Wait for a second
+		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,2000))	{					// Wait for a second
 			  modOperationalStateTerminateOperation();															// Disable psp and store SoC
 			}
 			break;
@@ -266,19 +267,20 @@ void modOperationalStateTask(void) {
 			break;
 	};
 	
-	// Check for power button longpress -> if so power down BMS
-	if(modPowerStatePowerdownRequest()){
-		if(modOperationalStateDelayedDisable(modOperationalStateGeneralConfigHandle->useCANDelayedPowerDown)){
-			modOperationalStateSetAllStates(OP_STATE_POWER_DOWN);
-			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
-		}
-	};
-	
 	if(modPowerStateForceOnRequest()){
 		modOperationalStateForceOn = true;
 		modPowerElectronicsAllowForcedOn(true);
 		modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
 		driverSWStorageManagerEraseData();
+	};
+	
+	// Check for power button longpress -> if so power down BMS
+	if(modPowerStatePowerdownRequest()){
+		if(modOperationalStateDelayedDisable(modOperationalStateGeneralConfigHandle->useCANDelayedPowerDown)){
+			modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
+			modOperationalStateUpdateStates();
+		}
 	};
 	
 	// In case of extreme cellvoltages goto error state

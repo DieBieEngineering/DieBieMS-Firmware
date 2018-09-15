@@ -69,7 +69,7 @@ void driverHWADCSetInputChannel(ADC_HandleTypeDef* hadc, uint32_t inputChannel) 
 
 bool driverHWADCGetLoadVoltage(float *loCurrentLoadVoltage) {
 	uint32_t driverHWADCAverageSum = 0;
-	uint8_t	driverHWADCAverageCount = 1;
+	uint8_t	driverHWADCAverageCount = 0;
 	
 	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_2);
 

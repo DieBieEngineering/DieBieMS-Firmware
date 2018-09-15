@@ -77,5 +77,9 @@ float driverSWADC128D818GetTemperature(uint32_t ntcNominal, uint32_t ntcSeriesRe
   steinhart += 1.0f / (ntcNominalTemp + 273.15f);       // + (1/To)
   steinhart = 1.0f / steinhart;                         // Invert
   steinhart -= 273.15f;                                 // convert to degree
+	
+	if(steinhart < -100.0f)
+		steinhart = 200;
+	
   return steinhart;
 }

@@ -170,6 +170,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->stateOfChargeStoreInterval     = libBufferGet_uint32(data,&ind);
 			modCommandsGeneralConfig->CANID                          = libBufferGet_uint8(data,&ind);
 			modCommandsGeneralConfig->CANIDStyle                     = libBufferGet_uint8(data,&ind);
+			modCommandsGeneralConfig->emitStatusOverCAN              = libBufferGet_uint8(data,&ind);
 			modCommandsGeneralConfig->tempEnableMaskBMS              = libBufferGet_uint16(data,&ind);
 			modCommandsGeneralConfig->tempEnableMaskBattery          = libBufferGet_uint16(data,&ind);
 		  modCommandsGeneralConfig->LCUseDischarge                 = libBufferGet_uint8(data,&ind);
@@ -260,6 +261,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->stateOfChargeStoreInterval,&ind);
 			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->CANID,&ind);
 			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->CANIDStyle,&ind);
+			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsGeneralConfig->emitStatusOverCAN,&ind);
 			libBufferAppend_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBMS,&ind);
 			libBufferAppend_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBattery,&ind);
 		  libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->LCUseDischarge,&ind);

@@ -59,6 +59,7 @@ typedef struct {
 	uint32_t stateOfChargeStoreInterval;																					// Interval to store state of charge information.
 	uint8_t  CANID;																																// Stores the CAN ID of the device.
 	uint8_t  CANIDStyle;                                                          // Store the ID style used to communicate over CAN
+	uint8_t  emitStatusOverCAN;                                                   // Enable or disable sending of status over CAN
 	uint16_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
 	uint16_t tempEnableMaskBattery;																								// Stores the mask to select what temperature sensor is enabled for the battery.
 	uint8_t  LCUseDischarge;                                                      // Enable or disable switch output.

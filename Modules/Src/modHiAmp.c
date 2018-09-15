@@ -35,6 +35,8 @@ void modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigG
 		driverSWPCAL6416Init(0x07,0xF7,0x07,0xF7,0x07,0xF7);														// Init the IO Extender
 		driverSWADC128D818Init();																												// Init the NTC ADC
 		driverSWSHT21Init();																														// Init the Temperature / humidity sensor
+	}else{
+	  modHiAmpShieldResetSensors();
 	}
 }
 
@@ -43,30 +45,34 @@ void modHiAmpTask(void) {
 		modHiAmpPackStateHandle->hiAmpShieldPresent = modHiAmpShieldPresentCheck();
 	}
 	
-	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100) && modHiAmpPackStateHandle->hiAmpShieldPresent){
-		// Determin whether discharge should be allowed
-		bool dischargeHCEnable;
-		
-		if(modHiAmpGeneralConfigHandle->togglePowerModeDirectHCDelay || modHiAmpGeneralConfigHandle->pulseToggleButton){
-			dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
-		}else{
-		  dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modHiAmpPackStateHandle->powerButtonActuated && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
-		}
+	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100)){
+		if(modHiAmpPackStateHandle->hiAmpShieldPresent){
+			// Determin whether discharge should be allowed
+			bool dischargeHCEnable;
+			
+			if(modHiAmpGeneralConfigHandle->togglePowerModeDirectHCDelay || modHiAmpGeneralConfigHandle->pulseToggleButton){
+				dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+			}else{
+				dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modHiAmpPackStateHandle->powerButtonActuated && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+			}
 
-		// Update inputs
-		modHiAmpPackStateHandle->FANStatus = driverEMC2305GetFANStatus(I2CADDRFANDriver);
-		modHiAmpPackStateHandle->auxDCDCEnabled = driverSWDCDCGetEnabledState();
-		modHiAmpPackStateHandle->auxVoltage = driverSWDCDCGetAuxVoltage();
-		modHiAmpPackStateHandle->auxCurrent = driverSWDCDCGetAuxCurrent();
-		modHiAmpPackStateHandle->auxPower = modHiAmpPackStateHandle->auxVoltage * modHiAmpPackStateHandle->auxCurrent;
-		modHiAmpPackStateHandle->auxDCDCOutputOK = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.05f); // Nominal is 12V max error is 5%
-		modHiAmpPackStateHandle->hiCurrentLoadVoltage = modHiAmpShieldShuntMonitorGetVoltage();
-		modHiAmpPackStateHandle->hiCurrentLoadCurrent = modHiAmpShieldShuntMonitorGetCurrent();
-		modHiAmpPackStateHandle->hiCurrentLoadPower = modHiAmpPackStateHandle->hiCurrentLoadVoltage * modHiAmpPackStateHandle->hiCurrentLoadCurrent;
-		modHiAmpShieldTemperatureHumidityMeasureTask();
-		
-		// Update outputs
-		modHiAmpShieldRelayControllerPassSampledInput(dischargeHCEnable,modHiAmpPackStateHandle->hiCurrentLoadVoltage,modHiAmpPackStateHandle->packVoltage);
+			// Update inputs
+			modHiAmpPackStateHandle->FANStatus = driverEMC2305GetFANStatus(I2CADDRFANDriver);
+			modHiAmpPackStateHandle->auxDCDCEnabled = driverSWDCDCGetEnabledState();
+			modHiAmpPackStateHandle->auxVoltage = driverSWDCDCGetAuxVoltage();
+			modHiAmpPackStateHandle->auxCurrent = driverSWDCDCGetAuxCurrent();
+			modHiAmpPackStateHandle->auxPower = modHiAmpPackStateHandle->auxVoltage * modHiAmpPackStateHandle->auxCurrent;
+			modHiAmpPackStateHandle->auxDCDCOutputOK = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.05f); // Nominal is 12V max error is 5%
+			modHiAmpPackStateHandle->hiCurrentLoadVoltage = modHiAmpShieldShuntMonitorGetVoltage();
+			modHiAmpPackStateHandle->hiCurrentLoadCurrent = modHiAmpShieldShuntMonitorGetCurrent();
+			modHiAmpPackStateHandle->hiCurrentLoadPower = modHiAmpPackStateHandle->hiCurrentLoadVoltage * modHiAmpPackStateHandle->hiCurrentLoadCurrent;
+			modHiAmpShieldTemperatureHumidityMeasureTask();
+			
+			// Update outputs
+			modHiAmpShieldRelayControllerPassSampledInput(dischargeHCEnable,modHiAmpPackStateHandle->hiCurrentLoadVoltage,modHiAmpPackStateHandle->packVoltage);
+		}else{
+			modHiAmpShieldResetSensors();
+	  }
 	}
 	
 
@@ -105,43 +111,15 @@ uint8_t modHiAmpShieldScanI2CDevices(void) {
 }
 
 void modHiAmpShieldResetVariables(void) {
-	modHiAmpPackStateHandle->hiCurrentLoadVoltage         = 0.0f;
-	modHiAmpPackStateHandle->hiCurrentLoadCurrent         = 0.0f;
-	modHiAmpPackStateHandle->hiCurrentLoadPower           = 0.0f;
-	modHiAmpPackStateHandle->auxVoltage                   = 0.0f;
-	modHiAmpPackStateHandle->auxCurrent                   = 0.0f;
-	modHiAmpPackStateHandle->auxPower                     = 0.0f;
 	modHiAmpPackStateHandle->aux0EnableDesired            = false;
 	modHiAmpPackStateHandle->aux0Enabled                  = false;
-	modHiAmpPackStateHandle->aux0LoadIncorrect            = false;
 	modHiAmpPackStateHandle->aux1EnableDesired            = false;
 	modHiAmpPackStateHandle->aux1Enabled                  = false;
-	modHiAmpPackStateHandle->aux1LoadIncorrect            = false;
 	modHiAmpPackStateHandle->auxDCDCEnabled               = false;
-	modHiAmpPackStateHandle->auxDCDCOutputOK              = false;
-	modHiAmpPackStateHandle->temperatures[4]              = 0.0f;
-	modHiAmpPackStateHandle->temperatures[5]              = 0.0f;
-	modHiAmpPackStateHandle->temperatures[6]              = 0.0f;
-	modHiAmpPackStateHandle->temperatures[7]              = 0.0f;
-	modHiAmpPackStateHandle->temperatures[8]              = 0.0f;
-	modHiAmpPackStateHandle->temperatures[9]              = 0.0f;
-	modHiAmpPackStateHandle->temperatures[10]             = 0.0f;
-	modHiAmpPackStateHandle->temperatures[11]             = 0.0f;
-	modHiAmpPackStateHandle->temperatures[12]             = 0.0f;
-	modHiAmpPackStateHandle->humidity                     = 0.0f;
-	modHiAmpPackStateHandle->hiLoadEnabled                = false;
-	modHiAmpPackStateHandle->hiLoadPreChargeEnabled       = false;
-	modHiAmpPackStateHandle->hiLoadPreChargeError         = false;
-	modHiAmpPackStateHandle->IOIN1                        = false;
-	modHiAmpPackStateHandle->IOOUT0                       = false;
 	modHiAmpPackStateHandle->FANSpeedDutyDesired          = 0;
 	modHiAmpPackStateHandle->FANStatus.FANEnabled         = false;
-	modHiAmpPackStateHandle->FANStatus.FANError           = false;
-	modHiAmpPackStateHandle->FANStatus.FANOK              = false;
-	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[0]     = 0;
-	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[1]     = 0;
-	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[2]     = 0;
-	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[3]     = 0;
+	
+  modHiAmpShieldResetSensors();
 }
 
 void modHiAmpShieldMainShuntMonitorInit(void) {
@@ -302,5 +280,38 @@ void  modHiAmpShieldTemperatureHumidityMeasureTask(void) {
 		else
 			lastMeasuredType = TEMP;
 	}
+}
+
+void  modHiAmpShieldResetSensors(void) {	
+	modHiAmpPackStateHandle->hiCurrentLoadVoltage         = 0.0f;
+	modHiAmpPackStateHandle->hiCurrentLoadCurrent         = 0.0f;
+	modHiAmpPackStateHandle->hiCurrentLoadPower           = 0.0f;
+	modHiAmpPackStateHandle->auxVoltage                   = 0.0f;
+	modHiAmpPackStateHandle->auxCurrent                   = 0.0f;
+	modHiAmpPackStateHandle->auxPower                     = 0.0f;
+	modHiAmpPackStateHandle->aux0LoadIncorrect            = false;
+	modHiAmpPackStateHandle->aux1LoadIncorrect            = false;
+	modHiAmpPackStateHandle->auxDCDCOutputOK              = false;
+	modHiAmpPackStateHandle->temperatures[4]              = 200.0f;
+	modHiAmpPackStateHandle->temperatures[5]              = 200.0f;
+	modHiAmpPackStateHandle->temperatures[6]              = 200.0f;
+	modHiAmpPackStateHandle->temperatures[7]              = 200.0f;
+	modHiAmpPackStateHandle->temperatures[8]              = 200.0f;
+	modHiAmpPackStateHandle->temperatures[9]              = 200.0f;
+	modHiAmpPackStateHandle->temperatures[10]             = 200.0f;
+	modHiAmpPackStateHandle->temperatures[11]             = 200.0f;
+	modHiAmpPackStateHandle->temperatures[12]             = 200.0f;
+	modHiAmpPackStateHandle->humidity                     = 0.0f;
+	modHiAmpPackStateHandle->hiLoadEnabled                = false;
+	modHiAmpPackStateHandle->hiLoadPreChargeEnabled       = false;
+	modHiAmpPackStateHandle->hiLoadPreChargeError         = false;
+	modHiAmpPackStateHandle->IOIN1                        = false;
+	modHiAmpPackStateHandle->IOOUT0                       = false;
+	modHiAmpPackStateHandle->FANStatus.FANError           = false;
+	modHiAmpPackStateHandle->FANStatus.FANOK              = false;
+	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[0]     = 0;
+	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[1]     = 0;
+	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[2]     = 0;
+	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[3]     = 0;
 }
 

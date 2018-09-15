@@ -79,13 +79,15 @@ void modCANTask(void){
 		modCANErrorLastTick = HAL_GetTick();
 	}
 	
-	// Send status messages with interval
-	if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
-		modCANSendSimpleStatusFast();
-	
-	// Send status messages with interval
-	if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 10 Hz
-		modCANSendSimpleStatusSlow();
+	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
+		// Send status messages with interval
+		if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
+			modCANSendSimpleStatusFast();
+		
+		// Send status messages with interval
+		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 10 Hz
+			modCANSendSimpleStatusSlow();
+	}
 	
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
 		modCANPackStateHandle->safetyOverCANHCSafeNSafe = false;
@@ -202,10 +204,10 @@ void modCANSendSimpleStatusSlow(void) {
 	// Send Aux voltage and current
 	sendIndex = 0;
 	libBufferAppend_float16(buffer, modCANPackStateHandle->auxVoltage,1e2,&sendIndex);
-  libBufferAppend_float16(buffer, modCANPackStateHandle->auxCurrent,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->auxCurrent,1e2,&sendIndex);
 	libBufferAppend_uint8(buffer, modCANPackStateHandle->safetyOverCANHCSafeNSafe,&sendIndex);
 	libBufferAppend_uint8(buffer, modCANPackStateHandle->watchDogTime,&sendIndex); // Should contain watchdog seconds remaining
-  libBufferAppend_float16(buffer, modCANPackStateHandle->humidity, 1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->humidity, 1e2,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_AUX_IV_SAFETY_WATCHDOG), buffer, sendIndex);
 }
 

@@ -109,6 +109,28 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("---End Battery Pack Status---");
 		modCommandsPrintf(" ");
 		
+	} else if (strcmp(argv[0], "sens") == 0) {		
+		modCommandsPrintf("-----       Sensors         -----");
+		
+		// print temperatures
+		modCommandsPrintf("Sensor[0]  : %.1f C - E - 'LTC NTC0'",packState.temperatures[0]);
+		modCommandsPrintf("Sensor[1]  : %.1f C - E - 'LTC NTC1'",packState.temperatures[1]);
+		modCommandsPrintf("Sensor[2]  : %.1f C - I - 'LTC Internal'",packState.temperatures[2]);
+		modCommandsPrintf("Sensor[3]  : %.1f C - I - 'STM NTC'",packState.temperatures[3]);
+		modCommandsPrintf("Sensor[4]  : %.1f C - E - 'ADC NTC0'",packState.temperatures[4]);
+		modCommandsPrintf("Sensor[5]  : %.1f C - E - 'ADC NTC1'",packState.temperatures[5]);
+		modCommandsPrintf("Sensor[6]  : %.1f C - E - 'ADC NTC2'",packState.temperatures[6]);
+		modCommandsPrintf("Sensor[7]  : %.1f C - E - 'ADC NTC3'",packState.temperatures[7]);
+		modCommandsPrintf("Sensor[8]  : %.1f C - E - 'ADC NTC4'",packState.temperatures[8]);
+		modCommandsPrintf("Sensor[9]  : %.1f C - E - 'ADC NTC5'",packState.temperatures[9]);
+		modCommandsPrintf("Sensor[10] : %.1f C - I - 'ADC NTC6'",packState.temperatures[10]);
+		modCommandsPrintf("Sensor[11] : %.1f C - I - 'ADC NTC7'",packState.temperatures[11]);
+		modCommandsPrintf("Sensor[12] : %.1f C - I - 'SHT'",packState.temperatures[12]);
+		modCommandsPrintf("Sensor[13] : %.1f %% - I - 'Humidity'",packState.humidity);		
+		modCommandsPrintf("----- E=External I=Internal -----");
+		modCommandsPrintf("-----     End sensors       -----");
+		modCommandsPrintf(" ");
+		
 	} else if (strcmp(argv[0], "cells") == 0) {
 		uint8_t cellPointer = 0;
 		
@@ -176,133 +198,6 @@ void terminal_process_string(char *str) {
 			modCommandsPrintf("This command requires one argument.");
 		}
 		modCommandsPrintf(" ");
-	} else if (strcmp(argv[0], "config_set_ah") == 0) {
-		modCommandsPrintf("--- Setting new capacity ---");		
-		if (argc == 2) {
-			float newCapacity = 0;
-			sscanf(argv[1], "%f", &newCapacity);
-			if(newCapacity < 1000.0f && newCapacity >= 0.0f) {
-				modCommandsPrintf("Number capacity is set to: %.2fAh.",newCapacity);
-				generalConfig->batteryCapacity = newCapacity;
-			} else {
-				modCommandsPrintf("Invalid capacity (should be between 0Ah and 1000Ah).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
-		
-	} else if (strcmp(argv[0], "config_set_HUV") == 0) { // Hard under voltage
-		modCommandsPrintf("--- Setting new hard under voltage ---");
-		if (argc == 2) {
-			float newVoltage = 0;
-			sscanf(argv[1], "%f", &newVoltage);
-			if(newVoltage <= 5.0f && newVoltage >= 0.0f) {
-				modCommandsPrintf("New voltage is set to: %.3fV.",newVoltage);
-				generalConfig->cellHardUnderVoltage = newVoltage;
-			} else {
-				modCommandsPrintf("Invalid cell voltage (should be between 0V and 5V).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
-		
-	} else if (strcmp(argv[0], "config_set_HOV") == 0) { // Hard over voltage
-				modCommandsPrintf("--- Setting new hard over voltage ---");
-		if (argc == 2) {
-			float newVoltage = 0;
-			sscanf(argv[1], "%f", &newVoltage);
-			if(newVoltage <= 5.0f && newVoltage >= 0.0f) {
-				modCommandsPrintf("New voltage is set to: %.3fV.",newVoltage);
-				generalConfig->cellHardOverVoltage = newVoltage;
-			} else {
-				modCommandsPrintf("Invalid cell voltage (should be between 0V and 5V).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
-		
-	} else if (strcmp(argv[0], "config_set_SUV") == 0) { // Soft under voltage
-		modCommandsPrintf("--- Setting new soft under voltage ---");
-		if (argc == 2) {
-			float newVoltage = 0;
-			sscanf(argv[1], "%f", &newVoltage);
-			if(newVoltage <= 5.0f && newVoltage >= 0.0f) {
-				modCommandsPrintf("New voltage is set to: %.3fV.",newVoltage);
-				generalConfig->cellLCSoftUnderVoltage = newVoltage;
-			} else {
-				modCommandsPrintf("Invalid cell voltage (should be between 0V and 5V).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
-		
-	} else if (strcmp(argv[0], "config_set_SOV") == 0) { // Soft over voltage
-		modCommandsPrintf("--- Setting new soft over voltage ---");
-		if (argc == 2) {
-			float newVoltage = 0;
-			sscanf(argv[1], "%f", &newVoltage);
-			if(newVoltage <= 5.0f && newVoltage >= 0.0f) {
-				modCommandsPrintf("New voltage is set to: %.3fV",newVoltage);
-				generalConfig->cellSoftOverVoltage = newVoltage;
-			} else {
-				modCommandsPrintf("Invalid cell voltage (should be between 0V and 5V).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
-		
-	} else if (strcmp(argv[0], "config_set_balancestart") == 0) { // Balance start threshold
-		modCommandsPrintf("--- Setting new soft over voltage ---");
-		if (argc == 2) {
-			float newVoltage = 0;
-			sscanf(argv[1], "%f", &newVoltage);
-			if(newVoltage <= 5.0f && newVoltage >= 0.0f) {
-				modCommandsPrintf("New voltage is set to: %.3fV.",newVoltage);
-				generalConfig->cellBalanceStart = newVoltage;
-			} else {
-				modCommandsPrintf("Invalid cell voltage (should be between 0V and 5V).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
-		
-	} else if (strcmp(argv[0], "config_set_balancethreshold") == 0) { // Balance start threshold
-		modCommandsPrintf("--- Setting new soft over voltage ---");
-		if (argc == 2) {
-			float newVoltage = 0;
-			sscanf(argv[1], "%f", &newVoltage);
-			if(newVoltage <= 5.0f && newVoltage >= 0.0f) {
-				modCommandsPrintf("New difference voltage is set to: %.3fV.",newVoltage);
-				generalConfig->cellBalanceDifferenceThreshold = newVoltage;
-			} else {
-				modCommandsPrintf("Invalid voltage difference threshold (should be between 0V and 5V).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
-		
-	} else if (strcmp(argv[0], "config_set_canid") == 0) { // Soft over voltage
-		modCommandsPrintf("-------   Setting new CAN ID  -------");
-		if (argc == 2) {
-			uint32_t newCANID = 0;
-			sscanf(argv[1], "%u", &newCANID);
-			if(newCANID <= 255) {
-				modCommandsPrintf("New CAN ID is set to: %u.",newCANID);
-				generalConfig->CANID = newCANID;
-			} else {
-				modCommandsPrintf("Invalid CAN ID (should be below 256).");
-			}
-		} else {
-			modCommandsPrintf("This command requires one argument.");
-		}
-		modCommandsPrintf(" ");
 
 	} else if (strcmp(argv[0], "hwinfo") == 0) {
 		modCommandsPrintf("-------    BMS Info   -------");		
@@ -358,9 +253,11 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("ping");
 		modCommandsPrintf("  Print pong here to see if the reply works.");
 		modCommandsPrintf("slave_scan");
-		modCommandsPrintf("  Scan the I2C devices on the slave.");		
+		modCommandsPrintf("  Scan the I2C devices on the slave.");
 		modCommandsPrintf("status");
 		modCommandsPrintf("  Print battery measurements summary.");
+		modCommandsPrintf("sens");
+		modCommandsPrintf("  Print all sensor values.");
 		modCommandsPrintf("cells");
 		modCommandsPrintf("  Print cell voltage measurements.");
 		modCommandsPrintf("config");
@@ -371,24 +268,6 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("  Store current BMS configuration to EEPROM.");
 		modCommandsPrintf("config_read");
 		modCommandsPrintf("  Read BMS configuration from EEPROM.");
-		modCommandsPrintf("config_set_cells [newCellCount]");
-		modCommandsPrintf("  Set the amount of cells in series.");
-		modCommandsPrintf("config_set_ah [newCapacity]");
-		modCommandsPrintf("  Set the battery capacity in Ah.");
-		modCommandsPrintf("config_set_HOV [newHardOverVoltage]");
-		modCommandsPrintf("  Set the hard over voltage threshold (BMS will go to error mode above this threshold).");
-		modCommandsPrintf("config_set_HUV [newHardUnderVoltage]");
-		modCommandsPrintf("  Set the hard under voltage threshold (BMS will go to error mode below this threshold).");
-		modCommandsPrintf("config_set_SOV [newSoftOverVoltage]");
-		modCommandsPrintf("  Set the soft over voltage threshold (BMS will disable charger above this threshold).");
-		modCommandsPrintf("config_set_SUV [newSoftUnderVoltage]");
-		modCommandsPrintf("  Set the soft under voltage threshold (BMS will disable load below this threshold).");
-		modCommandsPrintf("config_set_balancestart [newBalanceStartVoltage]");
-		modCommandsPrintf("  Set the balancing start voltage threshold.");
-		modCommandsPrintf("config_set_balancethreshold [newBalanceDifferenceThreshold]");
-		modCommandsPrintf("  Set the balancing difference threshold.");
-		modCommandsPrintf("config_set_canid [newCANID]");
-		modCommandsPrintf("  Set the CAN ID.");
 		modCommandsPrintf("hwinfo");
 		modCommandsPrintf("  Print some hardware information.");
 		modCommandsPrintf(" ");

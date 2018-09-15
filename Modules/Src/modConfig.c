@@ -80,6 +80,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->stateOfChargeStoreInterval								     = 60*1000;									// Interval in ms to store state of charge information.
 	configLocation->CANID																			     = 10;											// CAN ID for CAN communication.
 	configLocation->CANIDStyle                                     = CANIDStyleFoiler;        // CAN ID default Style
+	configLocation->emitStatusOverCAN                              = true;                    // Send status over can.
 	configLocation->tempEnableMaskBMS                              = 0x1C0F;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x03F0;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->LCUseDischarge                                 = true;                    // Enable or disable the solid state output
@@ -155,6 +156,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->stateOfChargeStoreInterval								     = 60*1000;									// Interval in ms to store state of charge information.
 	configLocation->CANID																			     = 10;											// CAN ID for CAN communication.
 	configLocation->CANIDStyle                                     = CANIDStyleFoiler;        // CAN ID default Style
+	configLocation->emitStatusOverCAN                              = true;                    // Send status over can.
 	configLocation->tempEnableMaskBMS                              = 0x1C0F;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x03F0;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->LCUseDischarge                                 = true;                    // Enable or disable the solid state output
@@ -187,7 +189,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 #endif
 
 #ifdef ESK8
-	configLocation->noOfCells 																     = 10;											// X Cells in series
+	configLocation->noOfCells 																     = 6;											// X Cells in series
 	configLocation->batteryCapacity														     = 12.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.35f;										// Worst case X.XXV as highest cell voltage
@@ -229,7 +231,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->notUsedTimeout														     = 20*60*1000;							// If pack is not used for longer than XX minutes disable bms.
 	configLocation->stateOfChargeStoreInterval								     = 60*1000;									// Interval in ms to store state of charge information.
 	configLocation->CANID																			     = 10;											// CAN ID for CAN communication.
-	configLocation->CANIDStyle                                     = CANIDStyleVESC;          // CAN ID default Style
+	configLocation->CANIDStyle                                     = CANIDStyleVESC;          // CAN ID default Style.
+	configLocation->emitStatusOverCAN                              = false;                    // Send status over can.
 	configLocation->tempEnableMaskBMS                              = 0x0004;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x0000;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->LCUseDischarge                                 = true;                    // Enable or disable the solid state output

@@ -117,7 +117,7 @@ void modPowerElectronicsCalculateCellStats(void);
 void modPowerElectronicsSubTaskBalaning(void);
 void modPowerElectronicsSubTaskVoltageWatch(void);
 void modPowerElectronicsUpdateSwitches(void);
-void modPowerElectronicsSortCells(driverLTC6803CellsTypedef cells[12]);
+void modPowerElectronicsSortCells(driverLTC6803CellsTypedef *cells, uint8_t cellCount);
 void modPowerElectronicsCalcTempStats(void);
 void modPowerElectronicsCalcThrottle(void);
 int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);

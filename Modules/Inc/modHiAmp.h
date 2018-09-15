@@ -45,5 +45,6 @@ void  modHiAmpShieldRelayControllerPassSampledInput(uint8_t relayStateDesired, f
 void  modHiAmpShieldRelayControllerTask(void);
 void  modHiAmpShieldRelayControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge);
 void  modHiAmpShieldTemperatureHumidityMeasureTask(void);
+void  modHiAmpShieldResetSensors(void);
 
 #endif

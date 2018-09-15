@@ -14,7 +14,6 @@ uint32_t modPowerElectronicsBalanceModeActiveLastTick;
 uint8_t  modPowerElectronicsUnderAndOverVoltageErrorCount;
 driverLTC6803ConfigStructTypedef modPowerElectronicsLTCconfigStruct;
 bool     modPowerElectronicsAllowForcedOnState;
-float    modPowerElectronicsCellVoltagesTemp[12];
 uint16_t modPowerElectronicsTemperatureArray[3];
 uint16_t tempTemperature;
 float    modPowerElectronicsTempPackVoltage;
@@ -54,10 +53,10 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->packInSOA                = true;
 	modPowerElectronicsPackStateHandle->watchDogTime             = 255;
 	modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
-	modPowerElectronicsPackStateHandle->temperatures[0]          = 0.0f;
-	modPowerElectronicsPackStateHandle->temperatures[1]          = 0.0f;
-	modPowerElectronicsPackStateHandle->temperatures[2]          = 0.0f;
-	modPowerElectronicsPackStateHandle->temperatures[3]          = 0.0f;
+	modPowerElectronicsPackStateHandle->temperatures[0]          = 200.0f;
+	modPowerElectronicsPackStateHandle->temperatures[1]          = 200.0f;
+	modPowerElectronicsPackStateHandle->temperatures[2]          = 200.0f;
+	modPowerElectronicsPackStateHandle->temperatures[3]          = 200.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryHigh          = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryLow           = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryAverage       = 0.0f;
@@ -270,23 +269,25 @@ void modPowerElectronicsSubTaskBalaning(void) {
 	static uint16_t lastCellBalanceRegister = 0;
 	static bool delaytoggle = false;
 	uint16_t cellBalanceMaskEnableRegister = 0;
+	driverLTC6803CellsTypedef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCells];
 	
 	if(modDelayTick1ms(&modPowerElectronicsCellBalanceUpdateLastTick,delayTimeHolder)) {
 		delaytoggle ^= true;
 		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 200;
 		
 		if(delaytoggle) {
-			for(int k=0; k<12; k++)
-				modPowerElectronicsCellVoltagesTemp[k] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[k].cellVoltage;	// This will contain the voltages that are unloaded by balance resistors
-			
-			modPowerElectronicsSortCells(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+			for(int k=0; k<modPowerElectronicsGeneralConfigHandle->noOfCells; k++) {
+				sortedCellArray[k] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[k];	// This will contain the voltages that are unloaded by balance resistors
+			}
+				
+			modPowerElectronicsSortCells(sortedCellArray,modPowerElectronicsGeneralConfigHandle->noOfCells);
 			
 			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || !modPowerElectronicsPackStateHandle->chargeAllowed) {																							// Check if charging is desired
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
-					if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
-						// This cell voltage should be lowered if the voltage is above threshold:
-						if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart)
-							cellBalanceMaskEnableRegister |= (1 << modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellNumber);
+					if(sortedCellArray[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
+						if(sortedCellArray[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart) {
+							cellBalanceMaskEnableRegister |= (1 << sortedCellArray[i].cellNumber);
+						}
 					};
 				}
 			}
@@ -391,12 +392,12 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 };
 
-void modPowerElectronicsSortCells(driverLTC6803CellsTypedef cells[12]) {
+void modPowerElectronicsSortCells(driverLTC6803CellsTypedef *cells, uint8_t cellCount) {
 	int i,j;
 	driverLTC6803CellsTypedef value;
 
-	for(i=0;i<12-1;i++) {
-		for(j=0;j<12-i-1;j++) {
+	for(i=0 ; i<(cellCount-1) ; i++) {
+		for(j=0 ; j<(cellCount-i-1) ; j++) {
 				if(cells[j].cellVoltage < cells[j+1].cellVoltage) {
 						value = cells[j+1];
 						cells[j+1] = cells[j];

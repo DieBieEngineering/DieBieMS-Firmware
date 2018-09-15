@@ -15,6 +15,7 @@ uint32_t modPowerStateStartupDelay;
 uint32_t modPowerStatePowerDownTimeout;
 
 void modPowerStateInit(PowerStateStateTypedef desiredPowerState) {
+	uint32_t startupDelay = HAL_GetTick();
 	modPowerStateStartupDelay = HAL_GetTick();
 	modPowerStatePowerDownTimeout = HAL_GetTick();
 	modPowerStatePulsePowerDownDesired = false;
@@ -25,12 +26,18 @@ void modPowerStateInit(PowerStateStateTypedef desiredPowerState) {
 	modPowerStateButtonPressedTimeStamp = 0;
 	
 	driverHWPowerStateInit();
-	modPowerStateSetState(desiredPowerState);
 	
-	while(!modDelayTick1ms(&modPowerStateStartupDelay,10));										// Needed for power button signal to reach uC
-	
+	while(!modDelayTick1ms(&modPowerStateStartupDelay,20));										// Needed for power button signal to reach uC
 	modPowerStateLastButtonFirstPress = modPowerStateLastButtonPressedVar = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
+	
+	if(!modPowerStateLastButtonFirstPress) {
+		while(!modDelayTick1ms(&modPowerStateStartupDelay,100));
+	}
+
+	modPowerStateSetState(desiredPowerState);
 };
+
+
 
 void modPowerStateSetConfigHandle(modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerStateGeneralConfigHandle = generalConfigPointer;
