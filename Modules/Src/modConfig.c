@@ -189,7 +189,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 #endif
 
 #ifdef ESK8
-	configLocation->noOfCells 																     = 6;											// X Cells in series
+	configLocation->noOfCells 																     = 10;											// X Cells in series
 	configLocation->batteryCapacity														     = 12.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.35f;										// Worst case X.XXV as highest cell voltage
