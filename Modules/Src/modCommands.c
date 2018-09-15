@@ -104,7 +104,9 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSAverage, 1e1, &ind);
 			
 			libBufferAppend_uint8(modCommandsSendBuffer, (uint8_t)modCommandsGeneralState->operationalState, &ind);
-			libBufferAppend_uint8(modCommandsSendBuffer, 0, &ind);
+			libBufferAppend_uint8(modCommandsSendBuffer, (uint8_t)modCommandsGeneralState->chargeBalanceActive, &ind);  // Indicator for charging
+			
+			libBufferAppend_uint8(modCommandsSendBuffer, 0, &ind); // Future faultstate
 		
 			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
