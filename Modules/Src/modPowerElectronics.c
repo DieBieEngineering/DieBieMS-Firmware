@@ -70,6 +70,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	driverHWADCInit();
 	driverHWSwitchesInit();
 	driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);																// Enable FET Driver
+	driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,SWITCH_RESET);											// Disable charge diode bypass
 	
 	// Init battery stack monitor
 	driverLTC6803ConfigStructTypedef configStruct;
@@ -169,6 +170,14 @@ bool modPowerElectronicsTask(void) {
 			modPowerElectronicsPackStateHandle->chargeCurrentDetected = false;
 			modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
 		}
+		
+		// Control the charge input bypass diode
+		if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed && (modPowerElectronicsPackStateHandle->packCurrent >= (modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold + 0.5f))){
+			driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,SWITCH_SET);
+		}else{
+		  driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,SWITCH_RESET);
+		}
+		
 		// TODO: have balance time configureable
 		if(modDelayTick1ms(&modPowerElectronicsBalanceModeActiveLastTick,10*60*1000)) {																																			// When a charge current is derected, balance for 10 minutes
 			modPowerElectronicsPackStateHandle->chargeBalanceActive = false;

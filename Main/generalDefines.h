@@ -3,8 +3,8 @@
 
 //#define EFoilV0
 //#define EFoilV1
-#define EfoilV2
-//#define ESK8
+//#define EFoilV2
+#define ESK8
 
 // Hardware name
 #ifdef EFoilV0
@@ -15,7 +15,7 @@
   #define HW_NAME "EFoilBMSHW1"
 #endif
 
-#ifdef EfoilV2
+#ifdef EFoilV2
   #define HW_NAME "EFoilBMSHW2"
 #endif
 

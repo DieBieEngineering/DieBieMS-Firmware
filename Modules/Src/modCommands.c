@@ -200,6 +200,12 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupHiAmpPCB]       = libBufferGet_uint32(data,&ind);
 			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupHiAmpPCB]   = libBufferGet_uint32(data,&ind);
 			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupHiAmpPCB]        = libBufferGet_uint16(data,&ind);
+			
+			modCommandsGeneralConfig->cellMonitorType                                 = libBufferGet_uint8(data,&ind);
+			modCommandsGeneralConfig->cellMonitorICCount                              = libBufferGet_uint8(data,&ind);
+			modCommandsGeneralConfig->externalEnableOperationalState                  = libBufferGet_uint8(data,&ind);
+			modCommandsGeneralConfig->powerDownDelay                                  = libBufferGet_uint32(data,&ind);
+			modCommandsGeneralConfig->canBusSpeed                                     = libBufferGet_uint8(data,&ind);
 		
 			ind = 0;
 			modCommandsSendBuffer[ind++] = packet_id;
@@ -291,6 +297,12 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupHiAmpPCB],&ind);
 			libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupHiAmpPCB],&ind);
 			libBufferAppend_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupHiAmpPCB],&ind);
+			
+			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->cellMonitorType,&ind);
+			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->cellMonitorICCount,&ind);
+			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->externalEnableOperationalState,&ind);
+			libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->powerDownDelay,&ind);
+			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->canBusSpeed,&ind);
 
 		  modCommandsSendPacket(modCommandsSendBuffer, ind);
 		

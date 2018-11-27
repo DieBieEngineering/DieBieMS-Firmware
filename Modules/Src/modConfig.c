@@ -97,6 +97,11 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = true;                    // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = true;                    // Use delayed power down
+	configLocation->cellMonitorType                                = LTC6804_1;               // Use the new cell voltage monitor
+	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
+	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
+	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
+	configLocation->canBusSpeed                                    = baud500k;                // 500k CAN baud
 	
 	// Slave / HiAmp Config
 	configLocation->NTCTopResistor[modConfigNTCGroupHiAmpExt]      = 100000;                  // NTC Pullup resistor value
@@ -173,6 +178,11 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = true;                    // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = true;                    // Use delayed power down
+	configLocation->cellMonitorType                                = LTC6803_2;               // Use the new cell voltage monitor
+	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
+	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
+	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
+	configLocation->canBusSpeed                                    = baud500k;                // 500k CAN baud
 	
 	// Slave / HiAmp Config
 	configLocation->NTCTopResistor[modConfigNTCGroupHiAmpExt]      = 100000;                  // NTC Pullup resistor value
@@ -249,6 +259,11 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
+	configLocation->cellMonitorType                                = LTC6803_2;               // Use the new cell voltage monitor
+	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
+	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
+	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
+	configLocation->canBusSpeed                                    = baud500k;                // 500k CAN baud
 	
 	// Slave / HiAmp Config
 	configLocation->NTCTopResistor[modConfigNTCGroupHiAmpExt]      = 100000;                  // NTC Pullup resistor value
@@ -265,7 +280,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 #endif
 
 #ifdef ESK8
-	configLocation->noOfCells 																     = 10;											// X Cells in series
+	configLocation->noOfCells 																     = 12;											// X Cells in series
 	configLocation->batteryCapacity														     = 12.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.35f;										// Worst case X.XXV as highest cell voltage
@@ -325,6 +340,11 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
+	configLocation->cellMonitorType                                = LTC6803_2;               // Use the new cell voltage monitor
+	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
+	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
+	configLocation->powerDownDelay                                 = 3000;                    // Wait only minimal to turn off
+	configLocation->canBusSpeed                                    = baud500k;                // 500k CAN baud
 	
 	// Slave / HiAmp Config
 	configLocation->NTCTopResistor[modConfigNTCGroupHiAmpExt]      = 100000;                  // NTC Pullup resistor value

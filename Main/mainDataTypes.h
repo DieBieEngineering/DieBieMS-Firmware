@@ -546,7 +546,18 @@ typedef enum {
 typedef enum {
 	LTC6803_2 = 0,
 	LTC6804_1
-} cellMonitorICTypeEnum;
+} configCellMonitorICTypeEnum;
+
+typedef enum {
+  opStateExternal = 0,
+	opStateNormal
+} configExtEnableStateTypeEnum;
+
+typedef enum {
+  baud125k = 0,
+	baud250k,
+	baud500k
+} configCANSpeedTypeEnum;
 
 
 

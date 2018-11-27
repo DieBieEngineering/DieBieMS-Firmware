@@ -70,6 +70,11 @@ typedef struct {
 	uint8_t  togglePowerModeDirectHCDelay;                                        // Toggle switch controls onstate directly or controls HC output with delayed turn off.
 	uint8_t  useCANSafetyInput;                                                   // Use the safe input state received from the CAN bus.
 	uint8_t  useCANDelayedPowerDown;                                              // Config that holds the preference whethet to used delayes power down
+	uint8_t  cellMonitorType;                                  										// The cell monitor IC type
+  uint8_t  cellMonitorICCount;																									// The amount of cell monitor IC's connected
+  uint8_t  externalEnableOperationalState;                  										// The state to enter when externally enabled
+	uint32_t powerDownDelay;																											// The delay time between going to power down and turning off
+	uint8_t  canBusSpeed;																													// CAN bus baudrate
 	
 	// Slave - HiAmp Config
 	uint32_t NTCTopResistor[modConfigNoOfNTCTypes];                               // NTC Pullup resistor value

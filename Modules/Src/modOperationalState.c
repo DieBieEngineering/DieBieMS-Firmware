@@ -47,8 +47,15 @@ void modOperationalStateTask(void) {
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
-				//modOperationalStateSetNewState(OP_STATE_EXTERNAL);									// Serve external control
-				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
+				switch(modOperationalStateGeneralConfigHandle->externalEnableOperationalState){
+					case opStateNormal:
+						modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);							// Prepare to goto normal operational state
+						break;
+					case opStateExternal:
+					default:
+						modOperationalStateSetNewState(OP_STATE_EXTERNAL);								// Serve external control
+						break;
+				}
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}
 			
@@ -164,7 +171,7 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_LED_DEBUG,STAT_RESET);
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
-		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,4000))	{					// Wait for the power down delay time to pass
+		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,modOperationalStateGeneralConfigHandle->powerDownDelay))	{					// Wait for the power down delay time to pass
 			  modOperationalStateTerminateOperation();															// Disable psp and store SoC
 			}
 			break;
