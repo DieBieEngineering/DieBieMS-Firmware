@@ -543,4 +543,11 @@ typedef enum {
 	NRF_PAIR_FAIL
 } NRF_PAIR_RES;
 
+typedef enum {
+	LTC6803_2 = 0,
+	LTC6804_1
+} cellMonitorICTypeEnum;
+
+
+
 #endif /* DATATYPES_H_ */

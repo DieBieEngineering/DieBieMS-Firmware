@@ -4,7 +4,6 @@
 #include <stdarg.h>
 #include "driverHWUART2.h"
 #include "libRingBuffer.h"
-#include "libFileStream.h"
 
 #define RINGBUFFERSIZE									1024
 

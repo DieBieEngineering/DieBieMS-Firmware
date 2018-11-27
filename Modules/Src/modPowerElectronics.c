@@ -100,7 +100,7 @@ bool modPowerElectronicsTask(void) {
 		// Collect low current current path data and check validity + recover if invalid.
 		driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsTempPackVoltage,0.004f);
 		if(fabs(modPowerElectronicsTempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCells*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 1.0f) {    // If the error is smaller than one volt continue normal operation. 
-			modPowerElectronicsPackStateHandle->packVoltage = modPowerElectronicsTempPackVoltage;
+		  modPowerElectronicsPackStateHandle->packVoltage = modPowerElectronicsTempPackVoltage;
 			driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,modPowerElectronicsGeneralConfigHandle->shuntLCOffset,modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 			driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
 			modPowerElectronicsISLErrorCount = 0;																								// Reset error count.

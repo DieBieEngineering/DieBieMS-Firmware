@@ -164,7 +164,7 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_LED_DEBUG,STAT_RESET);
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
-		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,2000))	{					// Wait for a second
+		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,4000))	{					// Wait for the power down delay time to pass
 			  modOperationalStateTerminateOperation();															// Disable psp and store SoC
 			}
 			break;
@@ -289,7 +289,7 @@ void modOperationalStateTask(void) {
 		modOperationalStateSetNewState(OP_STATE_ERROR);														// TODO: show error message then power down
 	}
 	
-	// Handle subtask display to update display content
+	// Handle subtask-display to update display content
 	modDisplayTask();
 };
 

@@ -688,11 +688,6 @@
               <FilePath>..\Libraries\Scr\libCRC.c</FilePath>
             </File>
             <File>
-              <FileName>libFileStream.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Libraries\Scr\libFileStream.c</FilePath>
-            </File>
-            <File>
               <FileName>libGLCDFont.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Libraries\Scr\libGLCDFont.c</FilePath>

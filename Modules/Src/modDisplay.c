@@ -40,8 +40,8 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				libGraphicsWrite('V');
 				libGraphicsWrite('0');
 				libGraphicsWrite('.');
-				libGraphicsWrite('1');
-				libGraphicsWrite('7');
+				libGraphicsWrite('2');
+				libGraphicsWrite('2');
 				break;
 			case DISP_MODE_LOAD:
 				driverSWSSD1306ClearDisplay();
