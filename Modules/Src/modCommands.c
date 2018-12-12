@@ -200,7 +200,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupHiAmpPCB]       = libBufferGet_uint32(data,&ind);
 			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupHiAmpPCB]   = libBufferGet_uint32(data,&ind);
 			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupHiAmpPCB]        = libBufferGet_uint16(data,&ind);
-			
 			modCommandsGeneralConfig->cellMonitorType                                 = libBufferGet_uint8(data,&ind);
 			modCommandsGeneralConfig->cellMonitorICCount                              = libBufferGet_uint8(data,&ind);
 			modCommandsGeneralConfig->externalEnableOperationalState                  = libBufferGet_uint8(data,&ind);
@@ -237,12 +236,10 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  libBufferAppend_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerStart,&ind);
 		  libBufferAppend_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperMargin,&ind);
 		  libBufferAppend_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerMargin,&ind);
-			
-			libBufferAppend_float32_auto(modCommandsSendBuffer,modCommandsGeneralConfig->shuntLCFactor,&ind);
-			libBufferAppend_int16(modCommandsSendBuffer,modCommandsGeneralConfig->shuntLCOffset,&ind);
-			libBufferAppend_float32_auto(modCommandsSendBuffer,modCommandsGeneralConfig->shuntHCFactor,&ind);
-			libBufferAppend_int16(modCommandsSendBuffer,modCommandsGeneralConfig->shuntHCOffset,&ind);
-			
+			libBufferAppend_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCFactor,&ind);
+			libBufferAppend_int16(modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCOffset,&ind);
+			libBufferAppend_float32_auto(modCommandsSendBuffer,modCommandsToBeSendConfig->shuntHCFactor,&ind);
+			libBufferAppend_int16(modCommandsSendBuffer,modCommandsToBeSendConfig->shuntHCOffset,&ind);
 		  libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->throttleChargeIncreaseRate,&ind);
 		  libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->throttleDisChargeIncreaseRate,&ind);
 		  libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceUpdateInterval,&ind);
@@ -269,7 +266,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->stateOfChargeStoreInterval,&ind);
 			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->CANID,&ind);
 			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->CANIDStyle,&ind);
-			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsGeneralConfig->emitStatusOverCAN,&ind);
+			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->emitStatusOverCAN,&ind);
 			libBufferAppend_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBMS,&ind);
 			libBufferAppend_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBattery,&ind);
 		  libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->LCUseDischarge,&ind);
@@ -297,7 +294,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupHiAmpPCB],&ind);
 			libBufferAppend_uint32(modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupHiAmpPCB],&ind);
 			libBufferAppend_uint16(modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupHiAmpPCB],&ind);
-			
 			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->cellMonitorType,&ind);
 			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->cellMonitorICCount,&ind);
 			libBufferAppend_uint8(modCommandsSendBuffer,modCommandsToBeSendConfig->externalEnableOperationalState,&ind);

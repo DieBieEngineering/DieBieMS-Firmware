@@ -44,15 +44,15 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellLCSoftUnderVoltage											   = 2.90f;										// Low current lowest cell voltage X.XXV.
   configLocation->cellHCSoftUnderVoltage                         = 3.25f;                   // High current lowest cell voltage X.XXV.
 	configLocation->cellSoftOverVoltage												     = 4.15f;										// Normal highest cell voltage X.XXV.
-	configLocation->cellBalanceDifferenceThreshold                 = 0.01f;										// Start balancing @ XmV difference, stop if below.
-	configLocation->cellBalanceStart													     = 3.80f;										// Start balancing above X.XXV.
-	configLocation->cellThrottleUpperStart										     = 0.03f;										// Upper range of cell voltage for charge throttling.
+	configLocation->cellBalanceDifferenceThreshold                 = 0.005f;										// Start balancing @ XmV difference, stop if below.
+	configLocation->cellBalanceStart													     = 3.90f;										// Start balancing above X.XXV.
+	configLocation->cellThrottleUpperStart										     = 0.02f;										// Upper range of cell voltage for charge throttling.
 	configLocation->cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.
   configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
 	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
-  configLocation->shuntHCFactor	                                 = -0.038f;                 // Shunt factor high current
+  configLocation->shuntHCFactor	                                 = -0.025f;                 // Shunt factor high current
 	configLocation->shuntHCOffset                                  = 4;                       // Shunt offset high current
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
@@ -81,8 +81,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->CANID																			     = 10;											// CAN ID for CAN communication.
 	configLocation->CANIDStyle                                     = CANIDStyleFoiler;        // CAN ID default Style
 	configLocation->emitStatusOverCAN                              = true;                    // Send status over can.
-	configLocation->tempEnableMaskBMS                              = 0x1C0F;									// Bitwise select what sensor to enable for the BMS (internal sensors).
-	configLocation->tempEnableMaskBattery                          = 0x03F0;									// Bitwise select what sensor to enable for the battery (external sensors).
+	configLocation->tempEnableMaskBMS                              = 0x1C08;									// Bitwise select what sensor to enable for the BMS (internal sensors).
+	configLocation->tempEnableMaskBattery                          = 0x1C08;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->LCUseDischarge                                 = true;                    // Enable or disable the solid state output
 	configLocation->LCUsePrecharge                                 = true;                    // Use precharge before enabling main output
 	configLocation->NTCTopResistor[modConfigNTCGroupLTCExt]        = 100000;                  // NTC Pullup resistor value
@@ -93,11 +93,11 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTCBetaFactor[modConfigNTCGroupMasterPCB]      = 3590;                    // NTC Beta factor
 	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
 	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
-	configLocation->pulseToggleButton                              = false;                   // Select either pulse or toggle power button
+	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = true;                    // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = true;                    // Use delayed power down
-	configLocation->cellMonitorType                                = LTC6804_1;               // Use the new cell voltage monitor
+	configLocation->cellMonitorType                                = CELL_MON_LTC6804_1;      // Use the new cell voltage monitor
 	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
 	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
 	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
@@ -110,9 +110,9 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTC25DegResistance[modConfigNTCGroupHiAmpPCB]  = 100000;                  // NTC resistance at 25 degree
 	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpExt]       = 4390;                    // NTC Beta factor
 	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpPCB]       = 3590;                    // NTC Beta factor
-	configLocation->HCUseRelay                                     = false;                    // Enable or disable the relay output, when false will also disable HC pre charge.
+	configLocation->HCUseRelay                                     = true;                    // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
-	configLocation->timeoutHCPreCharge													   = 300;											// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
+	configLocation->timeoutHCPreCharge													   = 6000;											// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
 	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										// When pre charge failes wait this long in ms
 	configLocation->timeoutHCRelayOverlap											     = 1000;										// When precharge succeeds enable both relay and precharge combined for this time, then go to relay only.
 #endif
@@ -178,7 +178,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = true;                    // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = true;                    // Use delayed power down
-	configLocation->cellMonitorType                                = LTC6803_2;               // Use the new cell voltage monitor
+	configLocation->cellMonitorType                                = CELL_MON_LTC6803_2;      // Use the new cell voltage monitor
 	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
 	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
 	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
@@ -259,7 +259,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
-	configLocation->cellMonitorType                                = LTC6803_2;               // Use the new cell voltage monitor
+	configLocation->cellMonitorType                                = CELL_MON_LTC6803_2;      // Use the new cell voltage monitor
 	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
 	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
 	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
@@ -281,7 +281,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 
 #ifdef ESK8
 	configLocation->noOfCells 																     = 12;											// X Cells in series
-	configLocation->batteryCapacity														     = 12.00f;									// XXAh battery
+	configLocation->batteryCapacity														     = 15.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.35f;										// Worst case X.XXV as highest cell voltage
 	configLocation->cellLCSoftUnderVoltage											   = 2.70f;										// Low current lowest cell voltage X.XXV.
@@ -295,8 +295,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
   configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
 	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
-  configLocation->shuntHCFactor	                                 = -0.038f;                 // Shunt factor high current
-	configLocation->shuntHCOffset                                  = 4;                       // Shunt offset high current
+  configLocation->shuntHCFactor	                                 = 0.001f;                  // Shunt factor high current
+	configLocation->shuntHCOffset                                  = -4;                      // Shunt offset high current
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.
@@ -340,7 +340,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
 	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
 	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
-	configLocation->cellMonitorType                                = LTC6803_2;               // Use the new cell voltage monitor
+	configLocation->cellMonitorType                                = CELL_MON_LTC6803_2;      // Use the new cell voltage monitor
 	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
 	configLocation->externalEnableOperationalState                 = opStateNormal;           // Go to normal enable mode
 	configLocation->powerDownDelay                                 = 3000;                    // Wait only minimal to turn off
@@ -353,7 +353,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTC25DegResistance[modConfigNTCGroupHiAmpPCB]  = 100000;                  // NTC resistance at 25 degree
 	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpExt]       = 4390;                    // NTC Beta factor
 	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpPCB]       = 3590;                    // NTC Beta factor
-	configLocation->HCUseRelay                                     = false;                    // Enable or disable the relay output, when false will also disable HC pre charge.
+	configLocation->HCUseRelay                                     = false;                   // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
 	configLocation->timeoutHCPreCharge													   = 300;											// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
 	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										// When pre charge failes wait this long in ms

@@ -14,6 +14,8 @@
 #include "modCAN.h"
 #include "modHiAmp.h"
 
+#include "driverHWSPI1.h"
+
 // This next define enables / disables the watchdog
 //#define AllowDebug
 
@@ -32,6 +34,7 @@ int main(void) {
   SystemClock_Config();
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	mainWatchDogInitAndStart();
+	
 	// All following functions should be called in exactly this order
 	generalConfig            = modConfigInit();																// Tell EEPROM the needed size for ConfigStruct
 	generalStateOfCharge     = modStateOfChargeInit(&packState,generalConfig);// Tell EEPROM the needed size for StatOfChargeStruct
@@ -45,8 +48,8 @@ int main(void) {
 	modUARTInit();																	  												// Will act on UART message requests
 	modCANInit(&packState,generalConfig);																			// Will act on CAN message requests
 	modEffectInit();																													// Controls the effects on LEDs + buzzer
-	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode
-	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState
+	modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);													// Set Debug LED to blinking mode	
+	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState	
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	modHiAmpInit(&packState,generalConfig);																		// Initialize the HiAmp shield enviroment if any
 	
@@ -64,7 +67,6 @@ int main(void) {
   }
 }
 
-/* System Clock Configuration */
 void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -108,9 +110,9 @@ void SystemClock_Config(void) {
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* IWDG init function */
 void mainWatchDogInitAndStart(void) {
-#ifndef AllowDebug
+
+	#ifndef AllowDebug
   handleIWDG.Instance = IWDG;
   handleIWDG.Init.Prescaler = IWDG_PRESCALER_256;
   handleIWDG.Init.Window = 4095;
@@ -131,11 +133,6 @@ void mainWatchDogReset(void) {
 #endif
 }
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
 void Error_Handler(void){
   /* USER CODE BEGIN Error_Handler */
   /* User can add his own implementation to report the HAL error return state */
@@ -147,15 +144,7 @@ void Error_Handler(void){
 
 #ifdef USE_FULL_ASSERT
 
-/**
-   * @brief Reports the name of the source file and the source line number
-   * where the assert_param error has occurred.
-   * @param file: pointer to the source file name
-   * @param line: assert_param error line source number
-   * @retval None
-   */
-void assert_failed(uint8_t* file, uint32_t line)
-{
+void assert_failed(uint8_t* file, uint32_t line) {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

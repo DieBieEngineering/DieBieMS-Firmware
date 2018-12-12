@@ -1,7 +1,7 @@
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
 
-#define NoOfI2C2Ports				3
+#define NoOfI2C2Ports				2
 
 typedef struct {
 	GPIO_TypeDef* Port;

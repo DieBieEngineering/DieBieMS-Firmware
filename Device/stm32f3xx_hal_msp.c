@@ -289,7 +289,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     __HAL_RCC_SPI1_CLK_ENABLE();
   
     /**SPI1 GPIO Configuration    
-    PA4     ------> SPI1_NSS
+    PA4     ------> LTC6803_CS_Pin for 6803
+		PA8     ------> LTC6804_CS_Pin for 6804
     PA5     ------> SPI1_SCK
     PA6     ------> SPI1_MISO
     PA7     ------> SPI1_MOSI 
@@ -308,7 +309,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 		
-		GPIO_InitStruct.Pin = LTC_CS_Pin;
+		GPIO_InitStruct.Pin = LTC6803_CS_Pin | LTC6804_CS_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -364,7 +365,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
     PA6     ------> SPI1_MISO
     PA7     ------> SPI1_MOSI 
     */
-    HAL_GPIO_DeInit(GPIOA, LTC_CS_Pin|LTC_SCK_Pin|LTC_MISO_Pin|LTC_MOSI_Pin);
+    HAL_GPIO_DeInit(GPIOA, LTC6803_CS_Pin|LTC6804_CS_Pin|LTC_SCK_Pin|LTC_MISO_Pin|LTC_MOSI_Pin);
 
   /* USER CODE BEGIN SPI1_MspDeInit 1 */
 

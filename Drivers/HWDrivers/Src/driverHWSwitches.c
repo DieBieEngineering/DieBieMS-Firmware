@@ -6,7 +6,8 @@ const driverHWSwitchesPortStruct driverHWSwitchesPorts[NoOfSwitches] =			// Hold
 	{GPIOB,RCC_AHBENR_GPIOBEN,GPIO_PIN_0,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL},		// SWITCH_CHARGE
 	{GPIOB,RCC_AHBENR_GPIOBEN,GPIO_PIN_11,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL},		// SWITCH_PRECHARGE
 	{GPIOB,RCC_AHBENR_GPIOBEN,GPIO_PIN_10,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL},		// SWITCH_DISCHARGE
-	{GPIOC,RCC_AHBENR_GPIOCEN,GPIO_PIN_15,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL}		// SWITCH_CHARGE_BYPASS
+	{GPIOC,RCC_AHBENR_GPIOCEN,GPIO_PIN_15,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL},		// SWITCH_CHARGE_BYPASS
+	{GPIOC,RCC_AHBENR_GPIOCEN,GPIO_PIN_13,GPIO_MODE_OUTPUT_OD,GPIO_NOPULL}		// SWITCH_SAFETY_OUTPUT
 };
 
 void driverHWSwitchesInit(void) {
@@ -21,6 +22,8 @@ void driverHWSwitchesInit(void) {
 		switchPortHolder.Speed = GPIO_SPEED_HIGH;																// GPIO clock speed
 		HAL_GPIO_Init(driverHWSwitchesPorts[SwitchPointer].Port,&switchPortHolder);// Perform the IO init 
 	};
+	
+	driverHWSwitchesSetSwitchState(SWITCH_SAFETY_OUTPUT,SWITCH_SET);
 };
 
 void driverHWSwitchesSetSwitchState(driverHWSwitchesIDTypedef switchID, driverHWSwitchesStateTypedef newState) {

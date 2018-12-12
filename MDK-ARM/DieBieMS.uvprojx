@@ -573,6 +573,11 @@
               <FilePath>..\Drivers\SWDrivers\Src\driverSWLTC6803.c</FilePath>
             </File>
             <File>
+              <FileName>driverSWLTC6804.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWLTC6804.c</FilePath>
+            </File>
+            <File>
               <FileName>driverSWPCAL6416.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\SWDrivers\Src\driverSWPCAL6416.c</FilePath>

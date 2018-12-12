@@ -12,12 +12,14 @@ uint32_t modPowerElectronicsTempMeasureDelayLastTick;
 uint32_t modPowerElectronicsChargeCurrentDetectionLastTick;
 uint32_t modPowerElectronicsBalanceModeActiveLastTick;
 uint8_t  modPowerElectronicsUnderAndOverVoltageErrorCount;
-driverLTC6803ConfigStructTypedef modPowerElectronicsLTCconfigStruct;
 bool     modPowerElectronicsAllowForcedOnState;
 uint16_t modPowerElectronicsTemperatureArray[3];
 uint16_t tempTemperature;
 float    modPowerElectronicsTempPackVoltage;
 uint8_t  modPowerElectronicsISLErrorCount;
+configCellMonitorICTypeEnum modPowerElectronicsCellMonitorsTypeActive;
+float    modPowerElectronicsChargeDiodeBypassHysteresis;
+uint32_t LTCInitLastTick;
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
@@ -25,6 +27,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
 	modPowerElectronicsAllowForcedOnState = false;
 	modPowerElectronicsISLErrorCount = 0;
+	modPowerElectronicsChargeDiodeBypassHysteresis = 0.0f;
 	
 	// Init pack status
 	modPowerElectronicsPackStateHandle->throttleDutyCharge       = 0;
@@ -64,6 +67,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	modPowerElectronicsPackStateHandle->tempBMSLow               = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSAverage           = 0.0f;
 	
+	// Init the external bus monitor
   modPowerElectronicsInitISL();
 	
 	// Init internal ADC
@@ -73,19 +77,7 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,SWITCH_RESET);											// Disable charge diode bypass
 	
 	// Init battery stack monitor
-	driverLTC6803ConfigStructTypedef configStruct;
-	configStruct.WatchDogFlag = false;																											// Don't change watchdog
-	configStruct.GPIO1 = false;
-	configStruct.GPIO2 = true;
-	configStruct.LevelPolling = true;																												// This wil make the LTC SDO high (and low when adc is busy) instead of toggling when polling for ADC ready and AD conversion finished.
-	configStruct.CDCMode = 2;																																// Comperator period = 13ms, Vres powerdown = no.
-	configStruct.DisChargeEnableMask = 0x0000;																							// Disable all discharge resistors
-	configStruct.noOfCells = modPowerElectronicsGeneralConfigHandle->noOfCells;							// Number of cells that can cause interrupt
-	configStruct.CellVoltageConversionMode = LTC6803StartCellVoltageADCConversionAll;				// Use normal cell conversion mode, in the future -> check for lose wires on initial startup.
-  configStruct.CellUnderVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage;// Set under limit to XV	-> This should cause error state
-	configStruct.CellOverVoltageLimit = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;	// Set upper limit to X.XXV  -> This should cause error state
-	
-	driverSWLTC6803Init(configStruct,TotalLTCICs);																					// Config the LTC6803 and start measuring
+	modPowerElectronicsCellMonitorsInit();
 	
 	modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
 	modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
@@ -115,25 +107,14 @@ bool modPowerElectronicsTask(void) {
 		}
 		
 		// Combine the two currents and calculate pack power.
-		modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent + modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
+		// TODO fix as option
+		//modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent + modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
+		modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
 		modPowerElectronicsPackStateHandle->packPower   = modPowerElectronicsPackStateHandle->packCurrent * modPowerElectronicsPackStateHandle->packVoltage;
 		
-		// Check if LTC is still running
-		driverSWLTC6803ReadConfig(&modPowerElectronicsLTCconfigStruct);
-		if(!modPowerElectronicsLTCconfigStruct.CDCMode)
-			driverSWLTC6803ReInit();																														// Something went wrong, reinit the battery stack monitor.
-		else
-			driverSWLTC6803ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+    // Read the battery cell voltages and temperatures with the cell monitor ICs
+		modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();
 		
-		// Check if LTC has discharge resistor enabled while not charging
-		if(!modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsLTCconfigStruct.DisChargeEnableMask)
-			driverSWLTC6803ReInit();																														// Something went wrong, reinit the battery stack monitor.
-		
-		// Collect LTC temperature data
-		driverSWLTC6803ReadTempVoltages(modPowerElectronicsTemperatureArray);
-		modPowerElectronicsPackStateHandle->temperatures[0] = driverSWLTC6803ConvertTemperatureExt(modPowerElectronicsTemperatureArray[0],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
-		modPowerElectronicsPackStateHandle->temperatures[1] = driverSWLTC6803ConvertTemperatureExt(modPowerElectronicsTemperatureArray[1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
-		modPowerElectronicsPackStateHandle->temperatures[2] = driverSWLTC6803ConvertTemperatureInt(modPowerElectronicsTemperatureArray[2]);
 		// get STM32 ADC NTC temp
 		driverHWADCGetNTCValue(&modPowerElectronicsPackStateHandle->temperatures[3],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupMasterPCB],25.0f);
 		
@@ -147,8 +128,7 @@ bool modPowerElectronicsTask(void) {
 		modPowerElectronicsSubTaskBalaning();
 		
 		// Measure cell voltages
-		driverSWLTC6803StartCellVoltageConversion();
-		driverSWLTC6803ResetCellVoltageRegisters();
+		modPowerElectronicsCellMonitorsStartCellConversion();
 		
 		// Check and respond to the measured voltage values
 		modPowerElectronicsSubTaskVoltageWatch();
@@ -172,10 +152,12 @@ bool modPowerElectronicsTask(void) {
 		}
 		
 		// Control the charge input bypass diode
-		if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed && (modPowerElectronicsPackStateHandle->packCurrent >= (modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold + 0.5f))){
+		if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed && (modPowerElectronicsPackStateHandle->packCurrent >= (modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold + modPowerElectronicsChargeDiodeBypassHysteresis + 0.5f))){
 			driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,SWITCH_SET);
+			modPowerElectronicsChargeDiodeBypassHysteresis = -0.2f;
 		}else{
 		  driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,SWITCH_RESET);
+			modPowerElectronicsChargeDiodeBypassHysteresis = 0.2f;
 		}
 		
 		// TODO: have balance time configureable
@@ -190,7 +172,12 @@ bool modPowerElectronicsTask(void) {
 		returnValue = false;
 	
 	if(modDelayTick1msNoRST(&modPowerElectronicsTempMeasureDelayLastTick,50))
-		driverSWLTC6803StartTemperatureVoltageConversion();
+		modPowerElectronicsCellMonitorsStartTemperatureConversion();
+	
+	if(modDelayTick1ms(&LTCInitLastTick,100)) {
+		//driverLTC6804ConfigStructTypedef configStruct;
+		//driverSWLTC6804Init(configStruct,1);
+	}
 	
 	return returnValue;
 };
@@ -278,7 +265,7 @@ void modPowerElectronicsSubTaskBalaning(void) {
 	static uint16_t lastCellBalanceRegister = 0;
 	static bool delaytoggle = false;
 	uint16_t cellBalanceMaskEnableRegister = 0;
-	driverLTC6803CellsTypedef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCells];
+	cellMonitorCellsTypedef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCells];
 	
 	if(modDelayTick1ms(&modPowerElectronicsCellBalanceUpdateLastTick,delayTimeHolder)) {
 		delaytoggle ^= true;
@@ -305,7 +292,7 @@ void modPowerElectronicsSubTaskBalaning(void) {
 		modPowerElectronicsPackStateHandle->cellBalanceResistorEnableMask = cellBalanceMaskEnableRegister;
 		
 		if(lastCellBalanceRegister != cellBalanceMaskEnableRegister)
-			driverSWLTC6803EnableBalanceResistors(cellBalanceMaskEnableRegister);
+			modPowerElectronicsCellMonitorsEnableBalanceResistors(cellBalanceMaskEnableRegister);
 		lastCellBalanceRegister = cellBalanceMaskEnableRegister;
 	}
 };
@@ -315,7 +302,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	static bool lastChargeAllowed = false;
 	uint16_t hardUnderVoltageFlags, hardOverVoltageFlags;
 	
-	driverSWLTC6803ReadVoltageFlags(&hardUnderVoltageFlags,&hardOverVoltageFlags);
+	modPowerElectronicsCellMonitorsReadVoltageFlags(&hardUnderVoltageFlags,&hardOverVoltageFlags);
 	modPowerElectronicsCalculateCellStats();
 	
 	if(modPowerElectronicsPackStateHandle->packOperationalCellState != PACK_STATE_ERROR_HARD_CELLVOLTAGE) {
@@ -401,9 +388,9 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 };
 
-void modPowerElectronicsSortCells(driverLTC6803CellsTypedef *cells, uint8_t cellCount) {
+void modPowerElectronicsSortCells(cellMonitorCellsTypedef *cells, uint8_t cellCount) {
 	int i,j;
-	driverLTC6803CellsTypedef value;
+	cellMonitorCellsTypedef value;
 
 	for(i=0 ; i<(cellCount-1) ; i++) {
 		for(j=0 ; j<(cellCount-i-1) ; j++) {
@@ -584,8 +571,8 @@ void modPowerElectronicsCheckPackSOA(void) {
 }
 
 bool modPowerElectronicsHCSafetyCANAndPowerButtonCheck(void) {
-	if(modPowerElectronicsGeneralConfigHandle->useCANSafetyInput)	
-		return (modPowerElectronicsPackStateHandle->safetyOverCANHCSafeNSafe && modPowerElectronicsPackStateHandle->powerButtonActuated);
+	if(modPowerElectronicsGeneralConfigHandle->useCANSafetyInput)
+		return (modPowerElectronicsPackStateHandle->safetyOverCANHCSafeNSafe && (modPowerElectronicsPackStateHandle->powerButtonActuated | modPowerElectronicsGeneralConfigHandle->pulseToggleButton));
 	else
 		return true;
 }
@@ -593,4 +580,157 @@ bool modPowerElectronicsHCSafetyCANAndPowerButtonCheck(void) {
 void modPowerElectronicsResetBalanceModeActiveTimeout(void) {
 	modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
 }
+
+void modPowerElectronicsCellMonitorsInit(void){
+	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		case CELL_MON_LTC6803_2: {
+			driverLTC6803ConfigStructTypedef configStruct;
+			configStruct.WatchDogFlag             = false;																									// Don't change watchdog
+			configStruct.GPIO1                    = false;
+			configStruct.GPIO2                    = true;
+			configStruct.LevelPolling             = true;																										// This wil make the LTC SDO high (and low when adc is busy) instead of toggling when polling for ADC ready and AD conversion finished.
+			configStruct.CDCMode                  = 2;																											// Comperator period = 13ms, Vres powerdown = no.
+			configStruct.DisChargeEnableMask      = 0x0000;																							    // Disable all discharge resistors
+			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCells;			// Number of cells that can cause interrupt
+			configStruct.CellVoltageConversionMode = LTC6803StartCellVoltageADCConversionAll;				        // Use normal cell conversion mode, in the future -> check for lose wires on initial startup.
+			configStruct.CellUnderVoltageLimit    = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage;// Set under limit to XV	-> This should cause error state
+			configStruct.CellOverVoltageLimit     = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;// Set upper limit to X.XXV  -> This should cause error state
+			driverSWLTC6803Init(configStruct,modPowerElectronicsGeneralConfigHandle->cellMonitorICCount);   // Config the LTC6803 and start measuring
+			
+			// Safety signal is managed by LTC, the controller should release it: it is configured as open drain.
+			driverHWSwitchesSetSwitchState(SWITCH_SAFETY_OUTPUT,SWITCH_SET);
+			
+		}break;
+		case CELL_MON_LTC6804_1: {
+			driverLTC6804ConfigStructTypedef configStruct;
+			configStruct.GPIO1                    = true;																										// Do not pull down this pin (false = pull down)
+			configStruct.GPIO2                    = true;																										// 
+			configStruct.GPIO3                    = true;																										// 
+			configStruct.GPIO4                    = true;																										// 
+			configStruct.GPIO5                    = true;																										//
+			configStruct.ReferenceON              = true;																										// Reference ON
+			configStruct.ADCOption                = true;																									  // ADC Option register for configuration of over sampling ratio
+			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCells;			// Number of cells to monitor (that can cause interrupt)
+			configStruct.DisChargeEnableMask      = 0x0000;																									// Set enable state of discharge, 1=EnableDischarge, 0=DisableDischarge
+			configStruct.DischargeTimout          = 0;																											// Discharge timout value / limit
+			configStruct.CellUnderVoltageLimit    = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage; // Undervoltage level, cell voltages under this limit will cause interrupt
+			configStruct.CellOverVoltageLimit     = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;  // Over voltage limit, cell voltages over this limit will cause interrupt
+			driverSWLTC6804Init(configStruct,modPowerElectronicsGeneralConfigHandle->cellMonitorICCount);   // Config the LTC6804
+			
+			// Safety signal is managed by the controller, it is configured as open drain and will be kept low by. watchdog will make the output to be released.
+			driverHWSwitchesSetSwitchState(SWITCH_SAFETY_OUTPUT,SWITCH_RESET);
+		}break;
+		default:
+			break;
+	}
+	
+	modPowerElectronicsCellMonitorsTypeActive = (configCellMonitorICTypeEnum)modPowerElectronicsGeneralConfigHandle->cellMonitorType;
+}
+
+void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
+	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
+	
+	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		case CELL_MON_LTC6803_2: {
+			// Check if LTC is still running and if so read cell voltages, if not reinit.
+			driverLTC6803ConfigStructTypedef modPowerElectronicsLTCconfigStruct;
+			driverSWLTC6803ReadConfig(&modPowerElectronicsLTCconfigStruct);
+			if(!modPowerElectronicsLTCconfigStruct.CDCMode)
+				driverSWLTC6803ReInit();																														// Something went wrong, reinit the battery stack monitor.
+			else
+				driverSWLTC6803ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+
+			// Check if LTC has discharge resistor enabled while not charging
+			if(!modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsLTCconfigStruct.DisChargeEnableMask)
+				driverSWLTC6803ReInit();																														// Something went wrong, reinit the battery stack monitor.
+
+			// Collect LTC temperature data
+			driverSWLTC6803ReadTempVoltages(modPowerElectronicsTemperatureArray);
+			modPowerElectronicsPackStateHandle->temperatures[0] = driverSWLTC6803ConvertTemperatureExt(modPowerElectronicsTemperatureArray[0],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
+			modPowerElectronicsPackStateHandle->temperatures[1] = driverSWLTC6803ConvertTemperatureExt(modPowerElectronicsTemperatureArray[1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
+			modPowerElectronicsPackStateHandle->temperatures[2] = driverSWLTC6803ConvertTemperatureInt(modPowerElectronicsTemperatureArray[2]);
+		}break;
+		case CELL_MON_LTC6804_1: {
+			// Check config valid and reinit
+			
+			// Read cell voltages
+			driverSWLTC6804ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
+			
+			// Read aux voltages
+		}break;
+		default:
+			break;
+	}
+}
+
+void modPowerElectronicsCellMonitorsStartCellConversion(void) {
+	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
+	
+	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		case CELL_MON_LTC6803_2: {
+			driverSWLTC6803StartCellVoltageConversion();
+			driverSWLTC6803ResetCellVoltageRegisters();
+		}break;
+		case CELL_MON_LTC6804_1: {
+		  driverSWLTC6804StartCellVoltageConversion(MD_FILTERED,DCP_ENABLED,CELL_CH_ALL);
+			driverSWLTC6804ResetCellVoltageRegisters();
+		}break;
+		default:
+			break;
+	}
+}
+
+void modPowerElectronicsCellMonitorsStartTemperatureConversion(void) {
+	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
+	
+	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		case CELL_MON_LTC6803_2: {
+			driverSWLTC6803StartTemperatureVoltageConversion();
+		}break;
+		case CELL_MON_LTC6804_1: {
+		
+		}break;
+		default:
+			break;
+	}
+}
+
+void modPowerElectronicsCellMonitorsEnableBalanceResistors(uint16_t balanceEnableMask){
+	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
+	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		case CELL_MON_LTC6803_2: {
+			driverSWLTC6803EnableBalanceResistors(balanceEnableMask);
+		}break;
+		case CELL_MON_LTC6804_1: {
+		  driverSWLTC6804EnableBalanceResistors(balanceEnableMask);
+		}break;
+		default:
+			break;
+	}
+}
+
+void modPowerElectronicsCellMonitorsReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags){
+	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
+	
+	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		case CELL_MON_LTC6803_2: {
+			driverSWLTC6803ReadVoltageFlags(underVoltageFlags,overVoltageFlags);
+		}break;
+		case CELL_MON_LTC6804_1: {
+			driverSWLTC6804ReadVoltageFlags(underVoltageFlags,overVoltageFlags);
+		}break;
+		default:
+			break;
+	}
+}
+
+void modPowerElectronicsCellMonitorsCheckAndSolveInitState(void){
+  if(modPowerElectronicsCellMonitorsTypeActive != modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		modPowerElectronicsCellMonitorsInit();
+	}
+}
+
+
+
+
 

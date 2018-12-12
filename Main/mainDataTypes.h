@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "dataHelper.h"
 
 #define systime_t uint32_t													// was not here
 
@@ -544,8 +545,9 @@ typedef enum {
 } NRF_PAIR_RES;
 
 typedef enum {
-	LTC6803_2 = 0,
-	LTC6804_1
+	CELL_MON_NONE = 0,
+	CELL_MON_LTC6803_2,
+	CELL_MON_LTC6804_1
 } configCellMonitorICTypeEnum;
 
 typedef enum {
@@ -559,6 +561,9 @@ typedef enum {
 	baud500k
 } configCANSpeedTypeEnum;
 
-
+typedef struct {
+	float cellVoltage;
+	uint8_t cellNumber;
+} cellMonitorCellsTypedef;
 
 #endif /* DATATYPES_H_ */

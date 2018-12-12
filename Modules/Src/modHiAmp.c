@@ -10,11 +10,17 @@ uint32_t modHiAmpShieldRelayTimeoutLastTick;
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledState;
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
 
+bool dischargeHCEnable;
+
+bool modHiAmpShieldPresenceFanDriver;
+
 bool modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
 
 void modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer){
 	modHiAmpPackStateHandle     = packStateHandle;																		// Store pack state pointer.
 	modHiAmpGeneralConfigHandle = generalConfigPointer;
+	
+	modHiAmpShieldPresenceFanDriver = false;
 	
 	driverHWI2C1Init();																																// Init the communication bus
 	modHiAmpPackStateHandle->hiAmpShieldPresent = modHiAmpShieldPresentCheck();				// Check presence and store it
@@ -29,12 +35,15 @@ void modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigG
 	if(modHiAmpPackStateHandle->hiAmpShieldPresent){
 		driverSWDCDCInit(modHiAmpPackStateHandle);																			// Init the DCDC converter enviroment
 		driverSWDCDCSetEnabledState(true);																							// Enable the converter
-		driverSWEMC2305Init(I2CADDRFANDriver,100);																			// Init the FANDriver with addres and minimal duty cycle
-		modHiAmpShieldSetFANSpeedAll(0);																								// Disable all FANs
 		modHiAmpShieldMainShuntMonitorInit();
 		driverSWPCAL6416Init(0x07,0xF7,0x07,0xF7,0x07,0xF7);														// Init the IO Extender
 		driverSWADC128D818Init();																												// Init the NTC ADC
 		driverSWSHT21Init();																														// Init the Temperature / humidity sensor
+		
+		if(modHiAmpShieldPresenceFanDriver){
+			driverSWEMC2305Init(I2CADDRFANDriver,100);																		// Init the FANDriver with addres and minimal duty cycle
+			modHiAmpShieldSetFANSpeedAll(0);																							// Disable all FANs
+		}
 	}else{
 	  modHiAmpShieldResetSensors();
 	}
@@ -48,7 +57,7 @@ void modHiAmpTask(void) {
 	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100)){
 		if(modHiAmpPackStateHandle->hiAmpShieldPresent){
 			// Determin whether discharge should be allowed
-			bool dischargeHCEnable;
+			//bool dischargeHCEnable;
 			
 			if(modHiAmpGeneralConfigHandle->togglePowerModeDirectHCDelay || modHiAmpGeneralConfigHandle->pulseToggleButton){
 				dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
@@ -57,7 +66,13 @@ void modHiAmpTask(void) {
 			}
 
 			// Update inputs
-			modHiAmpPackStateHandle->FANStatus = driverEMC2305GetFANStatus(I2CADDRFANDriver);
+			if(modHiAmpShieldPresenceFanDriver){
+				modHiAmpPackStateHandle->FANStatus = driverEMC2305GetFANStatus(I2CADDRFANDriver);
+			}else{
+				driverSWEMC2305FanStatusTypeDef emptyState = {{0,0,0,0},false,false,false};
+				modHiAmpPackStateHandle->FANStatus = emptyState;
+			}
+			
 			modHiAmpPackStateHandle->auxDCDCEnabled = driverSWDCDCGetEnabledState();
 			modHiAmpPackStateHandle->auxVoltage = driverSWDCDCGetAuxVoltage();
 			modHiAmpPackStateHandle->auxCurrent = driverSWDCDCGetAuxCurrent();
@@ -88,7 +103,8 @@ bool modHiAmpShieldPresentCheck(void) {
 	PresenceDetect |= driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0); // ISL Aux
 	PresenceDetect |= driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0); // IO Ext
 	PresenceDetect |= driverHWI2C1Write(I2CADDRADC        ,false,&I2CWrite,0); // NTC ADC
-	PresenceDetect |= driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0); // FAN Driver
+	
+	modHiAmpShieldPresenceFanDriver = (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? true : false;
 	
 	if(PresenceDetect == HAL_OK)
 		return true;
@@ -145,7 +161,9 @@ float modHiAmpShieldShuntMonitorGetCurrent(void) {
 
 void modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed) {
 	modHiAmpPackStateHandle->FANSpeedDutyDesired = newFANSpeed;
-	driverSWEMC2305SetFANDutyAll(I2CADDRFANDriver,newFANSpeed);
+	if(modHiAmpShieldPresenceFanDriver){
+		driverSWEMC2305SetFANDutyAll(I2CADDRFANDriver,newFANSpeed);
+	}
 }
 
 void modHiAmpShieldRelayControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage) {
@@ -314,4 +332,3 @@ void  modHiAmpShieldResetSensors(void) {
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[2]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[3]     = 0;
 }
-

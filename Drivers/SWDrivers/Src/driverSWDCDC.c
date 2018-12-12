@@ -41,6 +41,22 @@ void driverSWDCDCEnableTask(void){
 	if(driverSWDCDCEnabledState != (driverSWDCDCEnabledDesiredState && driverSWDCDCPackStateHandle->disChargeLCAllowed && driverSWDCDCPackStateHandle->disChargeDesired)){
 		driverSWDCDCEnabledState = driverSWDCDCEnabledDesiredState;
 		
+#ifdef EFoilV0
+
+#endif
+
+#ifdef EFoilV1
+
+#endif
+
+#ifdef EFoilV2
+	driverSWDCDCEnabledState = !driverSWDCDCEnabledState;
+#endif
+
+#ifdef ESK8
+		
+#endif
+		
 		if(driverSWDCDCEnabledState){
 			HAL_GPIO_WritePin(GPIOB, OLED_RST_Pin, GPIO_PIN_SET);
 		}else{
