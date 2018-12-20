@@ -1,7 +1,9 @@
 #include "driverSWDCDC.h"
 
 bool driverSWDCDCEnabledState;
+bool driverSWDCDCEnabledPinState;
 bool driverSWDCDCEnabledDesiredState;
+uint32_t driverSWDCDCEnabledTurnOnDelayLastTick;
 modPowerElectricsPackStateTypedef *driverSWDCDCPackStateHandle;
 
 void driverSWDCDCInit(modPowerElectricsPackStateTypedef* packStateHandle){
@@ -23,6 +25,9 @@ void driverSWDCDCInit(modPowerElectricsPackStateTypedef* packStateHandle){
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	
+	driverSWDCDCSetEnablePin(false);
+	driverSWDCDCEnabledTurnOnDelayLastTick = HAL_GetTick();
 };
 
 void driverSWDCDCSetEnabledState(bool newEnabledState){
@@ -38,32 +43,43 @@ bool driverSWDCDCGetOKState(void){
 };
 
 void driverSWDCDCEnableTask(void){
-	if(driverSWDCDCEnabledState != (driverSWDCDCEnabledDesiredState && driverSWDCDCPackStateHandle->disChargeLCAllowed && driverSWDCDCPackStateHandle->disChargeDesired)){
-		driverSWDCDCEnabledState = driverSWDCDCEnabledDesiredState;
-		
-#ifdef EFoilV0
-
-#endif
-
-#ifdef EFoilV1
-
-#endif
-
-#ifdef EFoilV2
-	driverSWDCDCEnabledState = !driverSWDCDCEnabledState;
-#endif
-
-#ifdef ESK8
-		
-#endif
-		
-		if(driverSWDCDCEnabledState){
-			HAL_GPIO_WritePin(GPIOB, OLED_RST_Pin, GPIO_PIN_SET);
+	if(driverSWDCDCEnabledState != (driverSWDCDCEnabledDesiredState && driverSWDCDCPackStateHandle->disChargeLCAllowed && driverSWDCDCPackStateHandle->disChargeDesired && (driverSWDCDCPackStateHandle->operationalState == OP_STATE_LOAD_ENABLED))){
+		if(driverSWDCDCEnabledDesiredState){
+			if(modDelayTick1ms(&driverSWDCDCEnabledTurnOnDelayLastTick,500))
+				driverSWDCDCEnabledState = driverSWDCDCEnabledDesiredState;
 		}else{
-			HAL_GPIO_WritePin(GPIOB, OLED_RST_Pin, GPIO_PIN_RESET);
+			driverSWDCDCEnabledState = driverSWDCDCEnabledDesiredState;
 		}
+			
+		driverSWDCDCSetEnablePin(driverSWDCDCEnabledState);
+	}else{
+	  driverSWDCDCEnabledTurnOnDelayLastTick = HAL_GetTick();
 	}
 };
+
+void driverSWDCDCSetEnablePin(bool desiredEnableState) {
+	#ifdef EFoilV0
+		driverSWDCDCEnabledPinState = desiredEnableState;
+	#endif
+
+	#ifdef EFoilV1
+		driverSWDCDCEnabledPinState = desiredEnableState;
+	#endif
+
+	#ifdef EFoilV2
+		driverSWDCDCEnabledPinState = !desiredEnableState;
+	#endif
+
+	#ifdef ESK8
+		driverSWDCDCEnabledPinState = desiredEnableState;
+	#endif
+	
+	if(driverSWDCDCEnabledPinState){
+		HAL_GPIO_WritePin(GPIOB, OLED_RST_Pin, GPIO_PIN_SET);
+	}else{
+		HAL_GPIO_WritePin(GPIOB, OLED_RST_Pin, GPIO_PIN_RESET);
+	}
+}
 
 float driverSWDCDCGetAuxVoltage(void) {
 	float auxVoltage = 0.0f;

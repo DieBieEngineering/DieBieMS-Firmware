@@ -53,7 +53,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
   configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
 	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
   configLocation->shuntHCFactor	                                 = -0.025f;                 // Shunt factor high current
-	configLocation->shuntHCOffset                                  = 4;                       // Shunt offset high current
+	configLocation->shuntHCOffset                                  = -2;                       // Shunt offset high current
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.
@@ -90,7 +90,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTC25DegResistance[modConfigNTCGroupLTCExt]    = 100000;                  // NTC resistance at 25 degree
 	configLocation->NTC25DegResistance[modConfigNTCGroupMasterPCB] = 100000;                  // NTC resistance at 25 degree
 	configLocation->NTCBetaFactor[modConfigNTCGroupLTCExt]         = 4390;                    // NTC Beta factor
-	configLocation->NTCBetaFactor[modConfigNTCGroupMasterPCB]      = 3590;                    // NTC Beta factor
+	configLocation->NTCBetaFactor[modConfigNTCGroupMasterPCB]      = 4100;                    // NTC Beta factor
 	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
 	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
 	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
@@ -109,7 +109,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTC25DegResistance[modConfigNTCGroupHiAmpExt]  = 100000;                  // NTC resistance at 25 degree
 	configLocation->NTC25DegResistance[modConfigNTCGroupHiAmpPCB]  = 100000;                  // NTC resistance at 25 degree
 	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpExt]       = 4390;                    // NTC Beta factor
-	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpPCB]       = 3590;                    // NTC Beta factor
+	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpPCB]       = 4100;                    // NTC Beta factor
 	configLocation->HCUseRelay                                     = true;                    // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
 	configLocation->timeoutHCPreCharge													   = 6000;											// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
