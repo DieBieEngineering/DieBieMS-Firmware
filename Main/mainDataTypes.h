@@ -552,14 +552,34 @@ typedef enum {
 
 typedef enum {
   opStateExternal = 0,
-	opStateNormal
+	opStateExtNormal
 } configExtEnableStateTypeEnum;
+
+typedef enum {
+  opStateChargingModeCharging = 0,
+	opStateChargingModeNormal
+} configChargerEnableStateTypeEnum;
 
 typedef enum {
   baud125k = 0,
 	baud250k,
 	baud500k
 } configCANSpeedTypeEnum;
+
+typedef enum {
+	sourceNone = 0,
+	sourceLowCurrentShunt,
+	sourceHighCurrentShunt,
+	sourceLowPlusHighCurrentShunt,
+	sourceCANDieBieShunt,
+	sourceCANIsaBellenHuette
+} configPackCurrentDataSourceEnum;
+
+typedef enum {
+	socNone = 0,
+	socCoulomb,
+	socCoulombAndCellVoltage
+} configStateOfChargeMethodEnum;
 
 typedef struct {
 	float cellVoltage;

@@ -48,7 +48,7 @@ void modOperationalStateTask(void) {
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
 				switch(modOperationalStateGeneralConfigHandle->externalEnableOperationalState){
-					case opStateNormal:
+					case opStateExtNormal:
 						modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);							// Prepare to goto normal operational state
 						break;
 					case opStateExternal:
@@ -172,7 +172,7 @@ void modOperationalStateTask(void) {
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,modOperationalStateGeneralConfigHandle->powerDownDelay))	{					// Wait for the power down delay time to pass
-			  modOperationalStateTerminateOperation();															// Disable psp and store SoC
+			  modOperationalStateTerminateOperation();															// Disable powersupply and store SoC
 			}
 			break;
 		case OP_STATE_EXTERNAL:																										// BMS is turned on by external force IE CAN or USB

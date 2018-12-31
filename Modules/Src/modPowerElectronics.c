@@ -19,7 +19,6 @@ float    modPowerElectronicsTempPackVoltage;
 uint8_t  modPowerElectronicsISLErrorCount;
 configCellMonitorICTypeEnum modPowerElectronicsCellMonitorsTypeActive;
 float    modPowerElectronicsChargeDiodeBypassHysteresis;
-uint32_t LTCInitLastTick;
 
 void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
@@ -92,7 +91,7 @@ bool modPowerElectronicsTask(void) {
 		
 		// Collect low current current path data and check validity + recover if invalid.
 		driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsTempPackVoltage,0.004f);
-		if(fabs(modPowerElectronicsTempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCells*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 1.0f) {    // If the error is smaller than one volt continue normal operation. 
+		if(fabs(modPowerElectronicsTempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 1.0f) {    // If the error is smaller than one volt continue normal operation. 
 		  modPowerElectronicsPackStateHandle->packVoltage = modPowerElectronicsTempPackVoltage;
 			driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,modPowerElectronicsGeneralConfigHandle->shuntLCOffset,modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 			driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
@@ -106,10 +105,8 @@ bool modPowerElectronicsTask(void) {
 			}
 		}
 		
-		// Combine the two currents and calculate pack power.
-		// TODO fix as option
-		//modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent + modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
-		modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
+		// Combine the currents based on config and calculate pack power.
+		modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsCalcPackCurrent();
 		modPowerElectronicsPackStateHandle->packPower   = modPowerElectronicsPackStateHandle->packCurrent * modPowerElectronicsPackStateHandle->packVoltage;
 		
     // Read the battery cell voltages and temperatures with the cell monitor ICs
@@ -173,11 +170,6 @@ bool modPowerElectronicsTask(void) {
 	
 	if(modDelayTick1msNoRST(&modPowerElectronicsTempMeasureDelayLastTick,50))
 		modPowerElectronicsCellMonitorsStartTemperatureConversion();
-	
-	if(modDelayTick1ms(&LTCInitLastTick,100)) {
-		//driverLTC6804ConfigStructTypedef configStruct;
-		//driverSWLTC6804Init(configStruct,1);
-	}
 	
 	return returnValue;
 };
@@ -246,7 +238,7 @@ void modPowerElectronicsCalculateCellStats(void) {
 	modPowerElectronicsPackStateHandle->cellVoltageHigh = 0.0f;
 	modPowerElectronicsPackStateHandle->cellVoltageLow = 10.0f;
 	
-	for(uint8_t cellPointer = 0; cellPointer < modPowerElectronicsGeneralConfigHandle->noOfCells; cellPointer++) {
+	for(uint8_t cellPointer = 0; cellPointer < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries; cellPointer++) {
 		cellVoltagesSummed += modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage;
 		
 		if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage > modPowerElectronicsPackStateHandle->cellVoltageHigh)
@@ -256,7 +248,7 @@ void modPowerElectronicsCalculateCellStats(void) {
 			modPowerElectronicsPackStateHandle->cellVoltageLow = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage;		
 	}
 	
-	modPowerElectronicsPackStateHandle->cellVoltageAverage = cellVoltagesSummed/modPowerElectronicsGeneralConfigHandle->noOfCells;
+	modPowerElectronicsPackStateHandle->cellVoltageAverage = cellVoltagesSummed/modPowerElectronicsGeneralConfigHandle->noOfCellsSeries;
 	modPowerElectronicsPackStateHandle->cellVoltageMisMatch = modPowerElectronicsPackStateHandle->cellVoltageHigh - modPowerElectronicsPackStateHandle->cellVoltageLow;
 };
 
@@ -265,18 +257,18 @@ void modPowerElectronicsSubTaskBalaning(void) {
 	static uint16_t lastCellBalanceRegister = 0;
 	static bool delaytoggle = false;
 	uint16_t cellBalanceMaskEnableRegister = 0;
-	cellMonitorCellsTypedef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCells];
+	cellMonitorCellsTypedef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCellsSeries];
 	
 	if(modDelayTick1ms(&modPowerElectronicsCellBalanceUpdateLastTick,delayTimeHolder)) {
 		delaytoggle ^= true;
 		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 200;
 		
 		if(delaytoggle) {
-			for(int k=0; k<modPowerElectronicsGeneralConfigHandle->noOfCells; k++) {
+			for(int k=0; k<modPowerElectronicsGeneralConfigHandle->noOfCellsSeries; k++) {
 				sortedCellArray[k] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[k];	// This will contain the voltages that are unloaded by balance resistors
 			}
 				
-			modPowerElectronicsSortCells(sortedCellArray,modPowerElectronicsGeneralConfigHandle->noOfCells);
+			modPowerElectronicsSortCells(sortedCellArray,modPowerElectronicsGeneralConfigHandle->noOfCellsSeries);
 			
 			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || !modPowerElectronicsPackStateHandle->chargeAllowed) {																							// Check if charging is desired
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
@@ -348,7 +340,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	}
 	
 	// Handle hard cell voltage limits
-	if(hardUnderVoltageFlags || hardOverVoltageFlags || (modPowerElectronicsPackStateHandle->packVoltage > modPowerElectronicsGeneralConfigHandle->noOfCells*modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage)) {
+	if(hardUnderVoltageFlags || hardOverVoltageFlags || (modPowerElectronicsPackStateHandle->packVoltage > modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage)) {
 		if(modPowerElectronicsUnderAndOverVoltageErrorCount++ > modPowerElectronicsGeneralConfigHandle->maxUnderAndOverVoltageErrorCount)
 			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_ERROR_HARD_CELLVOLTAGE;
 		modPowerElectronicsPackStateHandle->disChargeLCAllowed = false;
@@ -591,7 +583,7 @@ void modPowerElectronicsCellMonitorsInit(void){
 			configStruct.LevelPolling             = true;																										// This wil make the LTC SDO high (and low when adc is busy) instead of toggling when polling for ADC ready and AD conversion finished.
 			configStruct.CDCMode                  = 2;																											// Comperator period = 13ms, Vres powerdown = no.
 			configStruct.DisChargeEnableMask      = 0x0000;																							    // Disable all discharge resistors
-			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCells;			// Number of cells that can cause interrupt
+			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCellsSeries;// Number of cells that can cause interrupt
 			configStruct.CellVoltageConversionMode = LTC6803StartCellVoltageADCConversionAll;				        // Use normal cell conversion mode, in the future -> check for lose wires on initial startup.
 			configStruct.CellUnderVoltageLimit    = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage;// Set under limit to XV	-> This should cause error state
 			configStruct.CellOverVoltageLimit     = modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage;// Set upper limit to X.XXV  -> This should cause error state
@@ -610,7 +602,7 @@ void modPowerElectronicsCellMonitorsInit(void){
 			configStruct.GPIO5                    = true;																										//
 			configStruct.ReferenceON              = true;																										// Reference ON
 			configStruct.ADCOption                = true;																									  // ADC Option register for configuration of over sampling ratio
-			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCells;			// Number of cells to monitor (that can cause interrupt)
+			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCellsSeries;// Number of cells to monitor (that can cause interrupt)
 			configStruct.DisChargeEnableMask      = 0x0000;																									// Set enable state of discharge, 1=EnableDischarge, 0=DisableDischarge
 			configStruct.DischargeTimout          = 0;																											// Discharge timout value / limit
 			configStruct.CellUnderVoltageLimit    = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage; // Undervoltage level, cell voltages under this limit will cause interrupt
@@ -728,6 +720,32 @@ void modPowerElectronicsCellMonitorsCheckAndSolveInitState(void){
   if(modPowerElectronicsCellMonitorsTypeActive != modPowerElectronicsGeneralConfigHandle->cellMonitorType){
 		modPowerElectronicsCellMonitorsInit();
 	}
+}
+
+float modPowerElectronicsCalcPackCurrent(void){
+	float returnCurrent = 0.0f;
+
+	switch(modPowerElectronicsGeneralConfigHandle->packCurrentDataSource){
+		case sourceLowCurrentShunt:
+			returnCurrent = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent;
+			break;
+		case sourceHighCurrentShunt:
+			returnCurrent = modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
+			break;
+		case sourceLowPlusHighCurrentShunt:
+			returnCurrent = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent + modPowerElectronicsPackStateHandle->hiCurrentLoadCurrent;
+			break;
+		case sourceCANDieBieShunt:
+			returnCurrent = 0.0f;
+			break;
+		case sourceCANIsaBellenHuette:
+			returnCurrent = 0.0f;
+			break;		
+		case sourceNone:
+		default:
+			break;
+	}	
+	return returnCurrent;
 }
 
 

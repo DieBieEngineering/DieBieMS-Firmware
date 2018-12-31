@@ -137,7 +137,7 @@ void terminal_process_string(char *str) {
 		uint8_t cellPointer = 0;
 		
 		modCommandsPrintf("-----   Cell voltages   -----");				
-		for(cellPointer = 0 ; cellPointer < generalConfig->noOfCells ; cellPointer++) {
+		for(cellPointer = 0 ; cellPointer < generalConfig->noOfCellsSeries ; cellPointer++) {
 			modCommandsPrintf("Cell voltage%2d             : %.3fV",cellPointer,packState.cellVoltagesIndividual[cellPointer].cellVoltage);
 		}
 		modCommandsPrintf("Cell voltage high          : %.3fV",packState.cellVoltageHigh);
@@ -149,7 +149,7 @@ void terminal_process_string(char *str) {
 		
 	} else if (strcmp(argv[0], "config") == 0) {
 		modCommandsPrintf("---   BMS Configuration   ---");
-		modCommandsPrintf("NoOfCells                  : %u",generalConfig->noOfCells);
+		modCommandsPrintf("NoOfCells                  : %u",generalConfig->noOfCellsSeries);
 		modCommandsPrintf("batteryCapacity            : %.2fAh",generalConfig->batteryCapacity);
 		modCommandsPrintf("cellHardUnderVoltage       : %.3fV",generalConfig->cellHardUnderVoltage);
 		modCommandsPrintf("cellHardOverVoltage        : %.3fV",generalConfig->cellHardOverVoltage);
@@ -192,7 +192,7 @@ void terminal_process_string(char *str) {
 			sscanf(argv[1], "%u", &newNumberOfCells);
 			if(newNumberOfCells < 13 && newNumberOfCells > 2) {
 				modCommandsPrintf("Number of cells is set to: %u.",newNumberOfCells);
-				generalConfig->noOfCells = newNumberOfCells;
+				generalConfig->noOfCellsSeries = newNumberOfCells;
 			} else {
 				modCommandsPrintf("Invalid number of cells (should be anything from 3 to 12).");
 			}

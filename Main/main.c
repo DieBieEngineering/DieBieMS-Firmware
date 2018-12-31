@@ -17,7 +17,7 @@
 #include "driverHWSPI1.h"
 
 // This next define enables / disables the watchdog
-//#define AllowDebug
+#define AllowDebug
 
 IWDG_HandleTypeDef handleIWDG;
 modConfigGeneralConfigStructTypedef *generalConfig;
