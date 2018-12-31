@@ -4,8 +4,7 @@ This is the firmware for this hardware : https://github.com/DieBieEngineering/Di
 
 When combined with this bootloader : https://github.com/DieBieEngineering/DieBieMS-Bootloader
 
-You can upgrade the firmware trough USB with the VESC-Tool from this project : https://github.com/vedderb/vesc_tool 
-The VESC-tool in binary form can be sourced from the VESC project page : http://www.vesc-project.com
+You can upgrade the firmware trough USB with the DieBieMS-Tool from this project : https://github.com/DieBieEngineering/DieBieMS-Tool
 
 When attempting to install this firmware and bootloader you need to know the flash mapping. Make sure to use a microcontroller with at leas 256kB of flash (eg the STM32F303CCT6 as described by the bom). When you use a lower size you cannot use the bootloader (flash is to small), when you use higher you don't utilize all the potential flash area.
 
