@@ -39,6 +39,9 @@ void modconfigHardwareLimitsApply(modConfigGeneralConfigStructTypedef *configLoc
 	configLocation->maxSimultaneousDischargingCells = MIN(configLocation->maxSimultaneousDischargingCells,HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE);
 	configLocation->cellMonitorICCount              = MIN(configLocation->cellMonitorICCount             ,HW_LIM_CELL_MONITOR_IC_COUNT);
 	configLocation->cellMonitorType                 = HW_LIM_CELL_MONITOR_IC_TYPE;
+	
+	if(configLocation->notUsedTimeout)
+		configLocation->notUsedTimeout                = MAX(configLocation->notUsedTimeout                 ,HW_LIM_MIN_NOT_USED_DELAY);
 }
 
 void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocation) {
@@ -118,7 +121,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->externalEnableOperationalState                 = opStateExtNormal;        // Go to normal enable mode
 	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
 	configLocation->canBusSpeed                                    = baud500k;                // 500k CAN baud
-	configLocation->chargeEnableOperationalState                   = opStateChargingModeCharging; // Go to charging mode when a charger is connected
+	configLocation->chargeEnableOperationalState                   = opStateChargingModeNormal; // Go to charging mode when a charger is connected
 	configLocation->DCDCEnableInverted                             = true;                    // Invert the DCDC enable signal
 	
 	// Slave / HiAmp Config

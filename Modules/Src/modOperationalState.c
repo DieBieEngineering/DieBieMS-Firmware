@@ -4,7 +4,7 @@ OperationalStateTypedef modOperationalStateLastState;
 OperationalStateTypedef modOperationalStateCurrentState;
 OperationalStateTypedef modOperationalStateNewState;
 modPowerElectronicsPackOperationalCellStatesTypedef packOperationalCellStateLastErrorState;
-modPowerElectricsPackStateTypedef *modOperationalStatePackStatehandle;
+modPowerElectronicsPackStateTypedef *modOperationalStatePackStatehandle;
 modConfigGeneralConfigStructTypedef *modOperationalStateGeneralConfigHandle;
 modStateOfChargeStructTypeDef *modOperationalStateGeneralStateOfCharge;
 modDisplayDataTypedef modOperationalStateDisplayData;
@@ -21,7 +21,7 @@ uint32_t modOperationalStatePSPDisableDelay;
 uint32_t modOperationalStateWatchDogCountdownLastTick;
 bool modOperationalStateForceOn;
 
-void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer, modStateOfChargeStructTypeDef *generalStateOfCharge) {
+void modOperationalStateInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer, modStateOfChargeStructTypeDef *generalStateOfCharge) {
 	modOperationalStatePackStatehandle = packState;
 	modOperationalStateGeneralConfigHandle = generalConfigPointer;
 	modOperationalStateGeneralStateOfCharge = generalStateOfCharge;
@@ -40,13 +40,22 @@ void modOperationalStateTask(void) {
 	switch(modOperationalStateCurrentState) {
 		case OP_STATE_INIT:
 			if(modPowerStateChargerDetected()) {																		// Check to detect charger
-				modOperationalStateSetNewState(OP_STATE_CHARGING);										// Go to charge state
-				modEffectChangeState(STAT_LED_POWER,STAT_FLASH);											// Flash power LED when charging
-				modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
+				switch(modOperationalStateGeneralConfigHandle->chargeEnableOperationalState){
+				  case opStateChargingModeCharging:
+						modOperationalStateSetNewState(OP_STATE_CHARGING);								// Go to charge state
+						modEffectChangeState(STAT_LED_POWER,STAT_FLASH);									// Flash power LED when charging
+						modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
+						break;
+					case opStateChargingModeNormal:
+					default:					
+						modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);							// Prepare to goto operational state
+						modEffectChangeState(STAT_LED_POWER,STAT_SET);										// Turn LED on in normal operation
+						break;
+				}
 			}else if(modPowerStateButtonPressedOnTurnon()) {												// Check if button was pressen on turn-on
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
-			}else if (modOperationalStateNewState == OP_STATE_INIT){								// USB or CAN origin of turn-on
+			}else if(modOperationalStateNewState == OP_STATE_INIT){								  // USB or CAN origin of turn-on
 				switch(modOperationalStateGeneralConfigHandle->externalEnableOperationalState){
 					case opStateExtNormal:
 						modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);							// Prepare to goto normal operational state
@@ -102,7 +111,10 @@ void modOperationalStateTask(void) {
 					modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);					// Goto normal load enabled operation
 				}
 			}else if(modDelayTick1ms(&modOperationalStatePreChargeTimeout,modOperationalStateGeneralConfigHandle->timeoutLCPreCharge)){
-				modOperationalStateSetNewState(OP_STATE_ERROR_PRECHARGE);												// An error occured during pre charge
+				if(modOperationalStateGeneralConfigHandle->LCUsePrecharge)
+				  modOperationalStateSetNewState(OP_STATE_ERROR_PRECHARGE);				// An error occured during pre charge
+				else
+					modOperationalStateSetNewState(OP_STATE_LOAD_ENABLED);					// Goto normal load enabled operation
 			}
 		
 			modOperationalStateUpdateStates();
@@ -136,7 +148,7 @@ void modOperationalStateTask(void) {
 				modOperationalStateNotUsedResetDelay = HAL_GetTick();
 			}
 			
-			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimeout))
+			if(modOperationalStatePowerDownDelayCheck())
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 			
 			if(modOperationalStatePackStatehandle->chargeBalanceActive) {
@@ -176,14 +188,14 @@ void modOperationalStateTask(void) {
 			}
 			break;
 		case OP_STATE_EXTERNAL:																										// BMS is turned on by external force IE CAN or USB
+			if(modOperationalStateLastState != modOperationalStateCurrentState) {
+				modPowerElectronicsSetPreCharge(false);
+				modPowerElectronicsSetDisCharge(false);
+				modPowerElectronicsSetCharge(false);
+			}
+		
 			modOperationalStateTerminateOperation();																// Disable power and store SoC
 			modDisplayShowInfo(DISP_MODE_EXTERNAL,modOperationalStateDisplayData);
-			
-		  if(modOperationalStatePackStatehandle->disChargeLCAllowed || modOperationalStateForceOn)
-				modPowerElectronicsSetPreCharge(true);
-			else{
-				modPowerElectronicsSetPreCharge(false);
-			}
 			
 			break;
 		case OP_STATE_ERROR:
@@ -262,7 +274,7 @@ void modOperationalStateTask(void) {
 				modOperationalStateNotUsedResetDelay = HAL_GetTick();
 			}
 			
-			if(modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimeout))
+			if(modOperationalStatePowerDownDelayCheck())
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 			
 			modDisplayShowInfo(DISP_MODE_FORCED_ON,modOperationalStateDisplayData);
@@ -344,4 +356,8 @@ bool modOperationalStateDelayedDisable(bool delayedPowerDownDesired) {
 	}else{
 	  return true;
 	}
+}
+
+bool modOperationalStatePowerDownDelayCheck(void){
+	return modDelayTick1ms(&modOperationalStateNotUsedTime,modOperationalStateGeneralConfigHandle->notUsedTimeout) && modOperationalStateGeneralConfigHandle->notUsedTimeout;
 }

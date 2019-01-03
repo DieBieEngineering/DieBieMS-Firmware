@@ -100,6 +100,7 @@ void driverSWLTC6803Init(driverLTC6803ConfigStructTypedef configStruct, uint8_t 
 void driverSWLTC6803ReInit(void);
 void driverSWLTC6803ReadInit(driverLTC6803ConfigStructTypedef *configStruct, uint8_t totalNumberOfLTCs);
 void driverSWLTC6803StartCellVoltageConversion(void);
+void driverSWLTC6803StartLoadedCellVoltageConversion(void);
 void driverSWLTC6803StartTemperatureVoltageConversion(void);
 void driverSWLTC6803ResetCellVoltageRegisters(void);
 bool driverSWLTC6803ReadCellVoltages(cellMonitorCellsTypedef cellVoltages[12]);

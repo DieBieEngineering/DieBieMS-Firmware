@@ -33,10 +33,10 @@ static int callback_write = 0;
 
 extern modConfigGeneralConfigStructTypedef *generalConfig;
 extern modStateOfChargeStructTypeDef *generalStateOfCharge;
-extern modPowerElectricsPackStateTypedef packState;
+extern modPowerElectronicsPackStateTypedef packState;
 extern OperationalStateTypedef modOperationalStateCurrentState;
 
-void terminal_process_string(char *str) {
+void modTerminalProcessString(char *str) {
 	enum { kMaxArgs = 64 };
 	int argc = 0;
 	char *argv[kMaxArgs];
@@ -115,16 +115,16 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("-----       Sensors         -----");
 		
 		// print temperatures
-		modCommandsPrintf("Sensor[0]  : %.1f C - E - 'LTC NTC0'",packState.temperatures[0]);
-		modCommandsPrintf("Sensor[1]  : %.1f C - E - 'LTC NTC1'",packState.temperatures[1]);
+		modCommandsPrintf("Sensor[0]  : %.1f C - E - 'LTC0 NTC0'",packState.temperatures[0]);
+		modCommandsPrintf("Sensor[1]  : %.1f C - E - 'LTC0 NTC1/Humidity'",packState.temperatures[1]);
 		modCommandsPrintf("Sensor[2]  : %.1f C - I - 'LTC Internal'",packState.temperatures[2]);
 		modCommandsPrintf("Sensor[3]  : %.1f C - I - 'STM NTC'",packState.temperatures[3]);
-		modCommandsPrintf("Sensor[4]  : %.1f C - E - 'ADC NTC0'",packState.temperatures[4]);
-		modCommandsPrintf("Sensor[5]  : %.1f C - E - 'ADC NTC1'",packState.temperatures[5]);
-		modCommandsPrintf("Sensor[6]  : %.1f C - E - 'ADC NTC2'",packState.temperatures[6]);
-		modCommandsPrintf("Sensor[7]  : %.1f C - E - 'ADC NTC3'",packState.temperatures[7]);
-		modCommandsPrintf("Sensor[8]  : %.1f C - E - 'ADC NTC4'",packState.temperatures[8]);
-		modCommandsPrintf("Sensor[9]  : %.1f C - E - 'ADC NTC5'",packState.temperatures[9]);
+		modCommandsPrintf("Sensor[4]  : %.1f C - E - 'ADC NTC0/WaterDetect'",packState.temperatures[4]);
+		modCommandsPrintf("Sensor[5]  : %.1f C - E - 'ADC NTC1/WaterDetect'",packState.temperatures[5]);
+		modCommandsPrintf("Sensor[6]  : %.1f C - E - 'ADC NTC2/WaterDetect'",packState.temperatures[6]);
+		modCommandsPrintf("Sensor[7]  : %.1f C - E - 'ADC NTC3/WaterDetect'",packState.temperatures[7]);
+		modCommandsPrintf("Sensor[8]  : %.1f C - E - 'ADC NTC4/WaterDetect'",packState.temperatures[8]);
+		modCommandsPrintf("Sensor[9]  : %.1f C - E - 'ADC NTC5/WaterDetect'",packState.temperatures[9]);
 		modCommandsPrintf("Sensor[10] : %.1f C - I - 'ADC NTC6'",packState.temperatures[10]);
 		modCommandsPrintf("Sensor[11] : %.1f C - I - 'ADC NTC7'",packState.temperatures[11]);
 		modCommandsPrintf("Sensor[12] : %.1f C - I - 'SHT'",packState.temperatures[12]);
@@ -272,8 +272,6 @@ void terminal_process_string(char *str) {
 		modCommandsPrintf("  Read BMS configuration from EEPROM.");
 		modCommandsPrintf("hwinfo");
 		modCommandsPrintf("  Print some hardware information.");
-		modCommandsPrintf(" ");
-		modCommandsPrintf("---More functionallity to come...--");
 
 		for (int i = 0;i < callback_write;i++) {
 			if (callbacks[i].arg_names) {
@@ -323,7 +321,7 @@ void terminal_process_string(char *str) {
  * @param cbf
  * The callback function for the command.
  */
-void terminal_register_command_callback(
+void modTerminalRegisterCommandCallBack(
 		const char* command,
 		const char *help,
 		const char *arg_names,

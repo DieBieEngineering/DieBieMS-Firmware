@@ -18,7 +18,7 @@ typedef enum {
 	EVENT_EMPTY,
 } modStateOfChargeVoltageEventTypeDef;
 
-modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
+modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void modStateOfChargeProcess(void);
 bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void);
 bool modStateOfChargeStoreStateOfCharge(void);

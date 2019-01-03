@@ -39,7 +39,7 @@
 #define RX_CAN_FRAMES_SIZE	    255       // max 255
 #define RX_CAN_BUFFER_SIZE	    PACKET_MAX_PL_LEN
 
-void          modCANInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
+void          modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void          modCANTask(void);
 uint32_t      modCANGetDestinationID(CanRxMsgTypeDef canMsg);
 CAN_PACKET_ID modCANGetPacketID(CanRxMsgTypeDef canMsg);

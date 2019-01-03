@@ -192,6 +192,7 @@ void     driverSWLTC6804ResetCellVoltageRegisters(void);
 void     driverSWLTC6804ResetAuxRegisters(void);
 void     driverSWLTC6804ResetStatusRegisters(void);
 void     driverSWLTC6804StartCellVoltageConversion(uint8_t MD,uint8_t DCP, uint8_t CH);
+void     driverSWLTC6804StartLoadedCellVoltageConversion(uint8_t MD,uint8_t DCP, uint8_t CH,uint8_t PUP);
 void     driverSWLTC6804StartAuxVoltageConversion(uint8_t MD, uint8_t CHG);
 bool     driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypedef *cellVoltages);
 uint8_t  driverSWLTC6804ReadCellVoltageRegisters(uint8_t reg, uint8_t total_ic, uint16_t cell_codes[][12]);

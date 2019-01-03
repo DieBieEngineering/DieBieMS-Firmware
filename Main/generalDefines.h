@@ -16,18 +16,12 @@
 #define STM32_UUID_8				((uint8_t*)0x1FFFF7AC)
 
 // Hardware names and limits
-#ifdef EFoilV0
-  #define HW_NAME "EFoilBMSHW1"
-	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 5
-	#define HW_LIM_CELL_MONITOR_IC_TYPE                    1
-	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
-#endif
-
 #ifdef EFoilV1
   #define HW_NAME "EFoilBMSHW1"
 	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 5
 	#define HW_LIM_CELL_MONITOR_IC_TYPE                    1
 	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
+	#define HW_LIM_MIN_NOT_USED_DELAY                      5000
 #endif
 
 #ifdef EFoilV2
@@ -35,6 +29,7 @@
 	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 12
 	#define HW_LIM_CELL_MONITOR_IC_TYPE                    2
 	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
+	#define HW_LIM_MIN_NOT_USED_DELAY                      5000
 #endif
 
 #ifdef ESK8
@@ -42,6 +37,7 @@
 	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 12
 	#define HW_LIM_CELL_MONITOR_IC_TYPE                    1
 	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
+	#define HW_LIM_MIN_NOT_USED_DELAY                      5000
 #endif
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))

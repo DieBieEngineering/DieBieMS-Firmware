@@ -104,9 +104,9 @@ typedef struct {
 	uint8_t  IOOUT0;
 	uint8_t  FANSpeedDutyDesired;
 	driverSWEMC2305FanStatusTypeDef FANStatus;
-} modPowerElectricsPackStateTypedef;
+} modPowerElectronicsPackStateTypedef;
 
-void  modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
+void  modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
 bool  modPowerElectronicsTask(void);
 void  modPowerElectronicsAllowForcedOn(bool allowedState);
 void  modPowerElectronicsSetPreCharge(bool newState);
@@ -128,10 +128,12 @@ void  modPowerElectronicsResetBalanceModeActiveTimeout(void);
 void  modPowerElectronicsCellMonitorsInit(void);
 void  modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void);
 void  modPowerElectronicsCellMonitorsStartCellConversion(void);
+void  modPowerElectronicsCellMonitorsStartLoadedCellConversion(bool PUP);
 void  modPowerElectronicsCellMonitorsStartTemperatureConversion(void);
 void  modPowerElectronicsCellMonitorsEnableBalanceResistors(uint16_t);
 void  modPowerElectronicsCellMonitorsReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags);
 void  modPowerElectronicsCellMonitorsCheckAndSolveInitState(void);
 float modPowerElectronicsCalcPackCurrent(void);
+void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv);
 
 #endif

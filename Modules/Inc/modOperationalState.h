@@ -12,7 +12,7 @@
 #ifndef MODOPERATIONALSTATE_H_
 #define MODOPERATIONALSTATE_H_
 
-void modOperationalStateInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer,modStateOfChargeStructTypeDef *generalStateOfCharge);
+void modOperationalStateInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer,modStateOfChargeStructTypeDef *generalStateOfCharge);
 void modOperationalStateTask(void);
 void modOperationalStateUpdateStates(void);
 void modOperationalStateSetAllStates(OperationalStateTypedef newState);
@@ -20,5 +20,6 @@ void modOperationalStateSetNewState(OperationalStateTypedef newState);
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState);
 void modOperationalStateTerminateOperation(void);
 bool modOperationalStateDelayedDisable(bool delayedPowerDownDesired);
+bool modOperationalStatePowerDownDelayCheck(void);
 
 #endif

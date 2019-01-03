@@ -1,8 +1,9 @@
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
 #include "modPowerElectronics.h"
+#include "modConfig.h"
 
-void driverSWDCDCInit(modPowerElectricsPackStateTypedef* packStateHandle);
+void driverSWDCDCInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef* generalConfigHandle);
 void driverSWDCDCSetEnabledState(bool newEnabledState);
 bool driverSWDCDCGetEnabledState(void);
 bool driverSWDCDCGetOKState(void);

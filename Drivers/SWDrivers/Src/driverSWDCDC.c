@@ -4,10 +4,12 @@ bool driverSWDCDCEnabledState;
 bool driverSWDCDCEnabledPinState;
 bool driverSWDCDCEnabledDesiredState;
 uint32_t driverSWDCDCEnabledTurnOnDelayLastTick;
-modPowerElectricsPackStateTypedef *driverSWDCDCPackStateHandle;
+modPowerElectronicsPackStateTypedef *driverSWDCDCPackStateHandle;
+modConfigGeneralConfigStructTypedef *driverSWDCDCGeneralConfigHandle;
 
-void driverSWDCDCInit(modPowerElectricsPackStateTypedef* packStateHandle){
+void driverSWDCDCInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef* generalConfigHandle) {
 	driverSWDCDCPackStateHandle = packStateHandle;
+	driverSWDCDCGeneralConfigHandle = generalConfigHandle;
 	
 	driverSWISL28022InitStruct ISLInitStruct;
 	ISLInitStruct.ADCSetting = ADC_128_64010US;																														// Init the bus voltage and current monitors. (AUX)
@@ -58,21 +60,10 @@ void driverSWDCDCEnableTask(void){
 };
 
 void driverSWDCDCSetEnablePin(bool desiredEnableState) {
-	#ifdef EFoilV0
-		driverSWDCDCEnabledPinState = desiredEnableState;
-	#endif
-
-	#ifdef EFoilV1
-		driverSWDCDCEnabledPinState = desiredEnableState;
-	#endif
-
-	#ifdef EFoilV2
+	if(driverSWDCDCGeneralConfigHandle->DCDCEnableInverted)
 		driverSWDCDCEnabledPinState = !desiredEnableState;
-	#endif
-
-	#ifdef ESK8
+	else
 		driverSWDCDCEnabledPinState = desiredEnableState;
-	#endif
 	
 	if(driverSWDCDCEnabledPinState){
 		HAL_GPIO_WritePin(GPIOB, OLED_RST_Pin, GPIO_PIN_SET);

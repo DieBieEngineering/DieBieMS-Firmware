@@ -24,6 +24,10 @@ void driverSWLTC6803StartCellVoltageConversion(void) {
 	driverSWLTC6803SendCommand((driverSWLTC6803Registers)driverSWLTC6803ConfigStruct.CellVoltageConversionMode);
 };
 
+void driverSWLTC6803StartLoadedCellVoltageConversion(void) {
+	driverSWLTC6803SendCommand(LTC6803StartOpenWireADCConversionAll);
+};
+
 void driverSWLTC6803StartTemperatureVoltageConversion(void) {
 	driverSWLTC6803SendCommand(LTC6803StartTemperatureADCConversionAll);
 };
@@ -63,12 +67,14 @@ bool driverSWLTC6803ReadCellVoltages(cellMonitorCellsTypedef cellVoltages[12]) {
 		cellRegisters[k] = temp + temp2 -512;
 		temp2 = (rx_data[data_counter++])>>4;
 		temp =  (rx_data[data_counter++])<<4;
+		if((temp+temp2) >= 4000)
+			dataValid = false;                                          // Conversion not finished
 		cellRegisters[k+1] = temp+temp2 -512;
 	}
 	
 	if(dataValid){
 		for(uint8_t j=0; j<12 ; j++) {		
-			if(cellRegisters[j]*0.0015 < 5.0f)
+			if(cellRegisters[j]*0.0015 < 6.0f)
 				cellVoltages[j].cellVoltage = cellRegisters[j]*0.0015;
 			else
 				dataValid = false;

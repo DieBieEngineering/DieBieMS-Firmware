@@ -35,7 +35,7 @@
 #include <stdio.h>
 
 // Functions
-void modCommandsInit(modPowerElectricsPackStateTypedef   *generalState,modConfigGeneralConfigStructTypedef *configPointer);
+void modCommandsInit(modPowerElectronicsPackStateTypedef   *generalState,modConfigGeneralConfigStructTypedef *configPointer);
 void modCommandsSetSendFunction(void(*func)(unsigned char *data, unsigned int len));
 void modCommandsSendPacket(unsigned char *data, unsigned int len);
 void modCommandsProcessPacket(unsigned char *data, unsigned int len);

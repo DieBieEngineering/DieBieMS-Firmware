@@ -1,6 +1,7 @@
 #include "modPowerElectronics.h"
+#include "modTerminal.h"
 
-modPowerElectricsPackStateTypedef *modPowerElectronicsPackStateHandle;
+modPowerElectronicsPackStateTypedef *modPowerElectronicsPackStateHandle;
 modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
 uint32_t modPowerElectronicsMeasureIntervalLastTick;
 
@@ -20,7 +21,7 @@ uint8_t  modPowerElectronicsISLErrorCount;
 configCellMonitorICTypeEnum modPowerElectronicsCellMonitorsTypeActive;
 float    modPowerElectronicsChargeDiodeBypassHysteresis;
 
-void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
+void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
 	modPowerElectronicsPackStateHandle = packState;
 	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
@@ -80,6 +81,9 @@ void modPowerElectronicsInit(modPowerElectricsPackStateTypedef *packState, modCo
 	
 	modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
 	modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
+	
+	// Register terminal commands
+	modTerminalRegisterCommandCallBack("testcellconnection","Test the cell connection between cell monitor and pack.",0,modPowerElectronicsTerminalCellConnectionTest);
 };
 
 bool modPowerElectronicsTask(void) {
@@ -204,8 +208,8 @@ bool modPowerElectronicsSetDisCharge(bool newState) {
 		dischargeLastState = newState;
 	}
 	
-	if(modPowerElectronicsPackStateHandle->loCurrentLoadVoltage < PRECHARGE_PERCENTAGE*(modPowerElectronicsPackStateHandle->packVoltage)) // Prevent turn on with to low output voltage
-		return false;																																						                                   // Load voltage to low (output not precharged enough)
+	if((modPowerElectronicsPackStateHandle->loCurrentLoadVoltage < PRECHARGE_PERCENTAGE*(modPowerElectronicsPackStateHandle->packVoltage)) && modPowerElectronicsGeneralConfigHandle->LCUsePrecharge) // Prevent turn on with to low output voltage
+		return false;																																			                                                  // Load voltage to low (output not precharged enough) return whether or not precharge is needed.
 	else
 		return true;
 };
@@ -270,7 +274,7 @@ void modPowerElectronicsSubTaskBalaning(void) {
 				
 			modPowerElectronicsSortCells(sortedCellArray,modPowerElectronicsGeneralConfigHandle->noOfCellsSeries);
 			
-			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || !modPowerElectronicsPackStateHandle->chargeAllowed) {																							// Check if charging is desired
+			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive) {																							// Check if charging is desired. Removed: || !modPowerElectronicsPackStateHandle->chargeAllowed
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
 					if(sortedCellArray[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
 						if(sortedCellArray[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart) {
@@ -672,6 +676,27 @@ void modPowerElectronicsCellMonitorsStartCellConversion(void) {
 	}
 }
 
+void modPowerElectronicsCellMonitorsStartLoadedCellConversion(bool PUP) {
+	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
+	
+	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
+		case CELL_MON_LTC6803_2: {
+			if(PUP)
+			  driverSWLTC6803StartCellVoltageConversion();
+			else
+				driverSWLTC6803StartLoadedCellVoltageConversion();
+				
+			driverSWLTC6803ResetCellVoltageRegisters();
+		}break;
+		case CELL_MON_LTC6804_1: {
+		  driverSWLTC6804StartLoadedCellVoltageConversion(MD_FILTERED,DCP_ENABLED,CELL_CH_ALL,PUP);
+			driverSWLTC6804ResetCellVoltageRegisters();
+		}break;
+		default:
+			break;
+	}
+}
+
 void modPowerElectronicsCellMonitorsStartTemperatureConversion(void) {
 	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
 	
@@ -746,6 +771,66 @@ float modPowerElectronicsCalcPackCurrent(void){
 			break;
 	}	
 	return returnCurrent;
+}
+
+void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) {
+	(void)argc;
+	(void)argv;
+	uint32_t delayLastTick = HAL_GetTick();
+	float conversionResults[2][modPowerElectronicsGeneralConfigHandle->noOfCellsSeries];
+	float difference;
+	uint8_t cellIDPointer;
+	bool passFail = true;
+	bool overAllPassFail = true;
+	
+	modCommandsPrintf("------  Starting connectionTest  ------");
+	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait 
+	modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
+	modPowerElectronicsCellMonitorsStartLoadedCellConversion(false);   // Start ADC conversion
+		
+	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait 
+	modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
+	modPowerElectronicsCellMonitorsStartLoadedCellConversion(false);   // Start ADC conversion
+		
+	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait
+  modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
+	for(cellIDPointer = 0; cellIDPointer < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries ; cellIDPointer++){
+	  conversionResults[0][cellIDPointer] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellIDPointer].cellVoltage;
+	}
+
+	
+	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait
+  modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
+	modPowerElectronicsCellMonitorsStartLoadedCellConversion(true);    // Start ADC conversion
+		
+	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait
+  modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
+	modPowerElectronicsCellMonitorsStartLoadedCellConversion(true);    // Start ADC conversion
+		
+	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait
+  modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
+		
+	for(cellIDPointer = 0; cellIDPointer < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries ; cellIDPointer++){
+	  conversionResults[1][cellIDPointer] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellIDPointer].cellVoltage;
+	}
+	
+	for(cellIDPointer = 0; cellIDPointer < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries ; cellIDPointer++){
+		difference = conversionResults[0][cellIDPointer] - conversionResults[1][cellIDPointer];                                          // Calculate difference
+		
+		if((conversionResults[0][cellIDPointer] >= modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage) || (conversionResults[0][cellIDPointer] <= modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage)) {
+			overAllPassFail = passFail = false;
+		}else{
+			if((cellIDPointer != 0) && (cellIDPointer != 11) && (fabs(difference) >= 0.05f))
+				overAllPassFail = passFail = false;
+			else
+			  passFail = true;
+		}
+		
+	  modCommandsPrintf("%.3fV - %.3fV = % .3fV -> %s",conversionResults[0][cellIDPointer],conversionResults[1][cellIDPointer],difference,passFail ? "Pass" : "Fail");  // Print the results
+	}
+		
+	modCommandsPrintf("Overall: %s",overAllPassFail ? "Pass" : "Fail");// Tel whether test passed / failed
+	modCommandsPrintf("------    End connectionTest     ------");
 }
 
 

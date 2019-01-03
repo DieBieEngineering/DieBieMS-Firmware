@@ -7,9 +7,9 @@ bool jumpBootloaderTrue;
 modConfigGeneralConfigStructTypedef *modCommandsGeneralConfig;
 modConfigGeneralConfigStructTypedef *modCommandsToBeSendConfig;
 modConfigGeneralConfigStructTypedef  modCommandsConfigStorage;
-modPowerElectricsPackStateTypedef   *modCommandsGeneralState;
+modPowerElectronicsPackStateTypedef   *modCommandsGeneralState;
 
-void modCommandsInit(modPowerElectricsPackStateTypedef   *generalState,modConfigGeneralConfigStructTypedef *configPointer) {
+void modCommandsInit(modPowerElectronicsPackStateTypedef   *generalState,modConfigGeneralConfigStructTypedef *configPointer) {
 	modCommandsGeneralConfig = configPointer;
 	modCommandsGeneralState  = generalState;
 	jumpBootloaderTrue = false;
@@ -340,7 +340,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			break;
 		case COMM_TERMINAL_CMD:
 		  data[len] = '\0';
-		  terminal_process_string((char*)data);
+		  modTerminalProcessString((char*)data);
 			break;
 		case COMM_REBOOT:
 			modCommandsJumpToMainApplication();

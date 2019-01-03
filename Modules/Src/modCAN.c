@@ -14,10 +14,10 @@ static CanRxMsgTypeDef modCANRxFrames[RX_CAN_FRAMES_SIZE];
 static uint8_t         modCANRxFrameRead;
 static uint8_t         modCANRxFrameWrite;
 
-modPowerElectricsPackStateTypedef *modCANPackStateHandle;
+modPowerElectronicsPackStateTypedef *modCANPackStateHandle;
 modConfigGeneralConfigStructTypedef *modCANGeneralConfigHandle;
 
-void modCANInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
+void modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
   static CanTxMsgTypeDef        TxMessage;
   static CanRxMsgTypeDef        RxMessage;
 	

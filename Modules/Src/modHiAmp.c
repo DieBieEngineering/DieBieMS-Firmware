@@ -1,6 +1,6 @@
 #include "modHiAmp.h"
 
-modPowerElectricsPackStateTypedef *modHiAmpPackStateHandle;
+modPowerElectronicsPackStateTypedef *modHiAmpPackStateHandle;
 modConfigGeneralConfigStructTypedef *modHiAmpGeneralConfigHandle;
 
 uint32_t modHiAmpShieldPresenceDetectLastTick;
@@ -11,12 +11,10 @@ relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledState;
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
 
 bool dischargeHCEnable;
-
 bool modHiAmpShieldPresenceFanDriver;
-
 bool modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
 
-void modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer){
+void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer){
 	modHiAmpPackStateHandle     = packStateHandle;																		// Store pack state pointer.
 	modHiAmpGeneralConfigHandle = generalConfigPointer;
 	
@@ -33,7 +31,7 @@ void modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigG
 	
 	// Initialise slave board
 	if(modHiAmpPackStateHandle->hiAmpShieldPresent){
-		driverSWDCDCInit(modHiAmpPackStateHandle);																			// Init the DCDC converter enviroment
+		driverSWDCDCInit(modHiAmpPackStateHandle,modHiAmpGeneralConfigHandle);					// Init the DCDC converter enviroment
 		driverSWDCDCSetEnabledState(true);																							// Enable the converter
 		modHiAmpShieldMainShuntMonitorInit();
 		driverSWPCAL6416Init(0x07,0xF7,0x07,0xF7,0x07,0xF7);														// Init the IO Extender
@@ -60,9 +58,9 @@ void modHiAmpTask(void) {
 			//bool dischargeHCEnable;
 			
 			if(modHiAmpGeneralConfigHandle->togglePowerModeDirectHCDelay || modHiAmpGeneralConfigHandle->pulseToggleButton){
-				dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+				dischargeHCEnable = modHiAmpPackStateHandle->auxDCDCOutputOK && modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
 			}else{
-				dischargeHCEnable = modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modHiAmpPackStateHandle->powerButtonActuated && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+				dischargeHCEnable = modHiAmpPackStateHandle->auxDCDCOutputOK && modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modHiAmpPackStateHandle->powerButtonActuated && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
 			}
 
 			// Update inputs
@@ -77,7 +75,7 @@ void modHiAmpTask(void) {
 			modHiAmpPackStateHandle->auxVoltage = driverSWDCDCGetAuxVoltage();
 			modHiAmpPackStateHandle->auxCurrent = driverSWDCDCGetAuxCurrent();
 			modHiAmpPackStateHandle->auxPower = modHiAmpPackStateHandle->auxVoltage * modHiAmpPackStateHandle->auxCurrent;
-			modHiAmpPackStateHandle->auxDCDCOutputOK = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.05f); // Nominal is 12V max error is 5%
+			modHiAmpPackStateHandle->auxDCDCOutputOK = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.1f); // Nominal is 12V max error is 10%
 			modHiAmpPackStateHandle->hiCurrentLoadVoltage = modHiAmpShieldShuntMonitorGetVoltage();
 			modHiAmpPackStateHandle->hiCurrentLoadCurrent = modHiAmpShieldShuntMonitorGetCurrent();
 			modHiAmpPackStateHandle->hiCurrentLoadPower = modHiAmpPackStateHandle->hiCurrentLoadVoltage * modHiAmpPackStateHandle->hiCurrentLoadCurrent;

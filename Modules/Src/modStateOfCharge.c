@@ -1,14 +1,14 @@
 #include "modStateOfCharge.h"
 
 modStateOfChargeStructTypeDef modStateOfChargeGeneralStateOfCharge;
-modPowerElectricsPackStateTypedef *modStateOfChargePackStatehandle;
+modPowerElectronicsPackStateTypedef *modStateOfChargePackStatehandle;
 modConfigGeneralConfigStructTypedef *modStateOfChargeGeneralConfigHandle;
 uint32_t modStateOfChargeLargeCoulombTick;
 uint32_t modStateOfChargeStoreSoCTick;
 
 bool modStateOfChargePowerDownSavedFlag = false;
 
-modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
+modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
 	modStateOfChargePackStatehandle = packState;
 	modStateOfChargeGeneralConfigHandle = generalConfigPointer;
 	driverSWStorageManagerStateOfChargeStructSize = (sizeof(modStateOfChargeStructTypeDef)/sizeof(uint16_t)); // Calculate the space needed for the config struct in EEPROM

@@ -38,8 +38,8 @@
 #define CALLBACK_LEN						25
 
 // Functions
-void terminal_process_string(char *str);
-void terminal_register_command_callback(
+void modTerminalProcessString(char *str);
+void modTerminalRegisterCommandCallBack(
 		const char* command,
 		const char *help,
 		const char *arg_names,

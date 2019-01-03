@@ -100,6 +100,23 @@ void driverSWLTC6804StartCellVoltageConversion(uint8_t MD,uint8_t DCP, uint8_t C
   driverSWLTC6804Write(cmd,4);
 }
 
+void driverSWLTC6804StartLoadedCellVoltageConversion(uint8_t MD,uint8_t DCP, uint8_t CH,uint8_t PUP) {	
+  uint8_t cmd[4];
+  uint16_t cmd_pec;
+	uint8_t ADCV[2]; //!< Cell Voltage conversion command.
+	
+  ADCV[0] = ((MD & 0x02) >> 1) + 0x02;
+  ADCV[1] = ((MD & 0x01) << 7) + 0x28 + (DCP<<4) + CH + (PUP<<6);
+
+  cmd[0] = ADCV[0];
+  cmd[1] = ADCV[1];
+  cmd_pec = driverSWLTC6804CalcPEC15(2, ADCV);
+  cmd[2] = (uint8_t)(cmd_pec >> 8);
+  cmd[3] = (uint8_t)(cmd_pec);
+  
+  driverSWLTC6804Write(cmd,4);
+}
+
 void driverSWLTC6804StartAuxVoltageConversion(uint8_t MD, uint8_t CHG) {
   uint8_t cmd[4];
   uint16_t cmd_pec;
@@ -126,7 +143,7 @@ bool driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypedef *cellVoltages) {
 	if(driverSWLTC6804TotalNumerOfICs == 1) {
 		uint8_t cellPointer;
 		for(cellPointer = 0; cellPointer < 12; cellPointer++){
-			if(cellVoltageCodes[0][cellPointer]*0.0001f < 5.0f)
+			if(cellVoltageCodes[0][cellPointer]*0.0001f < 10.0f)
 			  cellVoltages[cellPointer].cellVoltage = cellVoltageCodes[0][cellPointer]*0.0001f;
 			else
 				dataValid = false;

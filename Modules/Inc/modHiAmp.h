@@ -32,7 +32,7 @@ typedef enum {
 	
 } relayControllerStateTypeDef;
 
-void  modHiAmpInit(modPowerElectricsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer);
+void  modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void  modHiAmpTask(void);
 bool  modHiAmpShieldPresentCheck(void);
 uint8_t modHiAmpShieldScanI2CDevices(void);
