@@ -1,6 +1,6 @@
 # Other parts of this project
 This is the firmware repository containing all firmware source files. There are three more repositories for this project:<br>
-[DieBieMS Hardware] The hardware sourcefiles.<br>
+[DieBieMS Hardware](https://github.com/DieBieEngineering/DieBieMS) The hardware sourcefiles.<br>
 [DieBieMS Bootloader](https://github.com/DieBieEngineering/DieBieMS-Bootloader) can be flashed with the BMS Tool in the firmware tab.<br>
 [DieBieMS Configuration tool](https://github.com/DieBieEngineering/DieBieMS-Tool) the tool to configure the BMS and upload the bootloader / update the main firmware.
 
