@@ -1,7 +1,7 @@
 # Other parts of this project
-This is the firmware repository containing all firmware source files. There are three more repositories for this project:
-[DieBieMS Hardware] The hardware sourcefiles.
-[DieBieMS Bootloader](https://github.com/DieBieEngineering/DieBieMS-Bootloader) can be flashed with the BMS Tool in the firmware tab.
+This is the firmware repository containing all firmware source files. There are three more repositories for this project:<br>
+[DieBieMS Hardware] The hardware sourcefiles.<br>
+[DieBieMS Bootloader](https://github.com/DieBieEngineering/DieBieMS-Bootloader) can be flashed with the BMS Tool in the firmware tab.<br>
 [DieBieMS Configuration tool](https://github.com/DieBieEngineering/DieBieMS-Tool) the tool to configure the BMS and upload the bootloader / update the main firmware.
 
 When attempting to install this firmware and bootloader you need to know the flash mapping. Make sure to use a microcontroller with at least 256kB of flash (eg the STM32F303CCT6 as described by the bom). When you use a lower size you cannot use the bootloader (flash is to small), when you use higher you don't utilize all the potential flash area.
