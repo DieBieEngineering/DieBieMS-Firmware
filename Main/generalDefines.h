@@ -3,12 +3,12 @@
 
 // Define the hardware version here:
 //#define EFoilV1
-//#define EFoilV2
-#define ESK8
+#define EFoilV2
+//#define ESK8
 
 // Firmware version
 #define FW_VERSION_MAJOR		0
-#define FW_VERSION_MINOR		24
+#define FW_VERSION_MINOR		24 
 #define FW_REAL_VERSION			"V0.24"
 
 // UUID

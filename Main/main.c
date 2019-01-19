@@ -50,7 +50,7 @@ int main(void) {
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState	
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	modHiAmpInit(&packState,generalConfig);																		// Initialize the HiAmp shield enviroment if any
-	
+		
   while(true) {
 		modEffectTask();
 		modPowerStateTask();

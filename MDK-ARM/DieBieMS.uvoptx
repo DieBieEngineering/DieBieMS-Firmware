@@ -129,6 +129,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>èÅU	“"ÍwèÅU	</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -172,21 +173,6 @@
           <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>generalConfig</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>conversionResults</ItemText>
-        </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>\\DieBieMS\../Main/main.c\packState.cellBalanceResistorEnableMask</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>conversionResults</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

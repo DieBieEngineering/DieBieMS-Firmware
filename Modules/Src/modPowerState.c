@@ -14,6 +14,8 @@ uint32_t modPowerStateButtonPressedTimeStamp;
 uint32_t modPowerStateStartupDelay;
 uint32_t modPowerStatePowerDownTimeout;
 
+bool tempButtonPressed;
+
 void modPowerStateInit(PowerStateStateTypedef desiredPowerState) {
 	uint32_t startupDelay = HAL_GetTick();
 	modPowerStateStartupDelay = HAL_GetTick();
@@ -47,7 +49,8 @@ void modPowerStateSetConfigHandle(modConfigGeneralConfigStructTypedef *generalCo
 }
 
 void modPowerStateTask(void) {
-	bool tempButtonPressed = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
+	//bool tempButtonPressed = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
+	tempButtonPressed = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
 	
 	if(modPowerStateLastButtonPressedVar != tempButtonPressed) {
 		if(modPowerStateLastButtonPressedVar){ 																	// If is was high and now low (actuated)
@@ -60,6 +63,9 @@ void modPowerStateTask(void) {
 	
 	if(tempButtonPressed) {
 		modPowerStateButtonPressedDuration = HAL_GetTick() - modPowerStateButtonPressedTimeStamp;
+		
+		if((modPowerStateButtonPressedDuration > POWERBUTTON_DEBOUNCE_TIME) && (modPowerStateLastButtonFirstPress == false))
+			modPowerStateButtonPressedVar = true;
 	
 		if((modPowerStateButtonPressedDuration >= POWERBUTTON_POWERDOWN_THRESHOLD_TIME) && (modPowerStateLastButtonFirstPress == false) && modPowerStateGeneralConfigHandle->pulseToggleButton) {
 			modPowerStatePulsePowerDownDesired = true;
@@ -70,9 +76,6 @@ void modPowerStateTask(void) {
 			modPowerStateForceOnDesired = true;
 			modPowerStateButtonPressedDuration = 0;
 		}
-		
-		if((modPowerStateButtonPressedDuration > POWERBUTTON_DEBOUNCE_TIME) && (modPowerStateLastButtonFirstPress == false))
-			modPowerStateButtonPressedVar = true;
 		
 		modPowerStatePowerDownTimeout = HAL_GetTick();
 	}else{

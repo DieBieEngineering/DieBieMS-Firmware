@@ -4,7 +4,7 @@
 
 #define POWERBUTTON_POWERDOWN_THRESHOLD_TIME 1000
 #define POWERBUTTON_FORCEON_THRESHOLD_TIME 5000
-#define POWERBUTTON_DEBOUNCE_TIME 1000
+#define POWERBUTTON_DEBOUNCE_TIME 600
 
 void modPowerStateInit(PowerStateStateTypedef desiredPowerState);
 void modPowerStateSetConfigHandle(modConfigGeneralConfigStructTypedef *generalConfigPointer);

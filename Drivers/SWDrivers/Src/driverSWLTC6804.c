@@ -39,7 +39,8 @@ void driverSWLTC6804ResetCellVoltageRegisters(void) {
   cmd_pec = driverSWLTC6804CalcPEC15(2, cmd);
   cmd[2] = (uint8_t)(cmd_pec >> 8);
   cmd[3] = (uint8_t)(cmd_pec );
-
+	
+	driverSWLTC6804WakeIC();
   driverSWLTC6804Write(cmd,4);
 }
 
@@ -52,7 +53,8 @@ void driverSWLTC6804ResetAuxRegisters(void) {
   cmd_pec = driverSWLTC6804CalcPEC15(2, cmd);
   cmd[2] = (uint8_t)(cmd_pec >> 8);
   cmd[3] = (uint8_t)(cmd_pec );
-
+	
+	driverSWLTC6804WakeIC();
   driverSWLTC6804Write(cmd,4);
 }
 
@@ -65,7 +67,8 @@ void driverSWLTC6804ResetStatusRegisters(void) {
   cmd_pec = driverSWLTC6804CalcPEC15(2, cmd);
   cmd[2] = (uint8_t)(cmd_pec >> 8);
   cmd[3] = (uint8_t)(cmd_pec );
-
+	
+	driverSWLTC6804WakeIC();
   driverSWLTC6804Write(cmd,4);
 }
 
@@ -97,6 +100,7 @@ void driverSWLTC6804StartCellVoltageConversion(uint8_t MD,uint8_t DCP, uint8_t C
   cmd[2] = (uint8_t)(cmd_pec >> 8);
   cmd[3] = (uint8_t)(cmd_pec);
   
+	driverSWLTC6804WakeIC();
   driverSWLTC6804Write(cmd,4);
 }
 
@@ -114,6 +118,7 @@ void driverSWLTC6804StartLoadedCellVoltageConversion(uint8_t MD,uint8_t DCP, uin
   cmd[2] = (uint8_t)(cmd_pec >> 8);
   cmd[3] = (uint8_t)(cmd_pec);
   
+	driverSWLTC6804WakeIC();
   driverSWLTC6804Write(cmd,4);
 }
 
@@ -131,6 +136,7 @@ void driverSWLTC6804StartAuxVoltageConversion(uint8_t MD, uint8_t CHG) {
   cmd[2] = (uint8_t)(cmd_pec >> 8);
   cmd[3] = (uint8_t)(cmd_pec);
 
+	driverSWLTC6804WakeIC();
   driverSWLTC6804Write(cmd,4);
 }
 
