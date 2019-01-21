@@ -54,13 +54,16 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellLCSoftUnderVoltage											   = 2.90f;										// Low current lowest cell voltage X.XXV.
   configLocation->cellHCSoftUnderVoltage                         = 3.25f;                   // High current lowest cell voltage X.XXV.
 	configLocation->cellSoftOverVoltage												     = 4.15f;										// Normal highest cell voltage X.XXV.
-	configLocation->cellBalanceDifferenceThreshold                 = 0.005f;										// Start balancing @ XmV difference, stop if below.
+	configLocation->cellBalanceDifferenceThreshold                 = 0.005f;									// Start balancing @ XmV difference, stop if below.
 	configLocation->cellBalanceStart													     = 3.90f;										// Start balancing above X.XXV.
 	configLocation->cellThrottleUpperStart										     = 0.02f;										// Upper range of cell voltage for charge throttling.
 	configLocation->cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.
 	configLocation->packCurrentDataSource                          = sourceHighCurrentShunt;  // The pack current is the same as the current through the high current shunt
+	configLocation->buzzerSignalSource                             = buzzerSourceWater;       // Stores what source shoud be taken to trigger
+	configLocation->buzzerSignalType                               = buzzerSignalTypePulse1000_4; // Stores what sound pattern should be made
+	configLocation->buzzerSingalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
 	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
   configLocation->shuntHCFactor	                                 = -0.025f;                 // Shunt factor high current
@@ -99,7 +102,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->CANID																			     = 10;											// CAN ID for CAN communication.
 	configLocation->CANIDStyle                                     = CANIDStyleFoiler;        // CAN ID default Style
 	configLocation->emitStatusOverCAN                              = true;                    // Send status over can
-	configLocation->waterSensorEnableMask                          = 0;                       // Turn all sensors are off
+	configLocation->waterSensorEnableMask                          = 1008;                       // Turn all sensors are off
+	configLocation->waterSensorThreshold                           = 10.0f;                   // Declare water detected when one of the sensors go above this value
 	configLocation->tempEnableMaskBMS                              = 0x1C08;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x1C08;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->LCUseDischarge                                 = true;                    // Enable or disable the solid state output
@@ -136,10 +140,10 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTCBetaFactor[modConfigNTCGroupHiAmpAUX]       = 4390;                    // NTC Beta factor	
 	configLocation->HCUseRelay                                     = true;                    // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
-	configLocation->HCUseLoadDetect                                = false;                   // Use voltage drop based load detect on high current load.
-	configLocation->HCLoadDetectThreshold                          = 0.0f;                    // Use this voltage threshold as minimal precharge resistor voltage drop for load detection.
+	configLocation->HCUseLoadDetect                                = true;                    // Use voltage drop based load detect on high current load.
+	configLocation->HCLoadDetectThreshold                          = 1000;                    // When precharging takes longer then this assume that a load is present
 	configLocation->timeoutHCPreCharge													   = 6000;										// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
-	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										// When pre charge failes wait this long in ms
+	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										    // When pre charge failes wait this long in ms
 	configLocation->timeoutHCRelayOverlap											     = 1000;										// When precharge succeeds enable both relay and precharge combined for this time, then go to relay only.
 #endif
 	
@@ -159,6 +163,9 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.
 	configLocation->packCurrentDataSource                          = sourceLowPlusHighCurrentShunt;// The pack current is the same as the current through the high+low current shunt
+	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
+	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
+	configLocation->buzzerSingalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
 	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
   configLocation->shuntHCFactor	                                 = -0.038f;                 // Shunt factor high current
@@ -198,6 +205,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->CANIDStyle                                     = CANIDStyleFoiler;        // CAN ID default Style
 	configLocation->emitStatusOverCAN                              = true;                    // Send status over can.
 	configLocation->waterSensorEnableMask                          = 0;                       // Turn all sensors are off
+	configLocation->waterSensorThreshold                           = 20.0f;                   // Declare water detected when one of the sensors go above this value
 	configLocation->tempEnableMaskBMS                              = 0x1C0F;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x03F0;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->LCUseDischarge                                 = true;                    // Enable or disable the solid state output
@@ -235,7 +243,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->HCUseRelay                                     = false;                    // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
 	configLocation->HCUseLoadDetect                                = false;                   // Use voltage drop based load detect on high current load.
-	configLocation->HCLoadDetectThreshold                          = 0.0f;                    // Use this voltage threshold as minimal precharge resistor voltage drop for load detection.
+	configLocation->HCLoadDetectThreshold                          = 2000;                    // When precharging takes longer then this assume that a load is present
 	configLocation->timeoutHCPreCharge													   = 300;											// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
 	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										// When pre charge failes wait this long in ms
 	configLocation->timeoutHCRelayOverlap											     = 1000;										// When precharge succeeds enable both relay and precharge combined for this time, then go to relay only.
@@ -257,6 +265,9 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
 	configLocation->packCurrentDataSource                          = sourceLowCurrentShunt;   // The pack current is the same as the current through the low current shunt
+	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
+	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
+	configLocation->buzzerSingalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
 	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
   configLocation->shuntHCFactor	                                 = 0.001f;                  // Shunt factor high current
@@ -296,6 +307,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->CANIDStyle                                     = CANIDStyleVESC;          // CAN ID default Style.
 	configLocation->emitStatusOverCAN                              = false;                   // Send status over can.
 	configLocation->waterSensorEnableMask                          = 0;                       // Turn all sensors are off
+	configLocation->waterSensorThreshold                           = 20.0f;                   // Declare water detected when one of the sensors go above this value
 	configLocation->tempEnableMaskBMS                              = 0x0004;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x0000;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->LCUseDischarge                                 = true;                    // Enable or disable the solid state output
@@ -333,7 +345,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->HCUseRelay                                     = false;                   // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
 	configLocation->HCUseLoadDetect                                = false;                   // Use voltage drop based load detect on high current load.
-	configLocation->HCLoadDetectThreshold                          = 0.0f;                    // Use this voltage threshold as minimal precharge resistor voltage drop for load detection.
+	configLocation->HCLoadDetectThreshold                          = 2000;                    // When precharging takes longer then this assume that a load is present
 	configLocation->timeoutHCPreCharge													   = 300;											// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
 	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										// When pre charge failes wait this long in ms
 	configLocation->timeoutHCRelayOverlap											     = 1000;										// When precharge succeeds enable both relay and precharge combined for this time, then go to relay only.

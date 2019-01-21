@@ -581,6 +581,27 @@ typedef enum {
 	socCoulombAndCellVoltage
 } configStateOfChargeMethodEnum;
 
+typedef enum {
+  buzzerSourceOff = 0,
+  buzzerSourceOn,
+  buzzerSourceAll,
+  buzzerSourceWater,
+  buzzerSourceHC,
+  buzzerSourceLC,
+  buzzerSourceSOA	
+} buzzerSignalSourceEnum;
+
+typedef enum {
+  buzzerSignalTypeOff = 0,
+  buzzerSignalTypeOn,
+  buzzerSignalTypeToggle,
+  buzzerSignalTypeToggleFast,
+  buzzerSignalTypePulseShort,
+  buzzerSignalTypePulseLong,
+  buzzerSignalTypePulse200_20,
+  buzzerSignalTypePulse1000_4	
+} buzzerSignalType;
+
 typedef struct {
 	float cellVoltage;
 	uint8_t cellNumber;

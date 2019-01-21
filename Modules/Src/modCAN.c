@@ -85,7 +85,7 @@ void modCANTask(void){
 			modCANSendSimpleStatusFast();
 		
 		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 10 Hz
+		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
 			modCANSendSimpleStatusSlow();
 	}
 	

@@ -115,22 +115,30 @@ void modTerminalProcessString(char *str) {
 		modCommandsPrintf("-----       Sensors         -----");
 		
 		// print temperatures
-		modCommandsPrintf("Sensor[0]  : %.1f C - E - 'LTC0 NTC0'",packState.temperatures[0]);
-		modCommandsPrintf("Sensor[1]  : %.1f C - E - 'LTC0 NTC1/Humidity'",packState.temperatures[1]);
-		modCommandsPrintf("Sensor[2]  : %.1f C - I - 'LTC Internal'",packState.temperatures[2]);
-		modCommandsPrintf("Sensor[3]  : %.1f C - I - 'STM NTC'",packState.temperatures[3]);
-		modCommandsPrintf("Sensor[4]  : %.1f C - E - 'ADC NTC0/WaterDetect'",packState.temperatures[4]);
-		modCommandsPrintf("Sensor[5]  : %.1f C - E - 'ADC NTC1/WaterDetect'",packState.temperatures[5]);
-		modCommandsPrintf("Sensor[6]  : %.1f C - E - 'ADC NTC2/WaterDetect'",packState.temperatures[6]);
-		modCommandsPrintf("Sensor[7]  : %.1f C - E - 'ADC NTC3/WaterDetect'",packState.temperatures[7]);
-		modCommandsPrintf("Sensor[8]  : %.1f C - E - 'ADC NTC4/WaterDetect'",packState.temperatures[8]);
-		modCommandsPrintf("Sensor[9]  : %.1f C - E - 'ADC NTC5/WaterDetect'",packState.temperatures[9]);
-		modCommandsPrintf("Sensor[10] : %.1f C - I - 'ADC NTC6'",packState.temperatures[10]);
-		modCommandsPrintf("Sensor[11] : %.1f C - I - 'ADC NTC7'",packState.temperatures[11]);
-		modCommandsPrintf("Sensor[12] : %.1f C - I - 'SHT'",packState.temperatures[12]);
-		modCommandsPrintf("Sensor[13] : %.1f %% - I - 'Humidity'",packState.humidity);		
-		modCommandsPrintf("----- E=External I=Internal -----");
+		modCommandsPrintf("Sensor[0]  : % 3.1f C - E - 'LTC0 NTC0'",packState.temperatures[0]);
+		modCommandsPrintf("Sensor[1]  : % 3.1f C - E - 'LTC0 NTC1/Humidity'",packState.temperatures[1]);
+		modCommandsPrintf("Sensor[2]  : % 3.1f C - I - 'LTC Internal'",packState.temperatures[2]);
+		modCommandsPrintf("Sensor[3]  : % 3.1f C - I - 'STM NTC'",packState.temperatures[3]);
+		modCommandsPrintf("Sensor[4]  : % 3.1f C - E - 'ADC NTC0/WaterDetect'",packState.temperatures[4]);
+		modCommandsPrintf("Sensor[5]  : % 3.1f C - E - 'ADC NTC1/WaterDetect'",packState.temperatures[5]);
+		modCommandsPrintf("Sensor[6]  : % 3.1f C - E - 'ADC NTC2/WaterDetect'",packState.temperatures[6]);
+		modCommandsPrintf("Sensor[7]  : % 3.1f C - E - 'ADC NTC3/WaterDetect'",packState.temperatures[7]);
+		modCommandsPrintf("Sensor[8]  : % 3.1f C - E - 'ADC NTC4/WaterDetect'",packState.temperatures[8]);
+		modCommandsPrintf("Sensor[9]  : % 3.1f C - E - 'ADC NTC5/WaterDetect'",packState.temperatures[9]);
+		modCommandsPrintf("Sensor[10] : % 3.1f C - I - 'ADC NTC6'",packState.temperatures[10]);
+		modCommandsPrintf("Sensor[11] : % 3.1f C - I - 'ADC NTC7'",packState.temperatures[11]);
+		modCommandsPrintf("Sensor[12] : % 3.1f C - I - 'SHT'",packState.temperatures[12]);
+		modCommandsPrintf("Sensor[13] : % 3.1f %% - I - 'Humidity'",packState.humidity);		
+		modCommandsPrintf("-----      waterDetect      -----");		
+		modCommandsPrintf("waterSensors[0]  : % 3.1f C - E - 'IN0'",packState.waterSensors[0]);
+		modCommandsPrintf("waterSensors[1]  : % 3.1f C - E - 'IN1'",packState.waterSensors[1]);
+		modCommandsPrintf("waterSensors[2]  : % 3.1f C - E - 'IN2'",packState.waterSensors[2]);
+		modCommandsPrintf("waterSensors[3]  : % 3.1f C - E - 'IN3'",packState.waterSensors[3]);
+		modCommandsPrintf("waterSensors[4]  : % 3.1f C - E - 'IN4'",packState.waterSensors[4]);
+		modCommandsPrintf("waterSensors[5]  : % 3.1f C - E - 'IN5'",packState.waterSensors[5]);	
+    modCommandsPrintf("Water detected   : %s",packState.waterDetected ? "True" : "False");
 		modCommandsPrintf("-----     End sensors       -----");
+		modCommandsPrintf("----- E=External I=Internal -----");
 		modCommandsPrintf(" ");
 		
 	} else if (strcmp(argv[0], "cells") == 0) {

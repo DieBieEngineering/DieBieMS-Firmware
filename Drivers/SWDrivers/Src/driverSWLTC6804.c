@@ -142,7 +142,7 @@ void driverSWLTC6804StartAuxVoltageConversion(uint8_t MD, uint8_t CHG) {
 
 bool driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypedef *cellVoltages) {
 	bool dataValid = true;
-	uint16_t cellVoltageCodes[driverSWLTC6804TotalNumerOfICs][12]; 
+	static uint16_t cellVoltageCodes[1][12]; 
 	
 	driverSWLTC6804ReadCellVoltageRegisters(CELL_CH_ALL,driverSWLTC6804TotalNumerOfICs,cellVoltageCodes);
 	

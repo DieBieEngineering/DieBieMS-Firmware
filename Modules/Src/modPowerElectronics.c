@@ -12,6 +12,8 @@ uint32_t modPowerElectronicsCellBalanceUpdateLastTick;
 uint32_t modPowerElectronicsTempMeasureDelayLastTick;
 uint32_t modPowerElectronicsChargeCurrentDetectionLastTick;
 uint32_t modPowerElectronicsBalanceModeActiveLastTick;
+uint32_t modPowerElectronicsWaterDetectDelayLastTick;
+uint32_t modPowerElectronicsBuzzerUpdateIntervalLastTick;
 uint8_t  modPowerElectronicsUnderAndOverVoltageErrorCount;
 bool     modPowerElectronicsAllowForcedOnState;
 uint16_t modPowerElectronicsTemperatureArray[3];
@@ -66,6 +68,16 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->tempBMSHigh              = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSLow               = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSAverage           = 0.0f;
+	modPowerElectronicsPackStateHandle->waterDetected            = 0;
+	modPowerElectronicsPackStateHandle->waterSensors[0]          = -50.0f;
+	modPowerElectronicsPackStateHandle->waterSensors[1]          = -50.0f;
+	modPowerElectronicsPackStateHandle->waterSensors[2]          = -50.0f;
+	modPowerElectronicsPackStateHandle->waterSensors[3]          = -50.0f;
+	modPowerElectronicsPackStateHandle->waterSensors[4]          = -50.0f;
+	modPowerElectronicsPackStateHandle->waterSensors[5]          = -50.0f;
+	modPowerElectronicsPackStateHandle->buzzerOn                 = false;
+	modPowerElectronicsPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+	modPowerElectronicsPackStateHandle->hiCurrentLoadDetected          = false;
 	
 	// Init the external bus monitor
   modPowerElectronicsInitISL();
@@ -128,11 +140,17 @@ bool modPowerElectronicsTask(void) {
 		// Do the balancing task
 		modPowerElectronicsSubTaskBalaning();
 		
+		// Handle buzzer desires
+		modPowerElectronicsSubTaskBuzzer();
+		
 		// Measure cell voltages
 		modPowerElectronicsCellMonitorsStartCellConversion();
 		
 		// Check and respond to the measured voltage values
 		modPowerElectronicsSubTaskVoltageWatch();
+		
+		// Check water sensors and report state
+		modPowerElectronicsCheckWaterSensors();
 		
 		// Check and respond to the measured temperature values
 		// modPowerElectronicsSubTaskTemperatureWatch();
@@ -564,6 +582,76 @@ void modPowerElectronicsCheckPackSOA(void) {
 	
 	// TODO: timout when restoring SOA state.
   modPowerElectronicsPackStateHandle->packInSOA = packOutsideLimits;
+}
+
+void modPowerElectronicsCheckWaterSensors(void) {
+  uint8_t sensorPointer;
+	uint8_t sensorCount = 0;
+	bool    waterDetected = false;
+	
+	// extract sensor values from sensor struct
+	for(sensorPointer = 0; sensorPointer < 16; sensorPointer++){
+		if((modPowerElectronicsGeneralConfigHandle->waterSensorEnableMask & (1<<sensorPointer)) && (sensorCount < 6)) {
+		  modPowerElectronicsPackStateHandle->waterSensors[sensorCount] = modPowerElectronicsPackStateHandle->temperatures[sensorPointer];
+			
+			if(modPowerElectronicsPackStateHandle->waterSensors[sensorCount] >= modPowerElectronicsGeneralConfigHandle->waterSensorThreshold)
+				waterDetected = true;
+			
+			sensorCount++;
+		}
+	}
+	
+	// Report water detected delayed
+	if(waterDetected){
+	  if(modDelayTick1ms(&modPowerElectronicsWaterDetectDelayLastTick,1000)){
+			modPowerElectronicsPackStateHandle->waterDetected = true;
+		}
+	}else{
+		modPowerElectronicsWaterDetectDelayLastTick = HAL_GetTick();
+		modPowerElectronicsPackStateHandle->waterDetected = false;
+	}
+}
+
+void modPowerElectronicsSubTaskBuzzer(void) {
+  bool buzzerEnabledState = false;
+	
+	// determin whether buzzer should sound
+  switch(modPowerElectronicsGeneralConfigHandle->buzzerSignalSource) {
+		case buzzerSourceOff:
+			buzzerEnabledState = false;
+			break;
+		case buzzerSourceOn:
+			buzzerEnabledState = true;
+			break;
+		case buzzerSourceAll:
+			buzzerEnabledState |= modPowerElectronicsPackStateHandle->waterDetected;
+			break;
+		case buzzerSourceWater:
+			buzzerEnabledState = modPowerElectronicsPackStateHandle->waterDetected;
+			break;
+		case buzzerSourceHC:
+			break;
+		case buzzerSourceLC:
+			break;
+		case buzzerSourceSOA:
+			break;
+		default:
+			buzzerEnabledState = false;
+			break;
+	}
+	
+  // update buzzer state every second
+	if(modDelayTick1ms(&modPowerElectronicsBuzzerUpdateIntervalLastTick,1000)) {
+		if(buzzerEnabledState) {
+		  modEffectChangeState(STAT_BUZZER,(STATStateTypedef)modPowerElectronicsGeneralConfigHandle->buzzerSignalType);
+			modPowerElectronicsPackStateHandle->buzzerOn = true;
+		}else{
+		  if(!modPowerElectronicsGeneralConfigHandle->buzzerSingalPersistant) {
+				modEffectChangeState(STAT_BUZZER,STAT_RESET);
+				modPowerElectronicsPackStateHandle->buzzerOn = false;
+			}
+		}
+	}
 }
 
 bool modPowerElectronicsHCSafetyCANAndPowerButtonCheck(void) {

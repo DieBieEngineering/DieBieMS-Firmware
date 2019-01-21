@@ -18,7 +18,7 @@
 typedef struct {
 	// Master BMS
 	uint8_t  noOfCellsSeries;																											// Number of cell groups in series in pack
-	uint8_t  noOfCellsParallel;                                                   // - Number of cells in parallel group
+	uint8_t  noOfCellsParallel;                                                   // Number of cells in parallel group
 	float    batteryCapacity;																											// Battery capacity in Ah
 	float    cellHardUnderVoltage;																								// If the lowest cell is under this voltage -> Error situation, turn all off and power down
 	float    cellHardOverVoltage;																									// If the upper cell is above this voltage -> Error situation, turn all off and power down
@@ -31,7 +31,10 @@ typedef struct {
 	float    cellThrottleLowerStart;																							// Discharge throttle rande
 	float    cellThrottleUpperMargin;																							// Margin from the upper cell voltage extremes
   float    cellThrottleLowerMargin;                                             // Margin from the lower cell voltage extremes
-	uint8_t  packCurrentDataSource;                                               // - Enum value of pack current data source (what source to derive the current information from LC/HC/LC+HC/CAN)
+	uint8_t  packCurrentDataSource;                                               // Enum value of pack current data source (what source to derive the current information from LC/HC/LC+HC/CAN)
+	uint8_t  buzzerSignalSource;                                                  // - Stores what source shoud be taken to trigger
+	uint8_t	 buzzerSignalType;                                                    // - Stores what sound pattern should be made
+	uint8_t  buzzerSingalPersistant;                                              // - Stores whether the buzzer should stay on after triggering
 	float    shuntLCFactor;                                                       // Shunt multiplication factor Low current
 	int16_t  shuntLCOffset;                                                       // Shunt low current offset
 	float    shuntHCFactor;                                                       // Shunt multiplication factor High current	
@@ -52,12 +55,12 @@ typedef struct {
 	float    minimalPrechargePercentage;																					// Output voltage threshold for precharging
 	uint32_t timeoutLCPreCharge;																									// If threshold is not reached within this time in ms goto error state
 	float    maxAllowedCurrent;																										// Max allowed current passing trough BMS, if limit is exceded disable output
-	float    allowedTempBattDischargingMax;                                       // - Max battery temperature where discharging is still allowed
-	float    allowedTempBattDischargingMin;                                       // - Min battery temperature where discharging is still allowed
-	float    allowedTempBattChargingMax;                                          // - Max battery temperature where charging is still allowed
-	float    allowedTempBattChargingMin;                                          // - Min battery temperature where charging is still allowed
-	float    allowedTempBMSMax;                                                   // - Max BMS operational temperature
-	float    allowedTempBMSMin;                                                   // - Min BMS operational temperature
+	float    allowedTempBattDischargingMax;                                       // Max battery temperature where discharging is still allowed
+	float    allowedTempBattDischargingMin;                                       // Min battery temperature where discharging is still allowed
+	float    allowedTempBattChargingMax;                                          // Max battery temperature where charging is still allowed
+	float    allowedTempBattChargingMin;                                          // Min battery temperature where charging is still allowed
+	float    allowedTempBMSMax;                                                   // Max BMS operational temperature
+	float    allowedTempBMSMin;                                                   // Min BMS operational temperature
 	uint32_t displayTimeoutBatteryDead;																						// Duration of displaying battery dead symbol
 	uint32_t displayTimeoutBatteryError;																					// Duration of displaying error symbol
 	uint32_t displayTimeoutBatteryErrorPreCharge;																	// Duration of displaying error symbol
@@ -66,11 +69,12 @@ typedef struct {
 	float    notUsedCurrentThreshold;																							// Threshold that defines whether or not pack is in use.
 	uint32_t notUsedTimeout;																											// Delay time that defines max amount of no operation on-time. When absolute battery curren < notUsedCurrentThreshold for longer than this amount of time -> the system is disabled
 	uint32_t stateOfChargeStoreInterval;																					// Interval to store state of charge information.
-	uint8_t  stateOfChargeMethod;																									// - Stores the desired type of state of charge algorithm
+	uint8_t  stateOfChargeMethod;																									// Stores the desired type of state of charge algorithm
 	uint8_t  CANID;																																// Stores the CAN ID of the device.
 	uint8_t  CANIDStyle;                                                          // Store the ID style used to communicate over CAN
 	uint8_t  emitStatusOverCAN;                                                   // Enable or disable sending of status over CAN
-	uint16_t waterSensorEnableMask;                                               // - Stores the mask to select the inputs to act as water detector.
+	uint16_t waterSensorEnableMask;                                               // Stores the mask to select the inputs to act as water detector.
+	float    waterSensorThreshold;                                                // - The threshold the enabled water sensor input should pass in order to trigger the water detected state.
 	uint32_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
 	uint32_t tempEnableMaskBattery;																								// Stores the mask to select what temperature sensor is enabled for the battery.
 	uint8_t  LCUseDischarge;                                                      // Enable or disable switch output.
@@ -86,17 +90,17 @@ typedef struct {
   uint8_t  externalEnableOperationalState;                  										// The state to enter when externally enabled
 	uint32_t powerDownDelay;																											// The delay time between going to power down and turning off
 	uint8_t  canBusSpeed;																													// CAN bus baudrate
-	uint8_t  chargeEnableOperationalState;                                        // - State to enter when BMS is turned on due to charger
-	uint8_t  DCDCEnableInverted;                                                  // - States whether or not to invert the DCDC enable signal
+	uint8_t  chargeEnableOperationalState;                                        // State to enter when BMS is turned on due to charger
+	uint8_t  DCDCEnableInverted;                                                  // States whether or not to invert the DCDC enable signal
 	
 	// Slave - HiAmp Config
-	uint32_t NTCTopResistor[modConfigNoOfNTCTypes];                               // - NTC Pullup resistor value
-	uint32_t NTC25DegResistance[modConfigNoOfNTCTypes];                           // - NTC resistance at 25 degree
-	uint16_t NTCBetaFactor[modConfigNoOfNTCTypes];                                // - NTC Beta factor
+	uint32_t NTCTopResistor[modConfigNoOfNTCTypes];                               // NTC Pullup resistor value
+	uint32_t NTC25DegResistance[modConfigNoOfNTCTypes];                           // NTC resistance at 25 degree
+	uint16_t NTCBetaFactor[modConfigNoOfNTCTypes];                                // NTC Beta factor
 	uint8_t  HCUseRelay;                                                          // Enable or disable relay output
 	uint8_t  HCUsePrecharge;                                                      // choice whether to precharge or not
-	uint8_t  HCUseLoadDetect;                                                     // - Enable or disable the load detect mechanism
-	float    HCLoadDetectThreshold;																								// - The minimal voltage drop acros the precharge resistor for load detection when load detection is enabled
+	uint8_t  HCUseLoadDetect;                                                     // Enable or disable the load detect mechanism
+	uint32_t HCLoadDetectThreshold;																								// - The minimal time the precharge cycle should take for load detection when load detection is enabled
 	uint32_t timeoutHCPreCharge;																									// If threshold is not reached within this time in ms goto error state
 	uint32_t timeoutHCPreChargeRetryInterval;                                     // When pre charge failed, wait this long
 	uint32_t timeoutHCRelayOverlap;																								// When pre charge succeeded turn on main relay and wait this long before disabling precharge

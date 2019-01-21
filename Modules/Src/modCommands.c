@@ -144,6 +144,9 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->cellThrottleUpperMargin        = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellThrottleLowerMargin        = libBufferGet_float32_auto(data,&ind);           // 4
 		  modCommandsGeneralConfig->packCurrentDataSource          = libBufferGet_uint8(data,&ind);                  // 1
+		  modCommandsGeneralConfig->buzzerSignalSource             = libBufferGet_uint8(data,&ind);                  // 1
+		  modCommandsGeneralConfig->buzzerSignalType               = libBufferGet_uint8(data,&ind);                  // 1
+		  modCommandsGeneralConfig->buzzerSingalPersistant         = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->shuntLCFactor                  = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->shuntLCOffset                  = libBufferGet_int16(data,&ind);                  // 2
 			modCommandsGeneralConfig->shuntHCFactor	                 = libBufferGet_float32_auto(data,&ind);           // 4
@@ -184,6 +187,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
       modCommandsGeneralConfig->canBusSpeed                    = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->emitStatusOverCAN              = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->waterSensorEnableMask          = libBufferGet_uint16(data,&ind);                 // 2
+			modCommandsGeneralConfig->waterSensorThreshold           = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->tempEnableMaskBMS              = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->tempEnableMaskBattery          = libBufferGet_uint32(data,&ind);                 // 4
 		  modCommandsGeneralConfig->LCUseDischarge                 = libBufferGet_uint8(data,&ind);                  // 1
@@ -197,7 +201,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->HCUseRelay                     = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->HCUsePrecharge                 = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->HCUseLoadDetect                = libBufferGet_uint8(data,&ind);                  // 1
-			modCommandsGeneralConfig->HCLoadDetectThreshold          = libBufferGet_float32_auto(data,&ind);           // 4
+			modCommandsGeneralConfig->HCLoadDetectThreshold          = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->timeoutHCPreCharge             = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->timeoutHCPreChargeRetryInterval= libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->timeoutHCRelayOverlap          = libBufferGet_uint32(data,&ind);                 // 4
@@ -257,6 +261,9 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperMargin         ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerMargin         ,&ind); // 4
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->packCurrentDataSource           ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalSource              ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalType                ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSingalPersistant          ,&ind); // 1
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCFactor                   ,&ind); // 4
 			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCOffset                   ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->shuntHCFactor                   ,&ind); // 4
@@ -297,6 +304,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->canBusSpeed                     ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->emitStatusOverCAN               ,&ind); // 1
 			libBufferAppend_uint16(       modCommandsSendBuffer,modCommandsToBeSendConfig->waterSensorEnableMask           ,&ind); // 2
+			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->waterSensorThreshold            ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBMS               ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBattery           ,&ind); // 4
 		  libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->LCUseDischarge                  ,&ind); // 1
@@ -310,7 +318,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCUseRelay                      ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCUsePrecharge                  ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCUseLoadDetect                 ,&ind); // 1
-			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadDetectThreshold           ,&ind); // 4
+			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadDetectThreshold           ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreCharge              ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreChargeRetryInterval ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCRelayOverlap           ,&ind); // 4

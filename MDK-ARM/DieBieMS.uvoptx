@@ -129,7 +129,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>èÅU	“"ÍwèÅU	</Name>
+          <Name>è@Z&amp;“"nwè@Z&amp;</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -173,6 +173,16 @@
           <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>generalConfig</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>modHiAmpShieldRelayControllerRelayEnabledState</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cellVoltageCodes</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
@@ -487,7 +497,7 @@
 
   <Group>
     <GroupName>Drivers/HWDriver</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -603,7 +613,7 @@
 
   <Group>
     <GroupName>Drivers/SWDriver</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1023,7 +1033,7 @@
 
   <Group>
     <GroupName>Device</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

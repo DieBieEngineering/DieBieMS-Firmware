@@ -15,6 +15,7 @@
 
 #define NoOfCellsPossibleOnBMS	12
 #define NoOfTempSensors         13
+#define NoOfWaterSensors        6
 #define PRECHARGE_PERCENTAGE 		0.75f
 #define ISLErrorThreshold       10
 
@@ -76,12 +77,17 @@ typedef struct {
 	uint8_t  chargeBalanceActive;
 	uint8_t  powerButtonActuated;
 	uint8_t  packInSOA;
+	uint8_t  waterDetected;
+	float    waterSensors[NoOfWaterSensors];
+	uint8_t  buzzerOn;
 	uint8_t  watchDogTime;
 	cellMonitorCellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnBMS];
 	modPowerElectronicsPackOperationalCellStatesTypedef packOperationalCellState;
 	
 	// Slave BMS
 	uint8_t  hiAmpShieldPresent;
+	uint32_t hiCurrentLoadPreChargeDuration;
+	uint8_t  hiCurrentLoadDetected;
 	float    hiCurrentLoadVoltage;
 	float    hiCurrentLoadCurrent;
 	float		 hiCurrentLoadPower;
@@ -123,6 +129,8 @@ void  modPowerElectronicsCalcThrottle(void);
 int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);
 float modPowerElectronicsMapVariableFloat(float inputVariable, float inputLowerLimit, float inputUpperLimit, float outputLowerLimit, float outputUpperLimit);
 void  modPowerElectronicsInitISL(void);
+void modPowerElectronicsCheckWaterSensors(void);
+void modPowerElectronicsSubTaskBuzzer(void);
 bool  modPowerElectronicsHCSafetyCANAndPowerButtonCheck(void);
 void  modPowerElectronicsResetBalanceModeActiveTimeout(void);
 void  modPowerElectronicsCellMonitorsInit(void);

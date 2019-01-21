@@ -6,6 +6,7 @@ modConfigGeneralConfigStructTypedef *modHiAmpGeneralConfigHandle;
 uint32_t modHiAmpShieldPresenceDetectLastTick;
 uint32_t modHiAmpShieldSamplingLastTick;
 uint32_t modHiAmpShieldRelayTimeoutLastTick;
+uint32_t modHiAmpShieldRelayStartPrechargeTimeStamp;
 
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledState;
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
@@ -28,6 +29,8 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 	modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
 	modHiAmpShieldRelayControllerRelayEnabledLastState = RELAY_CONTROLLER_INIT;
 	modHiAmpShieldRelayControllerRelayEnabledDesiredLastState = false;
+	
+	modHiAmpShieldRelayStartPrechargeTimeStamp = HAL_GetTick();
 	
 	// Initialise slave board
 	if(modHiAmpPackStateHandle->hiAmpShieldPresent){
@@ -196,11 +199,14 @@ void modHiAmpShieldRelayControllerTask(void) {
 		switch(modHiAmpShieldRelayControllerRelayEnabledState) {
 			case RELAY_CONTROLLER_INIT:
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
+			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			case RELAY_CONTROLLER_OFF:
 				modHiAmpShieldRelayControllerSetRelayOutputState(false,false);
 			  modHiAmpPackStateHandle->hiLoadEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = false;
+			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 			case RELAY_CONTROLLER_PRECHARGING:
 			  modHiAmpShieldRelayControllerSetRelayOutputState(false,true);
@@ -208,6 +214,9 @@ void modHiAmpShieldRelayControllerTask(void) {
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = true;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = false;
 			  modHiAmpShieldRelayTimeoutLastTick = HAL_GetTick();
+			  modHiAmpShieldRelayStartPrechargeTimeStamp = HAL_GetTick();
+			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 			  break;
 			case RELAY_CONTROLLER_PRECHARGED:
 				modHiAmpShieldRelayControllerSetRelayOutputState(true,true);
@@ -215,13 +224,22 @@ void modHiAmpShieldRelayControllerTask(void) {
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = true;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = false;
 			  modHiAmpShieldRelayTimeoutLastTick = HAL_GetTick();
+			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = HAL_GetTick() - modHiAmpShieldRelayStartPrechargeTimeStamp;
+			  
+			  if(modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration >= modHiAmpGeneralConfigHandle->HCLoadDetectThreshold) {
+					modHiAmpPackStateHandle->hiCurrentLoadDetected = true;
+				}
+				
 				break;
 			case RELAY_CONTROLLER_TIMOUT:
+			case RELAY_CONTROLLER_NOLOAD:				
         modHiAmpShieldRelayControllerSetRelayOutputState(false,false);
 			  modHiAmpPackStateHandle->hiLoadEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = true;
 			  modHiAmpShieldRelayTimeoutLastTick = HAL_GetTick();
+			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 			case RELAY_CONTROLLER_ENABLED:
 				modHiAmpShieldRelayControllerSetRelayOutputState(true,false);
@@ -231,6 +249,8 @@ void modHiAmpShieldRelayControllerTask(void) {
 				break;
 			default:
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
+			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 		}
 		modHiAmpShieldRelayControllerRelayEnabledLastState = modHiAmpShieldRelayControllerRelayEnabledState;
@@ -244,13 +264,17 @@ void modHiAmpShieldRelayControllerTask(void) {
 	
 	if(modHiAmpShieldRelayControllerRelayEnabledState == RELAY_CONTROLLER_PRECHARGED){
 		// wait for main relay to enable and then disable pre charge
-		if(modDelayTick1ms(&modHiAmpShieldRelayTimeoutLastTick,modHiAmpGeneralConfigHandle->timeoutHCRelayOverlap))
-			modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_ENABLED;
+		if(modDelayTick1ms(&modHiAmpShieldRelayTimeoutLastTick,modHiAmpGeneralConfigHandle->timeoutHCRelayOverlap)) {
+			if(modHiAmpPackStateHandle->hiCurrentLoadDetected || !modHiAmpGeneralConfigHandle->HCUseLoadDetect)
+			  modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_ENABLED;
+			else
+				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_NOLOAD;
+		}
 	}	
 	
-	if(modHiAmpShieldRelayControllerRelayEnabledState == RELAY_CONTROLLER_TIMOUT){
+	if((modHiAmpShieldRelayControllerRelayEnabledState == RELAY_CONTROLLER_TIMOUT) || (modHiAmpShieldRelayControllerRelayEnabledState == RELAY_CONTROLLER_NOLOAD)){
 		// check delay and go to RELAY_CONTROLLER_PRECHARGING if triggered
-		if(modDelayTick1ms(&modHiAmpShieldRelayTimeoutLastTick,modHiAmpGeneralConfigHandle->timeoutHCPreChargeRetryInterval)){
+		if(modDelayTick1ms(&modHiAmpShieldRelayTimeoutLastTick,modHiAmpGeneralConfigHandle->timeoutHCPreChargeRetryInterval) && modHiAmpGeneralConfigHandle->timeoutHCPreChargeRetryInterval){
 			if(modHiAmpGeneralConfigHandle->HCUsePrecharge)
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_PRECHARGING;
 			else

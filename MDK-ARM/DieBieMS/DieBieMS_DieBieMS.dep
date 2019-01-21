@@ -853,7 +853,7 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x56FE9736)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 F (..\Drivers\HWDrivers\Src\driverHWEEPROM.c)(0x5A132964)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\driverhweeprom.o --omf_browse diebiems\driverhweeprom.crf --depend diebiems\driverhweeprom.d)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -973,7 +973,7 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 F (..\Drivers\HWDrivers\Src\driverHWPowerState.c)(0x5AEB8CF6)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\driverhwpowerstate.o --omf_browse diebiems\driverhwpowerstate.crf --depend diebiems\driverhwpowerstate.d)
 I (..\Drivers\HWDrivers\Inc\driverHWPowerState.h)(0x5A024DFC)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_conf.h)(0x5B521A92)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/mxconstants.h)(0x5BFDD498)
@@ -1295,24 +1295,24 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi_ex.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWADC.h)(0x5B9C3B94)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x56FE9736)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6803.h)(0x5C2BD5C0)
 I (..\Drivers\HWDrivers\Inc\driverHWSPI1.h)(0x5AEB8CF6)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWSwitches.h)(0x5BFDEB7B)
 I (..\Drivers\SWDrivers\Inc\driverSWEMC2305.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
@@ -1442,9 +1442,9 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x56FE9736)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
-F (..\Drivers\SWDrivers\Src\driverSWLTC6804.c)(0x5C3508A1)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\driverswltc6804.o --omf_browse diebiems\driverswltc6804.crf --depend diebiems\driverswltc6804.d)
+F (..\Drivers\SWDrivers\Src\driverSWLTC6804.c)(0x5C455D80)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\driverswltc6804.o --omf_browse diebiems\driverswltc6804.crf --depend diebiems\driverswltc6804.d)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Drivers\HWDrivers\Inc\driverHWSPI1.h)(0x5AEB8CF6)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -1487,7 +1487,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x56FE9736)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 F (..\Drivers\SWDrivers\Src\driverSWPCAL6416.c)(0x5AEB8CF6)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\driverswpcal6416.o --omf_browse diebiems\driverswpcal6416.crf --depend diebiems\driverswpcal6416.d)
@@ -1701,10 +1701,10 @@ I (..\Drivers\HWDrivers\Inc\driverHWUART2.h)(0x5B64E0A3)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
 I (..\Libraries\Inc\libRingBuffer.h)(0x57B46A2C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
-F (..\Modules\Src\modCAN.c)(0x5C2BC743)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modcan.o --omf_browse diebiems\modcan.crf --depend diebiems\modcan.d)
+F (..\Modules\Src\modCAN.c)(0x5C439446)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modcan.o --omf_browse diebiems\modcan.crf --depend diebiems\modcan.d)
 I (..\Modules\Inc\modCAN.h)(0x5C2BC742)
-I (..\Main\generalDefines.h)(0x5C427C63)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\generalDefines.h)(0x5C427E2F)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x584DB232)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (..\Main\dataHelper.h)(0x5C01C77E)
@@ -1749,7 +1749,7 @@ I (..\Libraries\Inc\libPacket.h)(0x5A09D9F7)
 I (..\Libraries\Inc\libBuffer.h)(0x5B9BDA8A)
 I (..\Modules\Inc\modTerminal.h)(0x5C2BBF50)
 I (..\Modules\Inc\modStateOfCharge.h)(0x5C2BC743)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
@@ -1762,7 +1762,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Drivers\HWDrivers\Inc\driverHWSwitches.h)(0x5BFDEB7B)
 I (..\Drivers\SWDrivers\Inc\driverSWEMC2305.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
@@ -1776,7 +1776,7 @@ I (..\Libraries\Inc\libGraphics.h)(0x57993B0A)
 I (..\Libraries\Inc\libGLCDFont.h)(0x5793D034)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x56FE973E)
 I (..\Libraries\Inc\libLogos.h)(0x59133A05)
-I (..\Modules\Inc\modHiAmp.h)(0x5C2BC743)
+I (..\Modules\Inc\modHiAmp.h)(0x5C4548B3)
 I (..\Drivers\SWDrivers\Inc\driverSWDCDC.h)(0x5C2C2B9D)
 I (..\Drivers\SWDrivers\Inc\driverSWPCAL6416.h)(0x5AEB8CF6)
 I (..\Drivers\SWDrivers\Inc\driverSWADC128D818.h)(0x5AEB8CF6)
@@ -1784,18 +1784,18 @@ I (..\Drivers\SWDrivers\Inc\driverSWSHT21.h)(0x5AEB8CF6)
 I (..\Modules\Inc\modFlash.h)(0x5A18CC73)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x56FE9740)
 I (..\Libraries\Inc\libCRC.h)(0x5A07B436)
-F (..\Modules\Src\modCommands.c)(0x5C2BC742)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modcommands.o --omf_browse diebiems\modcommands.crf --depend diebiems\modcommands.d)
+F (..\Modules\Src\modCommands.c)(0x5C44E4B7)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modcommands.o --omf_browse diebiems\modcommands.crf --depend diebiems\modcommands.d)
 I (..\Modules\Inc\modCommands.h)(0x5C2BC743)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x584DB232)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Libraries\Inc\libPacket.h)(0x5A09D9F7)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (..\Libraries\Inc\libBuffer.h)(0x5B9BDA8A)
 I (..\Modules\Inc\modTerminal.h)(0x5C2BBF50)
 I (..\Modules\Inc\modStateOfCharge.h)(0x5C2BC743)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -1844,7 +1844,7 @@ I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWSwitches.h)(0x5BFDEB7B)
 I (..\Drivers\SWDrivers\Inc\driverSWEMC2305.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
@@ -1858,7 +1858,7 @@ I (..\Libraries\Inc\libGraphics.h)(0x57993B0A)
 I (..\Libraries\Inc\libGLCDFont.h)(0x5793D034)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x56FE973E)
 I (..\Libraries\Inc\libLogos.h)(0x59133A05)
-I (..\Modules\Inc\modHiAmp.h)(0x5C2BC743)
+I (..\Modules\Inc\modHiAmp.h)(0x5C4548B3)
 I (..\Drivers\SWDrivers\Inc\driverSWDCDC.h)(0x5C2C2B9D)
 I (..\Drivers\SWDrivers\Inc\driverSWPCAL6416.h)(0x5AEB8CF6)
 I (..\Drivers\SWDrivers\Inc\driverSWADC128D818.h)(0x5AEB8CF6)
@@ -1867,11 +1867,11 @@ I (..\Modules\Inc\modCAN.h)(0x5C2BC742)
 I (..\Libraries\Inc\libCRC.h)(0x5A07B436)
 I (..\Modules\Inc\modFlash.h)(0x5A18CC73)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x56FE9740)
-F (..\Modules\Src\modConfig.c)(0x5C2A0C0A)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modconfig.o --omf_browse diebiems\modconfig.crf --depend diebiems\modconfig.d)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+F (..\Modules\Src\modConfig.c)(0x5C455C96)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modconfig.o --omf_browse diebiems\modconfig.crf --depend diebiems\modconfig.d)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x584DB232)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
@@ -1911,7 +1911,7 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi_ex.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 F (..\Modules\Src\modDelay.c)(0x5AEB8CF6)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\moddelay.o --omf_browse diebiems\moddelay.crf --depend diebiems\moddelay.d)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -1951,7 +1951,7 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi_ex.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
-F (..\Modules\Src\modDisplay.c)(0x5C296449)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\moddisplay.o --omf_browse diebiems\moddisplay.crf --depend diebiems\moddisplay.d)
+F (..\Modules\Src\modDisplay.c)(0x5C427E37)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\moddisplay.o --omf_browse diebiems\moddisplay.crf --depend diebiems\moddisplay.d)
 I (..\Modules\Inc\modDisplay.h)(0x5A09F198)
 I (..\Drivers\SWDrivers\Inc\driverSWSSD1306.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
@@ -2079,8 +2079,8 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi_ex.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
-F (..\Modules\Src\modHiAmp.c)(0x5C2C359A)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modhiamp.o --omf_browse diebiems\modhiamp.crf --depend diebiems\modhiamp.d)
-I (..\Modules\Inc\modHiAmp.h)(0x5C2BC743)
+F (..\Modules\Src\modHiAmp.c)(0x5C454B2E)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modhiamp.o --omf_browse diebiems\modhiamp.crf --depend diebiems\modhiamp.d)
+I (..\Modules\Inc\modHiAmp.h)(0x5C4548B3)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -2119,23 +2119,23 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi_ex.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWADC.h)(0x5B9C3B94)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x56FE9736)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6803.h)(0x5C2BD5C0)
 I (..\Drivers\HWDrivers\Inc\driverHWSPI1.h)(0x5AEB8CF6)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Drivers\HWDrivers\Inc\driverHWSwitches.h)(0x5BFDEB7B)
 I (..\Drivers\SWDrivers\Inc\driverSWEMC2305.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
@@ -2147,7 +2147,7 @@ I (..\Drivers\SWDrivers\Inc\driverSWSHT21.h)(0x5AEB8CF6)
 F (..\Modules\Src\modOperationalState.c)(0x5C2C396A)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modoperationalstate.o --omf_browse diebiems\modoperationalstate.crf --depend diebiems\modoperationalstate.d)
 I (..\Modules\Inc\modOperationalState.h)(0x5C2BC743)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x584DB232)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
@@ -2188,14 +2188,14 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
 I (..\Drivers\HWDrivers\Inc\driverHWPowerState.h)(0x5A024DFC)
-I (..\Main\generalDefines.h)(0x5C427C63)
-I (..\Modules\Inc\modconfig.h)(0x5C296322)
+I (..\Main\generalDefines.h)(0x5C427E2F)
+I (..\Modules\Inc\modconfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (..\Modules\Inc\modEffect.h)(0x59021157)
 I (..\Drivers\HWDrivers\Inc\driverHWStatus.h)(0x590214B6)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
@@ -2214,8 +2214,8 @@ I (..\Libraries\Inc\libGLCDFont.h)(0x5793D034)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x56FE973E)
 I (..\Libraries\Inc\libLogos.h)(0x59133A05)
 I (..\Modules\Inc\modStateOfCharge.h)(0x5C2BC743)
-F (..\Modules\Src\modPowerElectronics.c)(0x5C32A296)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modpowerelectronics.o --omf_browse diebiems\modpowerelectronics.crf --depend diebiems\modpowerelectronics.d)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+F (..\Modules\Src\modPowerElectronics.c)(0x5C4560F1)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modpowerelectronics.o --omf_browse diebiems\modpowerelectronics.crf --depend diebiems\modpowerelectronics.d)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -2258,18 +2258,18 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWADC.h)(0x5B9C3B94)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x56FE9736)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6803.h)(0x5C2BD5C0)
 I (..\Drivers\HWDrivers\Inc\driverHWSPI1.h)(0x5AEB8CF6)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWSwitches.h)(0x5BFDEB7B)
 I (..\Drivers\SWDrivers\Inc\driverSWEMC2305.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
@@ -2292,7 +2292,7 @@ I (..\Libraries\Inc\libGraphics.h)(0x57993B0A)
 I (..\Libraries\Inc\libGLCDFont.h)(0x5793D034)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x56FE973E)
 I (..\Libraries\Inc\libLogos.h)(0x59133A05)
-I (..\Modules\Inc\modHiAmp.h)(0x5C2BC743)
+I (..\Modules\Inc\modHiAmp.h)(0x5C4548B3)
 I (..\Drivers\SWDrivers\Inc\driverSWDCDC.h)(0x5C2C2B9D)
 I (..\Drivers\SWDrivers\Inc\driverSWPCAL6416.h)(0x5AEB8CF6)
 I (..\Drivers\SWDrivers\Inc\driverSWADC128D818.h)(0x5AEB8CF6)
@@ -2338,9 +2338,9 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (..\Drivers\HWDrivers\Inc\driverHWPowerState.h)(0x5A024DFC)
-I (..\Main\generalDefines.h)(0x5C427C63)
-I (..\Modules\Inc\modconfig.h)(0x5C296322)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\generalDefines.h)(0x5C427E2F)
+I (..\Modules\Inc\modconfig.h)(0x5C44E450)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
@@ -2349,7 +2349,7 @@ F (..\Modules\Src\modStateOfCharge.c)(0x5C2BC743)(-c --cpu Cortex-M4.fp -D__MICR
 I (..\Modules\Inc\modStateOfCharge.h)(0x5C2BC743)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x584DB232)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -2390,31 +2390,31 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWADC.h)(0x5B9C3B94)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x56FE9736)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6803.h)(0x5C2BD5C0)
 I (..\Drivers\HWDrivers\Inc\driverHWSPI1.h)(0x5AEB8CF6)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWSwitches.h)(0x5BFDEB7B)
 I (..\Drivers\SWDrivers\Inc\driverSWEMC2305.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
 I (..\Drivers\HWDrivers\Inc\driverHWPowerState.h)(0x5A024DFC)
-F (..\Modules\Src\modTerminal.c)(0x5C2BCB9D)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modterminal.o --omf_browse diebiems\modterminal.crf --depend diebiems\modterminal.d)
+F (..\Modules\Src\modTerminal.c)(0x5C45525D)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\modterminal.o --omf_browse diebiems\modterminal.crf --depend diebiems\modterminal.d)
 I (..\Modules\Inc\modTerminal.h)(0x5C2BBF50)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x584DB232)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Modules\Inc\modCommands.h)(0x5C2BC743)
 I (..\Libraries\Inc\libPacket.h)(0x5A09D9F7)
-I (..\Main\generalDefines.h)(0x5C427C63)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (..\Libraries\Inc\libBuffer.h)(0x5B9BDA8A)
 I (..\Modules\Inc\modCAN.h)(0x5C2BC742)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
@@ -2454,7 +2454,7 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
 I (..\Libraries\Inc\libCRC.h)(0x5A07B436)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
@@ -2467,7 +2467,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
 I (..\Drivers\SWDrivers\Inc\driverSWLTC6804.h)(0x5C2BFACB)
 I (..\Drivers\HWDrivers\Inc\driverHWSwitches.h)(0x5BFDEB7B)
 I (..\Drivers\SWDrivers\Inc\driverSWEMC2305.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
@@ -2484,7 +2484,7 @@ I (..\Libraries\Inc\libGraphics.h)(0x57993B0A)
 I (..\Libraries\Inc\libGLCDFont.h)(0x5793D034)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x56FE973E)
 I (..\Libraries\Inc\libLogos.h)(0x59133A05)
-I (..\Modules\Inc\modHiAmp.h)(0x5C2BC743)
+I (..\Modules\Inc\modHiAmp.h)(0x5C4548B3)
 I (..\Drivers\SWDrivers\Inc\driverSWDCDC.h)(0x5C2C2B9D)
 I (..\Drivers\SWDrivers\Inc\driverSWPCAL6416.h)(0x5AEB8CF6)
 I (..\Drivers\SWDrivers\Inc\driverSWADC128D818.h)(0x5AEB8CF6)
@@ -2535,13 +2535,13 @@ I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x56FE973E)
 I (..\Libraries\Inc\libRingBuffer.h)(0x57B46A2C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (..\Modules\Inc\modDelay.h)(0x5AEB8CF6)
-I (..\Modules\Inc\modConfig.h)(0x5C296322)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Modules\Inc\modConfig.h)(0x5C44E450)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
-I (..\Main\generalDefines.h)(0x5C427C63)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Main\generalDefines.h)(0x5C427E2F)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
@@ -2568,7 +2568,7 @@ I (..\Libraries\Inc\libGraphics.h)(0x57993B0A)
 I (..\Libraries\Inc\libGLCDFont.h)(0x5793D034)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x56FE973E)
 I (..\Libraries\Inc\libLogos.h)(0x59133A05)
-I (..\Modules\Inc\modHiAmp.h)(0x5C2BC743)
+I (..\Modules\Inc\modHiAmp.h)(0x5C4548B3)
 I (..\Drivers\SWDrivers\Inc\driverSWDCDC.h)(0x5C2C2B9D)
 I (..\Drivers\SWDrivers\Inc\driverSWPCAL6416.h)(0x5AEB8CF6)
 I (..\Drivers\SWDrivers\Inc\driverSWADC128D818.h)(0x5AEB8CF6)
@@ -2763,8 +2763,8 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi_ex.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5782B963)
-F (..\Main\main.c)(0x5C427CFA)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\main.o --omf_browse diebiems\main.crf --depend diebiems\main.d)
-I (..\Main\generalDefines.h)(0x5C427C63)
+F (..\Main\main.c)(0x5C45607E)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Include -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ..\Drivers\HWDrivers\Inc -I ..\Drivers\HWDrivers\Src -I ..\Drivers\SWDrivers\Inc -I ..\Drivers\SWDrivers\Src -I ..\Modules\Inc -I ..\Modules\Src -I ..\Libraries\Inc -I ..\Libraries\Scr -I ..\Main --C99-I C:\Projecten\DieBieMS\GitHub\Firmware\DieBieMS\MDK-ARM\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\1.3.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="520" -DSTM32F303xC -DUSE_HAL_DRIVER -DSTM32F303xC-o diebiems\main.o --omf_browse diebiems\main.crf --depend diebiems\main.d)
+I (..\Main\generalDefines.h)(0x5C427E2F)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5782B963)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_conf.h)(0x5B521A92)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/mxconstants.h)(0x5BFDD498)
@@ -2807,14 +2807,14 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x56FE973C)
 I (..\Drivers\HWDrivers\Inc\driverHWStatus.h)(0x590214B6)
 I (..\Modules\Inc\modPowerState.h)(0x5C426C18)
 I (..\Drivers\HWDrivers\Inc\driverHWPowerState.h)(0x5A024DFC)
-I (..\Modules\Inc\modconfig.h)(0x5C296322)
-I (..\Main\mainDataTypes.h)(0x5C27E812)
+I (..\Modules\Inc\modconfig.h)(0x5C44E450)
+I (..\Main\mainDataTypes.h)(0x5C45096A)
 I (..\Main\dataHelper.h)(0x5C01C77E)
 I (..\Drivers\SWDrivers\Inc\driverSWStorageManager.h)(0x591773F6)
 I (..\Drivers\HWDrivers\Inc\driverHWEEPROM.h)(0x5917741A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x56FE973E)
 I (..\Modules\Inc\modOperationalState.h)(0x5C2BC743)
-I (..\Modules\Inc\modPowerElectronics.h)(0x5C2BFAF7)
+I (..\Modules\Inc\modPowerElectronics.h)(0x5C4524A3)
 I (..\Drivers\SWDrivers\Inc\driverSWISL28022.h)(0x5AEB8CF6)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C2.h)(0x5C02AC13)
 I (..\Drivers\HWDrivers\Inc\driverHWI2C1.h)(0x5AEB8CF6)
@@ -2833,7 +2833,7 @@ I (..\Libraries\Inc\libGLCDFont.h)(0x5793D034)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x56FE973E)
 I (..\Libraries\Inc\libLogos.h)(0x59133A05)
 I (..\Modules\Inc\modStateOfCharge.h)(0x5C2BC743)
-I (..\Modules\Inc\modHiAmp.h)(0x5C2BC743)
+I (..\Modules\Inc\modHiAmp.h)(0x5C4548B3)
 I (..\Drivers\SWDrivers\Inc\driverSWDCDC.h)(0x5C2C2B9D)
 I (..\Drivers\SWDrivers\Inc\driverSWPCAL6416.h)(0x5AEB8CF6)
 I (..\Drivers\SWDrivers\Inc\driverSWADC128D818.h)(0x5AEB8CF6)
