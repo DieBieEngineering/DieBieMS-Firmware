@@ -220,7 +220,11 @@ void modCANSendSimpleStatusSlow(void) {
   libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[4],&sendIndex);
   libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[5],&sendIndex);
   libBufferAppend_uint8(buffer, modCANPackStateHandle->hiCurrentLoadState,&sendIndex);
-	libBufferAppend_uint8(buffer,0,&sendIndex);
+	
+	flagHolder = (modCANPackStateHandle->waterDetected           << 0);
+	flagHolder |= (modCANPackStateHandle->hiCurrentLoadDetected  << 1);
+	
+	libBufferAppend_uint8(buffer,flagHolder,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_WATER_HCLOAD), buffer, sendIndex);
 }
 

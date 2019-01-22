@@ -22,14 +22,16 @@ float    modPowerElectronicsTempPackVoltage;
 uint8_t  modPowerElectronicsISLErrorCount;
 configCellMonitorICTypeEnum modPowerElectronicsCellMonitorsTypeActive;
 float    modPowerElectronicsChargeDiodeBypassHysteresis;
+bool     modPowerElectronicsVoltageSenseError;
 
 void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
-	modPowerElectronicsGeneralConfigHandle = generalConfigPointer;
-	modPowerElectronicsPackStateHandle = packState;
-	modPowerElectronicsUnderAndOverVoltageErrorCount = 0;
-	modPowerElectronicsAllowForcedOnState = false;
-	modPowerElectronicsISLErrorCount = 0;
-	modPowerElectronicsChargeDiodeBypassHysteresis = 0.0f;
+	modPowerElectronicsGeneralConfigHandle                       = generalConfigPointer;
+	modPowerElectronicsPackStateHandle                           = packState;
+	modPowerElectronicsUnderAndOverVoltageErrorCount             = 0;
+	modPowerElectronicsAllowForcedOnState                        = false;
+	modPowerElectronicsISLErrorCount                             = 0;
+	modPowerElectronicsChargeDiodeBypassHysteresis               = 0.0f;
+	modPowerElectronicsVoltageSenseError                         = false;
 	
 	// Init pack status
 	modPowerElectronicsPackStateHandle->throttleDutyCharge       = 0;
@@ -117,9 +119,15 @@ bool modPowerElectronicsTask(void) {
 			if(modPowerElectronicsISLErrorCount++ >= ISLErrorThreshold){												// Increase error count
 				modPowerElectronicsISLErrorCount = ISLErrorThreshold;
 				// Make BMS signal error state and power down.
+				modPowerElectronicsVoltageSenseError = true;
 			}else{
-			modPowerElectronicsInitISL();																												// Reinit I2C and ISL	
+			modPowerElectronicsInitISL();																												// Reinit I2C and ISL
 			}
+		}
+		
+		// Check whether packvoltage is whithin theoretical limits
+		if(modPowerElectronicsPackStateHandle->packVoltage >= (modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage + 1.0f)) {
+			modPowerElectronicsVoltageSenseError = true;
 		}
 		
 		// Combine the currents based on config and calculate pack power.
@@ -363,7 +371,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 	}
 	
 	// Handle hard cell voltage limits
-	if(hardUnderVoltageFlags || hardOverVoltageFlags || (modPowerElectronicsPackStateHandle->packVoltage > modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage)) {
+	if(modPowerElectronicsVoltageSenseError || hardUnderVoltageFlags || hardOverVoltageFlags || (modPowerElectronicsPackStateHandle->packVoltage > modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage)) {
 		if(modPowerElectronicsUnderAndOverVoltageErrorCount++ > modPowerElectronicsGeneralConfigHandle->maxUnderAndOverVoltageErrorCount)
 			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_ERROR_HARD_CELLVOLTAGE;
 		modPowerElectronicsPackStateHandle->disChargeLCAllowed = false;
@@ -609,7 +617,10 @@ void modPowerElectronicsCheckWaterSensors(void) {
 		}
 	}else{
 		modPowerElectronicsWaterDetectDelayLastTick = HAL_GetTick();
-		modPowerElectronicsPackStateHandle->waterDetected = false;
+		
+		if(!modPowerElectronicsGeneralConfigHandle->buzzerSingalPersistant) {
+		  modPowerElectronicsPackStateHandle->waterDetected = false;
+		}
 	}
 }
 
