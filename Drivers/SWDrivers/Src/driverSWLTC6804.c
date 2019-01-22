@@ -7,6 +7,10 @@ uint16_t voltageUnder;
 uint16_t voltageOver;
 uint32_t voltageLimitReg;
 
+int8_t returnPEC = -1;
+
+uint8_t rxConfig [1][8];
+
 void driverSWLTC6804DelayMS(uint32_t delayMS) {
 	uint32_t currentTick = HAL_GetTick();
 	while(!modDelayTick1ms(&currentTick,delayMS)){};
@@ -16,8 +20,7 @@ void driverSWLTC6804Init(driverLTC6804ConfigStructTypedef configStruct, uint8_t 
 	driverSWLTC6804ConfigStruct = configStruct;
 	driverSWLTC6804TotalNumerOfICs = totalNumberOfLTCs;
 	
-	uint8_t rxConfig [driverSWLTC6804TotalNumerOfICs][8];
-	int8_t returnPEC = -1;
+	//uint8_t rxConfig [driverSWLTC6804TotalNumerOfICs][8];
 	uint8_t LTCScanCount = 0;
 	
 	driverHWSPI1Init(LTC6804_CS_GPIO_Port,LTC6804_CS_Pin);
@@ -523,9 +526,11 @@ void driverSWLTC6804WriteRead(uint8_t *writeBytes, uint8_t writeLength, uint8_t 
 };
 
 void driverSWLTC6804WakeIC(void){
+	driverSWLTC6804DelayMS(1);
 	HAL_GPIO_WritePin(LTC6804_CS_GPIO_Port,LTC6804_CS_Pin,GPIO_PIN_RESET);
-	driverSWLTC6804DelayMS(10);
+	driverSWLTC6804DelayMS(1);
 	HAL_GPIO_WritePin(LTC6804_CS_GPIO_Port,LTC6804_CS_Pin,GPIO_PIN_SET);	
+	driverSWLTC6804DelayMS(1);
 }
 
 
