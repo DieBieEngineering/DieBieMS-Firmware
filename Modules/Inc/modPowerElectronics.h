@@ -88,6 +88,7 @@ typedef struct {
 	uint8_t  hiAmpShieldPresent;
 	uint32_t hiCurrentLoadPreChargeDuration;
 	uint8_t  hiCurrentLoadDetected;
+	uint8_t  hiCurrentLoadState;
 	float    hiCurrentLoadVoltage;
 	float    hiCurrentLoadCurrent;
 	float		 hiCurrentLoadPower;

@@ -77,7 +77,8 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->waterSensors[5]          = -50.0f;
 	modPowerElectronicsPackStateHandle->buzzerOn                 = false;
 	modPowerElectronicsPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
-	modPowerElectronicsPackStateHandle->hiCurrentLoadDetected          = false;
+	modPowerElectronicsPackStateHandle->hiCurrentLoadDetected    = false;
+	modPowerElectronicsPackStateHandle->hiCurrentLoadState       = 0;
 	
 	// Init the external bus monitor
   modPowerElectronicsInitISL();

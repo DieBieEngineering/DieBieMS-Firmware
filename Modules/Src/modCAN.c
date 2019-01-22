@@ -180,6 +180,7 @@ void modCANSendSimpleStatusFast(void) {
 void modCANSendSimpleStatusSlow(void) {
 	int32_t sendIndex;
 	uint8_t buffer[8];
+	uint8_t flagHolder = 0;
 
 	// Send voltage and current
 	sendIndex = 0;
@@ -209,6 +210,18 @@ void modCANSendSimpleStatusSlow(void) {
 	libBufferAppend_uint8(buffer, modCANPackStateHandle->watchDogTime,&sendIndex); // Should contain watchdog seconds remaining
 	libBufferAppend_float16(buffer, modCANPackStateHandle->humidity, 1e2,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_AUX_IV_SAFETY_WATCHDOG), buffer, sendIndex);
+	
+	// Send WaterDetect and HCLoad data
+	sendIndex = 0;
+  libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[0],&sendIndex);
+  libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[1],&sendIndex);
+  libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[2],&sendIndex);
+  libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[3],&sendIndex);
+  libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[4],&sendIndex);
+  libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->waterSensors[5],&sendIndex);
+  libBufferAppend_uint8(buffer, modCANPackStateHandle->hiCurrentLoadState,&sendIndex);
+	libBufferAppend_uint8(buffer,0,&sendIndex);
+	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_WATER_HCLOAD), buffer, sendIndex);
 }
 
 void CAN_RX0_IRQHandler(void) {

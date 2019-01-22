@@ -14,6 +14,7 @@ relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
 bool dischargeHCEnable;
 bool modHiAmpShieldPresenceFanDriver;
 bool modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
+bool modHiAmpShieldPrePreChargeBulkCapChargeDetected;
 
 void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer){
 	modHiAmpPackStateHandle     = packStateHandle;																		// Store pack state pointer.
@@ -29,6 +30,7 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 	modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
 	modHiAmpShieldRelayControllerRelayEnabledLastState = RELAY_CONTROLLER_INIT;
 	modHiAmpShieldRelayControllerRelayEnabledDesiredLastState = false;
+	modHiAmpShieldPrePreChargeBulkCapChargeDetected = false;
 	
 	modHiAmpShieldRelayStartPrechargeTimeStamp = HAL_GetTick();
 	
@@ -57,9 +59,7 @@ void modHiAmpTask(void) {
 	
 	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100)){
 		if(modHiAmpPackStateHandle->hiAmpShieldPresent){
-			// Determin whether discharge should be allowed
-			//bool dischargeHCEnable;
-			
+			// Determin whether discharge should be allowed		
 			if(modHiAmpGeneralConfigHandle->togglePowerModeDirectHCDelay || modHiAmpGeneralConfigHandle->pulseToggleButton){
 				dischargeHCEnable = modHiAmpPackStateHandle->auxDCDCOutputOK && modHiAmpPackStateHandle->disChargeDesired && modHiAmpPackStateHandle->disChargeHCAllowed && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
 			}else{
@@ -74,14 +74,15 @@ void modHiAmpTask(void) {
 				modHiAmpPackStateHandle->FANStatus = emptyState;
 			}
 			
-			modHiAmpPackStateHandle->auxDCDCEnabled = driverSWDCDCGetEnabledState();
-			modHiAmpPackStateHandle->auxVoltage = driverSWDCDCGetAuxVoltage();
-			modHiAmpPackStateHandle->auxCurrent = driverSWDCDCGetAuxCurrent();
-			modHiAmpPackStateHandle->auxPower = modHiAmpPackStateHandle->auxVoltage * modHiAmpPackStateHandle->auxCurrent;
-			modHiAmpPackStateHandle->auxDCDCOutputOK = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.1f); // Nominal is 12V max error is 10%
+			modHiAmpPackStateHandle->auxDCDCEnabled       = driverSWDCDCGetEnabledState();
+			modHiAmpPackStateHandle->auxVoltage           = driverSWDCDCGetAuxVoltage();
+			modHiAmpPackStateHandle->auxCurrent           = driverSWDCDCGetAuxCurrent();
+			modHiAmpPackStateHandle->auxPower             = modHiAmpPackStateHandle->auxVoltage * modHiAmpPackStateHandle->auxCurrent;
+			modHiAmpPackStateHandle->auxDCDCOutputOK      = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.1f); // Nominal is 12V max error is 10%
 			modHiAmpPackStateHandle->hiCurrentLoadVoltage = modHiAmpShieldShuntMonitorGetVoltage();
 			modHiAmpPackStateHandle->hiCurrentLoadCurrent = modHiAmpShieldShuntMonitorGetCurrent();
-			modHiAmpPackStateHandle->hiCurrentLoadPower = modHiAmpPackStateHandle->hiCurrentLoadVoltage * modHiAmpPackStateHandle->hiCurrentLoadCurrent;
+			modHiAmpPackStateHandle->hiCurrentLoadPower   = modHiAmpPackStateHandle->hiCurrentLoadVoltage * modHiAmpPackStateHandle->hiCurrentLoadCurrent;
+			modHiAmpPackStateHandle->hiCurrentLoadState   = modHiAmpShieldRelayControllerRelayEnabledState;
 			modHiAmpShieldTemperatureHumidityMeasureTask();
 			
 			// Update outputs
@@ -169,15 +170,16 @@ void modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed) {
 
 void modHiAmpShieldRelayControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage) {
 	if(modHiAmpShieldRelayControllerRelayEnabledDesiredLastState != relayStateDesired) {
-		if(relayStateDesired && modHiAmpGeneralConfigHandle->HCUseRelay){
-			if(modHiAmpGeneralConfigHandle->HCUsePrecharge)
+		if(relayStateDesired && modHiAmpGeneralConfigHandle->HCUseRelay) {
+			if(modHiAmpGeneralConfigHandle->HCUsePrecharge) {
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_PRECHARGING;
-			else
+				modHiAmpShieldPrePreChargeBulkCapChargeDetected = (mainBusVoltage > (batteryVoltage*PREPRECHARGE_LOADDETECT)) ? true : false;
+			}else{
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_ENABLED;
+			}
 		}else{
 			modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
 		}
-		
 		modHiAmpShieldRelayControllerRelayEnabledDesiredLastState = relayStateDesired;
 	}
 	
@@ -199,13 +201,13 @@ void modHiAmpShieldRelayControllerTask(void) {
 		switch(modHiAmpShieldRelayControllerRelayEnabledState) {
 			case RELAY_CONTROLLER_INIT:
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
-			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			case RELAY_CONTROLLER_OFF:
 				modHiAmpShieldRelayControllerSetRelayOutputState(false,false);
 			  modHiAmpPackStateHandle->hiLoadEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = false;
-			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 			case RELAY_CONTROLLER_PRECHARGING:
@@ -215,7 +217,7 @@ void modHiAmpShieldRelayControllerTask(void) {
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = false;
 			  modHiAmpShieldRelayTimeoutLastTick = HAL_GetTick();
 			  modHiAmpShieldRelayStartPrechargeTimeStamp = HAL_GetTick();
-			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 			  break;
 			case RELAY_CONTROLLER_PRECHARGED:
@@ -228,6 +230,8 @@ void modHiAmpShieldRelayControllerTask(void) {
 			  
 			  if(modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration >= modHiAmpGeneralConfigHandle->HCLoadDetectThreshold) {
 					modHiAmpPackStateHandle->hiCurrentLoadDetected = true;
+				}else{
+					modHiAmpPackStateHandle->hiCurrentLoadDetected = modHiAmpShieldPrePreChargeBulkCapChargeDetected;
 				}
 				
 				break;
@@ -238,7 +242,7 @@ void modHiAmpShieldRelayControllerTask(void) {
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = true;
 			  modHiAmpShieldRelayTimeoutLastTick = HAL_GetTick();
-			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 			case RELAY_CONTROLLER_ENABLED:
@@ -249,7 +253,7 @@ void modHiAmpShieldRelayControllerTask(void) {
 				break;
 			default:
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
-			  modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 		}

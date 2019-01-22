@@ -141,7 +141,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->HCUseRelay                                     = true;                    // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
 	configLocation->HCUseLoadDetect                                = true;                    // Use voltage drop based load detect on high current load.
-	configLocation->HCLoadDetectThreshold                          = 1000;                    // When precharging takes longer then this assume that a load is present
+	configLocation->HCLoadDetectThreshold                          = 500;                    // When precharging takes longer then this assume that a load is present
 	configLocation->timeoutHCPreCharge													   = 6000;										// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
 	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										    // When pre charge failes wait this long in ms
 	configLocation->timeoutHCRelayOverlap											     = 1000;										// When precharge succeeds enable both relay and precharge combined for this time, then go to relay only.

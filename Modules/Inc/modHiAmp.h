@@ -21,6 +21,7 @@
 #define I2CADDRFANDriver     0x2E
 
 #define PRECHARGE_PERCENTAGE 		0.75f
+#define PREPRECHARGE_LOADDETECT	0.10f
 
 typedef enum {
 	RELAY_CONTROLLER_INIT = 0,
@@ -30,7 +31,6 @@ typedef enum {
 	RELAY_CONTROLLER_TIMOUT,
 	RELAY_CONTROLLER_NOLOAD,
 	RELAY_CONTROLLER_ENABLED
-	
 } relayControllerStateTypeDef;
 
 void  modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer);

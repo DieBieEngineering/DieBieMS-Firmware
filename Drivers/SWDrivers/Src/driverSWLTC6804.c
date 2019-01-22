@@ -25,7 +25,9 @@ void driverSWLTC6804Init(driverLTC6804ConfigStructTypedef configStruct, uint8_t 
 	
 	while((LTCScanCount < 5) && (returnPEC == -1)){
 	  returnPEC =	driverSWLTC6804ReadConfigRegister(driverSWLTC6804TotalNumerOfICs,rxConfig);
+		driverSWLTC6804WakeIC();
 		driverSWLTC6804WriteConfigRegister(driverSWLTC6804TotalNumerOfICs);
+		driverSWLTC6804WakeIC();
 		LTCScanCount++;
 	}
 }
