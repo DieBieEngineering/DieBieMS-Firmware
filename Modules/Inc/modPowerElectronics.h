@@ -76,7 +76,8 @@ typedef struct {
 	uint8_t  chargeCurrentDetected;
 	uint8_t  chargeBalanceActive;
 	uint8_t  powerButtonActuated;
-	uint8_t  packInSOA;
+	uint8_t  packInSOADischarge;
+  uint8_t  packInSOACharge;
 	uint8_t  waterDetected;
 	uint8_t  powerDownDesired;
 	uint8_t  powerOnLongButtonPress;

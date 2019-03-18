@@ -17,7 +17,8 @@
 #define I2CADDRISLAux        0x45
 #define I2CADDRSHT           0x40
 #define I2CADDRIOExt         0x20
-#define I2CADDRADC           0x1D
+#define I2CADDRADC8          0x1D
+#define I2CADDRADC1          0x4D
 #define I2CADDRFANDriver     0x2E
 #define I2CADS1015           0x49
 

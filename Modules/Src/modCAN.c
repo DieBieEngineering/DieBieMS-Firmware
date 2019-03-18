@@ -174,7 +174,7 @@ void modCANSendSimpleStatusFast(void) {
 	flagHolder |= (modCANPackStateHandle->disChargeHCAllowed     << 2);
 	flagHolder |= (disChargeDesiredMask                          << 3);
 	flagHolder |= (modCANPackStateHandle->hiLoadEnabled          << 4);
-	flagHolder |= (modCANPackStateHandle->packInSOA              << 5);
+	flagHolder |= (modCANPackStateHandle->packInSOADischarge     << 5);
 	flagHolder |= (modCANPackStateHandle->chargeBalanceActive    << 6);
 	flagHolder |= (modCANPackStateHandle->powerButtonActuated    << 7);
 	

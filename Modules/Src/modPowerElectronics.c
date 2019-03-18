@@ -63,7 +63,8 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->chargeBalanceActive      = false;
 	modPowerElectronicsPackStateHandle->chargeCurrentDetected    = false;
 	modPowerElectronicsPackStateHandle->powerButtonActuated      = false;
-	modPowerElectronicsPackStateHandle->packInSOA                = true;
+	modPowerElectronicsPackStateHandle->packInSOACharge          = true;
+	modPowerElectronicsPackStateHandle->packInSOADischarge       = true;	
 	modPowerElectronicsPackStateHandle->watchDogTime             = 255;
 	modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
 	modPowerElectronicsPackStateHandle->temperatures[0]          = 200.0f;
@@ -610,20 +611,33 @@ void modPowerElectronicsInitISL(void) {
 }
 
 void modPowerElectronicsCheckPackSOA(void) {
-	bool packOutsideLimits = false;
+	bool outsideLimitsBMS       = false;
+	bool outsideLimitsDischarge = false;
+	bool outsideLimitsCharge    = false;	
 	
+	outsideLimitsBMS |= (modPowerElectronicsISLErrorCount >= ISLErrorThreshold) ? true : false;
+	
+	// Check BMS Limits
 	if(modPowerElectronicsGeneralConfigHandle->tempEnableMaskBMS) {
-		packOutsideLimits |= (modPowerElectronicsPackStateHandle->tempBMSHigh > 70.0f) ? true : false;
+		outsideLimitsBMS       |= (modPowerElectronicsPackStateHandle->tempBMSHigh     > modPowerElectronicsGeneralConfigHandle->allowedTempBMSMax ) ? true : false;
+		outsideLimitsBMS       |= (modPowerElectronicsPackStateHandle->tempBMSLow      < modPowerElectronicsGeneralConfigHandle->allowedTempBMSMax ) ? true : false;		
 	}
 	
+	// Check Battery Limits discharge
 	if(modPowerElectronicsGeneralConfigHandle->tempEnableMaskBattery) {
-		packOutsideLimits |= (modPowerElectronicsPackStateHandle->tempBatteryHigh > 70.0f) ? true : false;
+		outsideLimitsDischarge |= (modPowerElectronicsPackStateHandle->tempBatteryHigh > modPowerElectronicsGeneralConfigHandle->allowedTempBattDischargingMax ) ? true : false;
+		outsideLimitsDischarge |= (modPowerElectronicsPackStateHandle->tempBatteryLow  < modPowerElectronicsGeneralConfigHandle->allowedTempBattDischargingMin ) ? true : false;		
 	}
 	
-	packOutsideLimits |= (modPowerElectronicsISLErrorCount >= ISLErrorThreshold) ? true : false;
+	// Check Battery Limits charge
+	if(modPowerElectronicsGeneralConfigHandle->tempEnableMaskBattery) {
+		outsideLimitsCharge    |= (modPowerElectronicsPackStateHandle->tempBatteryHigh > modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMax ) ? true : false;
+		outsideLimitsCharge    |= (modPowerElectronicsPackStateHandle->tempBatteryLow  < modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMax ) ? true : false;		
+	}
 	
 	// TODO: timout when restoring SOA state.
-  modPowerElectronicsPackStateHandle->packInSOA = packOutsideLimits;
+  modPowerElectronicsPackStateHandle->packInSOADischarge = !(outsideLimitsBMS || outsideLimitsDischarge);
+  modPowerElectronicsPackStateHandle->packInSOACharge = !(outsideLimitsBMS || outsideLimitsCharge);
 }
 
 void modPowerElectronicsCheckWaterSensors(void) {
@@ -781,11 +795,13 @@ void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
 		}break;
 		case CELL_MON_LTC6804_1: {
 			// Check config valid and reinit
+			// TODO: Implement
 			
 			// Read cell voltages
 			driverSWLTC6804ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
 			
 			// Read aux voltages
+			// TODO: Implement
 		}break;
 		default:
 			break;
@@ -838,7 +854,7 @@ void modPowerElectronicsCellMonitorsStartTemperatureConversion(void) {
 			driverSWLTC6803StartTemperatureVoltageConversion();
 		}break;
 		case CELL_MON_LTC6804_1: {
-		
+		  // TODO: Implement
 		}break;
 		default:
 			break;

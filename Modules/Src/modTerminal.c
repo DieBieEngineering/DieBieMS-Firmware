@@ -252,7 +252,7 @@ void modTerminalProcessString(char *str) {
 		outputString[8] = 0;
 		
 		modCommandsPrintf("Presence: 0b%s",outputString);
-		modCommandsPrintf("Bit order: 0(MSB) - 0 - FANDriver - NTCADC - IOExt - SHT - ISLAux - ISLMain(LSB). ");
+		modCommandsPrintf("Bit Order: ADCHV(MSB) - FANDriver - NTCADC1 - NTCADC8 - IOExt - SHT - ISLAux - ISLMain(LSB).");
 		modCommandsPrintf("SHT does not respond when it is doing a conversion.");
 		modCommandsPrintf("------  Slave BMS I2C scan end  ------");
 		

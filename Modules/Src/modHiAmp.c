@@ -20,8 +20,6 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 	modHiAmpPackStateHandle     = packStateHandle;																		// Store pack state pointer.
 	modHiAmpGeneralConfigHandle = generalConfigPointer;
 	
-	modHiAmpShieldPresenceFanDriver = false;
-	
 	driverHWI2C1Init();																																// Init the communication bus
 	modHiAmpPackStateHandle->hiAmpShieldPresent = modHiAmpShieldPresentCheck();				// Check presence and store it
 	
@@ -104,7 +102,8 @@ bool modHiAmpShieldPresentCheck(void) {
 	PresenceDetect |= driverHWI2C1Write(I2CADDRISLMain    ,false,&I2CWrite,0); // ISL Main
 	PresenceDetect |= driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0); // ISL Aux
 	PresenceDetect |= driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0); // IO Ext
-	PresenceDetect |= driverHWI2C1Write(I2CADDRADC        ,false,&I2CWrite,0); // NTC ADC
+	PresenceDetect |= driverHWI2C1Write(I2CADDRADC8        ,false,&I2CWrite,0); // NTC ADC
+	
 	
 	modHiAmpShieldPresenceFanDriver = (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? true : false;
 	
@@ -122,8 +121,10 @@ uint8_t modHiAmpShieldScanI2CDevices(void) {
 	PresenceMask |= (driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0) == HAL_OK) ? (1 << 1) : false; // ISL Aux
 	PresenceMask |= (driverHWI2C1Write(I2CADDRSHT        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 2) : false; // ISL Aux
 	PresenceMask |= (driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0) == HAL_OK) ? (1 << 3) : false; // IO Ext
-	PresenceMask |= (driverHWI2C1Write(I2CADDRADC        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 4) : false; // NTC ADC
-	PresenceMask |= (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? (1 << 5) : false; // FAN Driver
+	PresenceMask |= (driverHWI2C1Write(I2CADDRADC8       ,false,&I2CWrite,0) == HAL_OK) ? (1 << 4) : false; // NTC ADC 8 Channel water/temp
+	PresenceMask |= (driverHWI2C1Write(I2CADDRADC1       ,false,&I2CWrite,0) == HAL_OK) ? (1 << 5) : false; // NTC ADC	1 Channel strutconn temp
+	PresenceMask |= (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? (1 << 6) : false; // FAN Driver
+	PresenceMask |= (driverHWI2C1Write(I2CADS1015        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 7) : false; // HV voltage measure ADC	
 	
   return PresenceMask;
 }
