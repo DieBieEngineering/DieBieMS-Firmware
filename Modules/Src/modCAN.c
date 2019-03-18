@@ -14,6 +14,15 @@ static CanRxMsgTypeDef modCANRxFrames[RX_CAN_FRAMES_SIZE];
 static uint8_t         modCANRxFrameRead;
 static uint8_t         modCANRxFrameWrite;
 
+uint32_t               modCANLastChargerHeartBeatTick;
+uint32_t               modCANChargerTaskIntervalLastTick;
+bool                   modCANChargerPresentOnBus;
+uint8_t                modCANChargerCANOpenState;
+uint8_t                modCANChargerChargingState;
+
+ChargerStateTypedef chargerOpState = opInit;
+ChargerStateTypedef chargerOpStateNew = opInit;
+
 modPowerElectronicsPackStateTypedef *modCANPackStateHandle;
 modConfigGeneralConfigStructTypedef *modCANGeneralConfigHandle;
 
@@ -95,6 +104,9 @@ void modCANTask(void){
 	// Handle received CAN bus data
 	modCANSubTaskHandleCommunication();
 	modCANRXWatchDog();
+	
+	// Control the charger
+	modCANHandleSubTaskCharger();
 }
 
 uint32_t modCANGetDestinationID(CanRxMsgTypeDef canMsg) {
@@ -171,8 +183,8 @@ void modCANSendSimpleStatusFast(void) {
 	libBufferAppend_float16(buffer, modCANPackStateHandle->hiCurrentLoadVoltage,1e2,&sendIndex);
   libBufferAppend_float16(buffer, modCANPackStateHandle->SoCCapacityAh,1e2,&sendIndex);
   libBufferAppend_uint8(buffer, (uint8_t)modCANPackStateHandle->SoC,&sendIndex);
-  libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyCharge,&sendIndex);
-  libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyDischarge,&sendIndex);
+  libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyCharge/10,&sendIndex);
+  libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyDischarge/10,&sendIndex);
 	libBufferAppend_uint8(buffer,flagHolder,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_THROTTLE_CH_DISCH_BOOL), buffer, sendIndex);
 }
@@ -223,6 +235,8 @@ void modCANSendSimpleStatusSlow(void) {
 	
 	flagHolder = (modCANPackStateHandle->waterDetected           << 0);
 	flagHolder |= (modCANPackStateHandle->hiCurrentLoadDetected  << 1);
+	flagHolder |= (modCANPackStateHandle->powerDownDesired       << 2);
+	flagHolder |= (modCANPackStateHandle->powerOnLongButtonPress << 3);
 	
 	libBufferAppend_uint8(buffer,flagHolder,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_WATER_HCLOAD), buffer, sendIndex);
@@ -234,14 +248,18 @@ void CAN_RX0_IRQHandler(void) {
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *CanHandle) {
 	// Handle CAN message	
-	if((*CanHandle->pRxMsg).ExtId == 0x0A23){
-		modCANHandleKeepAliveSafetyMessage(*CanHandle->pRxMsg);
-	}else{
-		uint8_t destinationID = modCANGetDestinationID(*CanHandle->pRxMsg);
-		if(destinationID == modCANGeneralConfigHandle->CANID){
-			modCANRxFrames[modCANRxFrameWrite++] = *CanHandle->pRxMsg;
-			if(modCANRxFrameWrite >= RX_CAN_FRAMES_SIZE) {
-				modCANRxFrameWrite = 0;
+	if((*CanHandle->pRxMsg).IDE == CAN_ID_STD) {         // Standard ID
+		modCANHandleCANOpenMessage(*CanHandle->pRxMsg);
+	}else{                                               // Extended ID
+		if((*CanHandle->pRxMsg).ExtId == 0x0A23){
+			modCANHandleKeepAliveSafetyMessage(*CanHandle->pRxMsg);
+		}else{
+			uint8_t destinationID = modCANGetDestinationID(*CanHandle->pRxMsg);
+			if(destinationID == modCANGeneralConfigHandle->CANID){
+				modCANRxFrames[modCANRxFrameWrite++] = *CanHandle->pRxMsg;
+				if(modCANRxFrameWrite >= RX_CAN_FRAMES_SIZE) {
+					modCANRxFrameWrite = 0;
+				}
 			}
 		}
 	}
@@ -330,6 +348,18 @@ void modCANTransmitExtID(uint32_t id, uint8_t *data, uint8_t len) {
 	CanTxMsgTypeDef txmsg;
 	txmsg.IDE = CAN_ID_EXT;
 	txmsg.ExtId = id;
+	txmsg.RTR = CAN_RTR_DATA;
+	txmsg.DLC = len;
+	memcpy(txmsg.Data, data, len);
+	
+	modCANHandle.pTxMsg = &txmsg;
+	HAL_CAN_Transmit(&modCANHandle,1);
+}
+
+void modCANTransmitStandardID(uint32_t id, uint8_t *data, uint8_t len) {
+	CanTxMsgTypeDef txmsg;
+	txmsg.IDE = CAN_ID_STD;
+	txmsg.StdId = id;
 	txmsg.RTR = CAN_RTR_DATA;
 	txmsg.DLC = len;
 	memcpy(txmsg.Data, data, len);
@@ -491,6 +521,71 @@ void modCANHandleKeepAliveSafetyMessage(CanRxMsgTypeDef canMsg) {
 	}
 }
 
+void modCANHandleCANOpenMessage(CanRxMsgTypeDef canMsg) {
+  if(canMsg.StdId == 0x070A){
+		modCANLastChargerHeartBeatTick = HAL_GetTick();
+		modCANChargerCANOpenState = canMsg.Data[0];
+	}else if(canMsg.StdId == 0x048A){
+	  modCANChargerChargingState = canMsg.Data[5];
+	}
+}
+
+void modCANHandleSubTaskCharger(void) {
+  //static uint8_t chargerOpState = opInit;
+  //static uint8_t chargerOpStateNew = opInit;
+	
+  if(modDelayTick1ms(&modCANChargerTaskIntervalLastTick, 500)) {
+		// Check charger present
+		modCANOpenChargerCheckPresent();
+		
+		if(modCANChargerPresentOnBus) {
+		  // Send HeartBeat from bms
+			modCANOpenBMSSendHeartBeat();
+		
+			// Manage operational state and start network
+			if(modCANChargerCANOpenState != 0x05)
+				modCANOpenChargerStartNode();
+			
+			if(modCANChargerCANOpenState == 0x05) {
+				switch(chargerOpState) {
+					case opInit:
+						if(modCANPackStateHandle->powerDownDesired) {
+						  modCANOpenChargerSetCurrentVoltageReady(0.0f,0.0f,false);
+						}else{
+						  chargerOpStateNew = opChargerReset;
+						}
+						break;
+					case opChargerReset:
+						modCANOpenChargerSetCurrentVoltageReady(0.0f,0.0f,false);
+					  chargerOpStateNew = opChargerSet;
+						break;
+					case opChargerSet:
+						modCANOpenChargerSetCurrentVoltageReady(0.0f,0.0f,true);
+					  chargerOpStateNew = opCharging;
+						break;
+					case opCharging:
+						modCANOpenChargerSetCurrentVoltageReady(20.0f*modCANPackStateHandle->throttleDutyCharge/1000,modCANGeneralConfigHandle->noOfCellsSeries*modCANGeneralConfigHandle->cellSoftOverVoltage+0.6f,true);
+					
+					  if(modCANPackStateHandle->powerDownDesired)
+					    chargerOpStateNew = opInit;
+
+						break;
+					default:
+						chargerOpStateNew = opInit;
+				}
+				
+				chargerOpState = chargerOpStateNew;
+		  }
+	  }else{
+		  chargerOpState = opInit;
+		}
+	}
+	
+	// Handle:
+	// modCANPackStateHandle->chargeBalanceActive = modCANGeneralConfigHandle->allowChargingDuringDischarge;
+	// modPowerElectronicsResetBalanceModeActiveTimeout();
+}
+
 void modCANRXWatchDog(void){
   if(modCANHandle.pRxMsg->ExtId != modCANLastRXID){
 	  modCANLastRXID = modCANHandle.pRxMsg->ExtId;
@@ -501,3 +596,44 @@ void modCANRXWatchDog(void){
 		modCANInit(modCANPackStateHandle,modCANGeneralConfigHandle);
 	}
 }
+
+void modCANOpenChargerCheckPresent(void) {
+	if((HAL_GetTick() - modCANLastChargerHeartBeatTick) < 2000)
+		modCANChargerPresentOnBus = true;
+	else
+		modCANChargerPresentOnBus = false;
+}
+
+void modCANOpenBMSSendHeartBeat(void) {
+  // Send the canopen heartbeat from the BMS
+	int32_t sendIndex = 0;
+	uint8_t operationalState = 5;
+	uint8_t buffer[1];
+	libBufferAppend_uint8(buffer, operationalState, &sendIndex);
+	modCANTransmitStandardID(0x0701, buffer, sendIndex);
+}
+
+void modCANOpenChargerStartNode(void) {
+  // Send the canopen heartbeat from the BMS
+	int32_t sendIndex = 0;
+	uint8_t buffer[2];
+	libBufferAppend_uint8(buffer, 0x01, &sendIndex);
+	libBufferAppend_uint8(buffer, 0x0A, &sendIndex);	
+	modCANTransmitStandardID(0x0000, buffer, sendIndex);
+}
+
+void modCANOpenChargerSetCurrentVoltageReady(float current,float voltage,bool ready) {
+	uint32_t modCANChargerRequestVoltageInt = voltage * 1024;
+	uint16_t modCANChargerRequestCurrentInt = current * 16;
+	
+	int32_t sendIndex = 0;
+	uint8_t buffer[8];
+	libBufferAppend_uint16_LSBFirst(buffer, modCANChargerRequestCurrentInt, &sendIndex);
+	libBufferAppend_uint8(buffer, ready, &sendIndex);	
+	libBufferAppend_uint32_LSBFirst(buffer, modCANChargerRequestVoltageInt, &sendIndex);		
+	modCANTransmitStandardID(0x040A, buffer, sendIndex);
+}
+
+
+
+

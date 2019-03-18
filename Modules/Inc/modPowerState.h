@@ -15,3 +15,4 @@ bool modPowerStatePowerdownRequest(void);
 bool modPowerStateForceOnRequest(void);
 void modPowerStateSetState(PowerStateStateTypedef newState);
 bool modPowerStateButtonPressedOnTurnon(void);
+bool modPowerStateGetLongButtonPressState(void);

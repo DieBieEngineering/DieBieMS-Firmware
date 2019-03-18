@@ -492,6 +492,13 @@ typedef enum {
 	OP_STATE_FORCEON,												// 11
 } OperationalStateTypedef;
 
+typedef enum {
+	opInit = 0,
+	opChargerReset,
+	opChargerSet,
+	opCharging
+} ChargerStateTypedef;
+
 // CAN commands
 typedef enum {
 	CAN_PACKET_ESC_SET_DUTY = 0,

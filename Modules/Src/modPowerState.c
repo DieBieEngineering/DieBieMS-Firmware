@@ -9,6 +9,7 @@ bool modPowerStateLastButtonPressedVar;
 bool modPowerStateLastButtonFirstPress;
 bool modPowerStateButtonPulsToggleMode;
 bool modPowerStatePowerModeDirectHCDelay;
+bool modPowerStateLongStartupButtonPress;
 uint32_t modPowerStateButtonPressedDuration;
 uint32_t modPowerStateButtonPressedTimeStamp;
 uint32_t modPowerStateStartupDelay;
@@ -23,6 +24,7 @@ void modPowerStateInit(PowerStateStateTypedef desiredPowerState) {
 	modPowerStatePulsePowerDownDesired = false;
 	modPowerStateForceOnDesired  = false;
 	modPowerStateButtonPressedVar = true;
+	modPowerStateLongStartupButtonPress = false;
 	modPowerStateButtonPulsToggleMode = true;
 	modPowerStateButtonPressedDuration = 0;
 	modPowerStateButtonPressedTimeStamp = 0;
@@ -72,8 +74,12 @@ void modPowerStateTask(void) {
 			modPowerStateButtonPressedDuration = 0;
 		}
 		
-		if((modPowerStateButtonPressedDuration >= POWERBUTTON_FORCEON_THRESHOLD_TIME) && (modPowerStateLastButtonFirstPress == true) && modPowerStateGeneralConfigHandle->allowForceOn && modPowerStateGeneralConfigHandle->pulseToggleButton) {
-			modPowerStateForceOnDesired = true;
+		if((modPowerStateButtonPressedDuration >= POWERBUTTON_FORCEON_THRESHOLD_TIME) && (modPowerStateLastButtonFirstPress == true) && modPowerStateGeneralConfigHandle->pulseToggleButton) {
+			if(modPowerStateGeneralConfigHandle->allowForceOn) {
+				modPowerStateForceOnDesired = true;
+			}
+			
+			modPowerStateLongStartupButtonPress = true;
 			modPowerStateButtonPressedDuration = 0;
 		}
 		
@@ -129,3 +135,7 @@ void modPowerStateSetState(PowerStateStateTypedef newState) {
 bool modPowerStateButtonPressedOnTurnon(void) {
 	return modPowerStateLastButtonFirstPress;
 };
+
+bool modPowerStateGetLongButtonPressState(void) {
+  return modPowerStateLongStartupButtonPress;
+}

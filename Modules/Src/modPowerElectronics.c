@@ -14,6 +14,7 @@ uint32_t modPowerElectronicsChargeCurrentDetectionLastTick;
 uint32_t modPowerElectronicsBalanceModeActiveLastTick;
 uint32_t modPowerElectronicsWaterDetectDelayLastTick;
 uint32_t modPowerElectronicsBuzzerUpdateIntervalLastTick;
+uint32_t modPowerElectronicsThrottleChargeLastTick;
 uint8_t  modPowerElectronicsUnderAndOverVoltageErrorCount;
 bool     modPowerElectronicsAllowForcedOnState;
 uint16_t modPowerElectronicsTemperatureArray[3];
@@ -24,6 +25,10 @@ configCellMonitorICTypeEnum modPowerElectronicsCellMonitorsTypeActive;
 float    modPowerElectronicsChargeDiodeBypassHysteresis;
 bool     modPowerElectronicsVoltageSenseError;
 
+bool     modPowerElectronicsChargeDeratingActive;
+uint32_t modPowerElectronicsChargeIncreaseLastTick;
+uint32_t chargeIncreaseIntervalTime;
+
 void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle                       = generalConfigPointer;
 	modPowerElectronicsPackStateHandle                           = packState;
@@ -32,6 +37,7 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsISLErrorCount                             = 0;
 	modPowerElectronicsChargeDiodeBypassHysteresis               = 0.0f;
 	modPowerElectronicsVoltageSenseError                         = false;
+	modPowerElectronicsChargeDeratingActive                      = false;
 	
 	// Init pack status
 	modPowerElectronicsPackStateHandle->throttleDutyCharge       = 0;
@@ -81,6 +87,8 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 	modPowerElectronicsPackStateHandle->hiCurrentLoadDetected    = false;
 	modPowerElectronicsPackStateHandle->hiCurrentLoadState       = 0;
+	modPowerElectronicsPackStateHandle->powerDownDesired         = false;
+	modPowerElectronicsPackStateHandle->powerOnLongButtonPress   = false;
 	
 	// Init the external bus monitor
   modPowerElectronicsInitISL();
@@ -97,6 +105,9 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
 	modPowerElectronicsBalanceModeActiveLastTick = HAL_GetTick();
 	
+	// Sample the first pack voltage moment
+	driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packVoltage,0.004f);
+	
 	// Register terminal commands
 	modTerminalRegisterCommandCallBack("testcellconnection","Test the cell connection between cell monitor and pack.",0,modPowerElectronicsTerminalCellConnectionTest);
 };
@@ -110,7 +121,7 @@ bool modPowerElectronicsTask(void) {
 		
 		// Collect low current current path data and check validity + recover if invalid.
 		driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsTempPackVoltage,0.004f);
-		if(fabs(modPowerElectronicsTempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 1.0f) {    // If the error is smaller than one volt continue normal operation. 
+		if(fabs(modPowerElectronicsTempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 2.0f) {    // If the error is smaller than one volt continue normal operation. 
 		  modPowerElectronicsPackStateHandle->packVoltage = modPowerElectronicsTempPackVoltage;
 			driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,modPowerElectronicsGeneralConfigHandle->shuntLCOffset,modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 			driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage);
@@ -501,41 +512,62 @@ void modPowerElectronicsCalcTempStats(void) {
 };
 
 void modPowerElectronicsCalcThrottle(void) {
-	uint8_t calculatedChargeThrottle = 0;
-	uint8_t calculatedDisChargeThrottle = 0;
+	static uint16_t filteredChargeThrottle = 0;
+	static uint16_t filteredDisChargeThrottle = 0;
 	
-	static uint8_t filteredChargeThrottle = 0;
-	static uint8_t filteredDisChargeThrottle = 0;
+	// TODO make config to either do the throttling on the high or low current output
+	// TODO Add better temperature throttle
+	// TODO Make lower percentages configurable
+	
+	uint16_t  calculatedChargeThrottle = 0;
+	uint16_t  calculatedDisChargeThrottle = 0;
+	uint32_t  chargeIncreaseIntervalTime;
+	uint16_t  chargeIncreaseRate;
+	float     cellSoftUnderVoltage = modPowerElectronicsGeneralConfigHandle->cellHCSoftUnderVoltage;
 	
 	float inputLowerLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperStart;
 	float inputUpperLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin;
-	float outputLowerLimitCharge = 100.0f;
-	float outputUpperLimitCharge = 10.0f;
+	float outputLowerLimitCharge = 1000.0f;
+	float outputUpperLimitCharge = 20.0f;
 	
-	float inputLowerLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin;
-  float inputUpperLimitDisCharge  = modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerStart;
-  float outputLowerLimitDisCharge = 5.0f;
-	float outputUpperLimitDisCharge = 100.0f;
+	float inputLowerLimitDisCharge  = cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin;
+  float inputUpperLimitDisCharge  = cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerStart;
+  float outputLowerLimitDisCharge = 50.0f;
+	float outputUpperLimitDisCharge = 1000.0f;
 
 	// Calculate (dis)charge throttle
-	calculatedChargeThrottle    = (uint8_t)modPowerElectronicsMapVariableFloat(modPowerElectronicsPackStateHandle->cellVoltageHigh,inputLowerLimitCharge,inputUpperLimitCharge,outputLowerLimitCharge,outputUpperLimitCharge);
-	calculatedDisChargeThrottle = (uint8_t)modPowerElectronicsMapVariableFloat(modPowerElectronicsPackStateHandle->cellVoltageLow,inputLowerLimitDisCharge,inputUpperLimitDisCharge,outputLowerLimitDisCharge,outputUpperLimitDisCharge);
+	calculatedChargeThrottle    = (uint16_t)modPowerElectronicsMapVariableFloat(modPowerElectronicsPackStateHandle->cellVoltageHigh,inputLowerLimitCharge,inputUpperLimitCharge,outputLowerLimitCharge,outputUpperLimitCharge);
+	calculatedDisChargeThrottle = (uint16_t)modPowerElectronicsMapVariableFloat(modPowerElectronicsPackStateHandle->cellVoltageLow,inputLowerLimitDisCharge,inputUpperLimitDisCharge,outputLowerLimitDisCharge,outputUpperLimitDisCharge);
 	
-	// Filter the calculated throttle
-	if(calculatedChargeThrottle > filteredChargeThrottle){
-		if((calculatedChargeThrottle-filteredChargeThrottle) > modPowerElectronicsGeneralConfigHandle->throttleChargeIncreaseRate)
-			filteredChargeThrottle += modPowerElectronicsGeneralConfigHandle->throttleChargeIncreaseRate;
-		else
-			filteredChargeThrottle = calculatedChargeThrottle;
+	// Filter the calculated throttle charging
+	if(calculatedChargeThrottle >= filteredChargeThrottle) {
+		if(modPowerElectronicsChargeDeratingActive) {
+			chargeIncreaseIntervalTime = 5000;
+			chargeIncreaseRate         = 1;
+    }else{
+		  chargeIncreaseIntervalTime = 100;
+			chargeIncreaseRate         = modPowerElectronicsGeneralConfigHandle->throttleChargeIncreaseRate;
+		}
+		
+		if(modDelayTick1ms(&modPowerElectronicsChargeIncreaseLastTick,chargeIncreaseIntervalTime)){
+			if(abs(calculatedChargeThrottle-filteredChargeThrottle) > chargeIncreaseRate) {
+				filteredChargeThrottle += chargeIncreaseRate;		
+			}else{
+				filteredChargeThrottle = calculatedChargeThrottle;
+			}
+		}
 	}else{
 		filteredChargeThrottle = calculatedChargeThrottle;
+		modPowerElectronicsChargeDeratingActive = true;
 	}
 	
-	if(calculatedDisChargeThrottle > filteredDisChargeThrottle){
-		if((calculatedDisChargeThrottle-filteredDisChargeThrottle) > modPowerElectronicsGeneralConfigHandle->throttleDisChargeIncreaseRate)
+	// Filter the calculated throttle discharging
+	if(calculatedDisChargeThrottle >= filteredDisChargeThrottle){
+		if((calculatedDisChargeThrottle-filteredDisChargeThrottle) > modPowerElectronicsGeneralConfigHandle->throttleDisChargeIncreaseRate) {
 			filteredDisChargeThrottle += modPowerElectronicsGeneralConfigHandle->throttleDisChargeIncreaseRate;
-		else
+		}else{
 			filteredDisChargeThrottle = calculatedDisChargeThrottle;
+		}
 	}else{
 		filteredDisChargeThrottle = calculatedDisChargeThrottle;
 	}
@@ -546,7 +578,8 @@ void modPowerElectronicsCalcThrottle(void) {
 	else 
 		modPowerElectronicsPackStateHandle->throttleDutyCharge = 0;
 	
-	if(modPowerElectronicsPackStateHandle->disChargeLCAllowed)
+	// TODO have it configurable to either HC or LC
+	if(modPowerElectronicsPackStateHandle->disChargeHCAllowed)
 		modPowerElectronicsPackStateHandle->throttleDutyDischarge = filteredDisChargeThrottle;
 	else 
 		modPowerElectronicsPackStateHandle->throttleDutyDischarge = 0;

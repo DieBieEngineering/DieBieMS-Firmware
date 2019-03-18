@@ -28,6 +28,12 @@ void     libBufferAppend_int16(uint8_t* buffer, int16_t number, int32_t *index);
 void     libBufferAppend_uint16(uint8_t* buffer, uint16_t number, int32_t *index);
 void     libBufferAppend_int32(uint8_t* buffer, int32_t number, int32_t *index);
 void     libBufferAppend_uint32(uint8_t* buffer, uint32_t number, int32_t *index);
+
+void     libBufferAppend_int16_LSBFirst(uint8_t* buffer, int16_t number, int32_t *index);
+void     libBufferAppend_uint16_LSBFirst(uint8_t* buffer, uint16_t number, int32_t *index);
+void     libBufferAppend_int32_LSBFirst(uint8_t* buffer, int32_t number, int32_t *index);
+void     libBufferAppend_uint32_LSBFirst(uint8_t* buffer, uint32_t number, int32_t *index);
+
 void     libBufferAppend_float16(uint8_t* buffer, float number, float scale, int32_t *index);
 void     libBufferAppend_float32(uint8_t* buffer, float number, float scale, int32_t *index);
 void     libBufferAppend_float32_auto(uint8_t* buffer, float number, int32_t *index);

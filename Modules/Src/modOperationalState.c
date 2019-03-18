@@ -148,8 +148,10 @@ void modOperationalStateTask(void) {
 				modOperationalStateNotUsedResetDelay = HAL_GetTick();
 			}
 			
-			if(modOperationalStatePowerDownDelayCheck())
+			if(modOperationalStatePowerDownDelayCheck()) {
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+				modOperationalStatePackStatehandle->powerDownDesired = true;
+			}
 			
 			if(modOperationalStatePackStatehandle->chargeBalanceActive) {
 				if(!modOperationalStatePackStatehandle->chargeAllowed && (modOperationalStatePackStatehandle->cellVoltageMisMatch < modOperationalStateGeneralConfigHandle->maxMismatchThreshold)){
@@ -170,8 +172,10 @@ void modOperationalStateTask(void) {
 			break;
 		case OP_STATE_BATTERY_DEAD:
 			modDisplayShowInfo(DISP_MODE_BATTERY_DEAD,modOperationalStateDisplayData);
-			if(modDelayTick1ms(&modOperationalStateBatteryDeadDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryDead))
+			if(modDelayTick1ms(&modOperationalStateBatteryDeadDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryDead)){
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+				modOperationalStatePackStatehandle->powerDownDesired = true;
+			}
 			modOperationalStateUpdateStates();
 			break;
 		case OP_STATE_POWER_DOWN:
@@ -203,8 +207,10 @@ void modOperationalStateTask(void) {
 			if(modOperationalStateLastState != modOperationalStateCurrentState)
 				modOperationalStateErrorDisplayTime = HAL_GetTick();
 			
-			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryError))
+			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryError)) {
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+				modOperationalStatePackStatehandle->powerDownDesired = true;
+			}
 		
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
 			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
@@ -217,8 +223,10 @@ void modOperationalStateTask(void) {
 			if(modOperationalStateLastState != modOperationalStateCurrentState)
 				modOperationalStateErrorDisplayTime = HAL_GetTick();
 			
-			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryErrorPreCharge))
+			if(modDelayTick1ms(&modOperationalStateErrorDisplayTime,modOperationalStateGeneralConfigHandle->displayTimeoutBatteryErrorPreCharge)) {
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+				modOperationalStatePackStatehandle->powerDownDesired = true;
+			}
 		
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
 			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
@@ -274,8 +282,10 @@ void modOperationalStateTask(void) {
 				modOperationalStateNotUsedResetDelay = HAL_GetTick();
 			}
 			
-			if(modOperationalStatePowerDownDelayCheck())
+			if(modOperationalStatePowerDownDelayCheck()) {
 				modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
+				modOperationalStatePackStatehandle->powerDownDesired = true;
+			}
 			
 			modDisplayShowInfo(DISP_MODE_FORCED_ON,modOperationalStateDisplayData);
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Turn flash fast on debug and power LED
@@ -294,8 +304,10 @@ void modOperationalStateTask(void) {
 	};
 	
 	// Check for power button longpress -> if so power down BMS
-	if(modPowerStatePowerdownRequest()){
-		if(modOperationalStateDelayedDisable(modOperationalStateGeneralConfigHandle->useCANDelayedPowerDown)){
+	if(modPowerStatePowerdownRequest()) {
+		modOperationalStatePackStatehandle->powerDownDesired = true;
+		
+		if(modOperationalStateDelayedDisable(modOperationalStateGeneralConfigHandle->useCANDelayedPowerDown)) {
 			modOperationalStateSetNewState(OP_STATE_POWER_DOWN);
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 			modOperationalStateUpdateStates();
@@ -307,6 +319,9 @@ void modOperationalStateTask(void) {
 		packOperationalCellStateLastErrorState = modOperationalStatePackStatehandle->packOperationalCellState; // Meganism to make error situation only trigger once
 		modOperationalStateSetNewState(OP_STATE_ERROR);														// TODO: show error message then power down
 	}
+	
+	// Move the button pressed state to the status struct
+	modOperationalStatePackStatehandle->powerOnLongButtonPress = modPowerStateGetLongButtonPressState(); 
 	
 	// Handle subtask-display to update display content
 	modDisplayTask();
@@ -331,6 +346,7 @@ void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState
 	}else{
 		if(modDelayTick1ms(&modOperationalStateChargerDisconnectDetectDelay,modOperationalStateGeneralConfigHandle->timeoutChargerDisconnected)){
 			modOperationalStateSetAllStates(newState);
+			modOperationalStatePackStatehandle->powerDownDesired = true;
 		}
 	}
 };

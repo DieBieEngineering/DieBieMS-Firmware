@@ -59,7 +59,8 @@ void modTerminalProcessString(char *str) {
 		bool chargeEnabled = packState.chargeDesired && packState.chargeAllowed;
 		 
 		modCommandsPrintf("-----Battery Pack Status-----");		
-		modCommandsPrintf("Pack voltage          : %.2fV",packState.packVoltage);
+		modCommandsPrintf("Pack voltage Direct   : %.2fV",packState.packVoltage);
+		modCommandsPrintf("Pack voltage CVAverage: %.2fV",packState.cellVoltageAverage*generalConfig->noOfCellsSeries);		
 		modCommandsPrintf("Pack current          : %.2fA",packState.packCurrent);
 		modCommandsPrintf("Low  current          : %.2fA",packState.loCurrentLoadCurrent);
 		modCommandsPrintf("High current          : %.2fA",packState.hiCurrentLoadCurrent);		

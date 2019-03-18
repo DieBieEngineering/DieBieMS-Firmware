@@ -50,21 +50,21 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->noOfCellsParallel                              = 16;                      // For the efoil battery this will always be this
 	configLocation->batteryCapacity														     = 40.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
-	configLocation->cellHardOverVoltage												     = 4.25f;										// Worst case X.XXV as highest cell voltage
+	configLocation->cellHardOverVoltage												     = 4.20f;										// Worst case X.XXV as highest cell voltage
 	configLocation->cellLCSoftUnderVoltage											   = 2.90f;										// Low current lowest cell voltage X.XXV.
-  configLocation->cellHCSoftUnderVoltage                         = 3.25f;                   // High current lowest cell voltage X.XXV.
+  configLocation->cellHCSoftUnderVoltage                         = 3.00f;                   // High current lowest cell voltage X.XXV.
 	configLocation->cellSoftOverVoltage												     = 4.15f;										// Normal highest cell voltage X.XXV.
 	configLocation->cellBalanceDifferenceThreshold                 = 0.005f;									// Start balancing @ XmV difference, stop if below.
 	configLocation->cellBalanceStart													     = 3.90f;										// Start balancing above X.XXV.
 	configLocation->cellThrottleUpperStart										     = 0.02f;										// Upper range of cell voltage for charge throttling.
 	configLocation->cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
 	configLocation->cellThrottleUpperMargin										     = 0.01f;										// Margin of throttle from upper soft limits.
-	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.
+	configLocation->cellThrottleLowerMargin										     = 0.20f;									  // Margin of throttle from lower soft limits.
 	configLocation->packCurrentDataSource                          = sourceHighCurrentShunt;  // The pack current is the same as the current through the high current shunt
 	configLocation->buzzerSignalSource                             = buzzerSourceWater;       // Stores what source shoud be taken to trigger
 	configLocation->buzzerSignalType                               = buzzerSignalTypePulse1000_4; // Stores what sound pattern should be made
 	configLocation->buzzerSingalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
-  configLocation->shuntLCFactor                                  = -0.004494f;              // Shunt factor low current
+  configLocation->shuntLCFactor                                  = -0.0052f;              // Shunt factor low current
 	configLocation->shuntLCOffset                                  = 0;                       // Shunt offset low current
   configLocation->shuntHCFactor	                                 = -0.025f;                 // Shunt factor high current
 	configLocation->shuntHCOffset                                  = -2;                       // Shunt offset high current
@@ -125,7 +125,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->externalEnableOperationalState                 = opStateExtNormal;        // Go to normal enable mode
 	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
 	configLocation->canBusSpeed                                    = baud500k;                // 500k CAN baud
-	configLocation->chargeEnableOperationalState                   = opStateChargingModeNormal; // Go to charging mode when a charger is connected
+	configLocation->chargeEnableOperationalState                   = opStateChargingModeNormal;// Go to normal mode when a charger is connected
 	configLocation->DCDCEnableInverted                             = true;                    // Invert the DCDC enable signal
 	
 	// Slave / HiAmp Config
@@ -141,9 +141,9 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->HCUseRelay                                     = true;                    // Enable or disable the relay output, when false will also disable HC pre charge.
 	configLocation->HCUsePrecharge                                 = true;                    // choice whether to precharge or not, will only work when HCUseRelay = true.
 	configLocation->HCUseLoadDetect                                = true;                    // Use voltage drop based load detect on high current load.
-	configLocation->HCLoadDetectThreshold                          = 500;                    // When precharging takes longer then this assume that a load is present
-	configLocation->timeoutHCPreCharge													   = 6000;										// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
-	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										    // When pre charge failes wait this long in ms
+	configLocation->HCLoadDetectThreshold                          = 300 ;                    // When precharging takes longer then this assume that a load is present
+	configLocation->timeoutHCPreCharge													   = 1500;										// Precharge error timeout, allow xxxms pre-charge time before declaring load error.
+	configLocation->timeoutHCPreChargeRetryInterval						     = 20000;										// When pre charge failes wait this long in ms
 	configLocation->timeoutHCRelayOverlap											     = 1000;										// When precharge succeeds enable both relay and precharge combined for this time, then go to relay only.
 #endif
 	

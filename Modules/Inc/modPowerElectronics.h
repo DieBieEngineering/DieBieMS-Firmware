@@ -44,8 +44,8 @@ typedef enum {
 
 typedef struct {
 	// Master BMS
-	uint8_t  throttleDutyCharge;
-	uint8_t  throttleDutyDischarge;
+	uint16_t  throttleDutyCharge;
+	uint16_t  throttleDutyDischarge;
 	float    SoC;
 	float    SoCCapacityAh;
 	OperationalStateTypedef operationalState;
@@ -78,6 +78,8 @@ typedef struct {
 	uint8_t  powerButtonActuated;
 	uint8_t  packInSOA;
 	uint8_t  waterDetected;
+	uint8_t  powerDownDesired;
+	uint8_t  powerOnLongButtonPress;
 	float    waterSensors[NoOfWaterSensors];
 	uint8_t  buzzerOn;
 	uint8_t  watchDogTime;

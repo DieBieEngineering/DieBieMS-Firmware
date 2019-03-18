@@ -19,6 +19,7 @@
 #define I2CADDRIOExt         0x20
 #define I2CADDRADC           0x1D
 #define I2CADDRFANDriver     0x2E
+#define I2CADS1015           0x49
 
 #define PRECHARGE_PERCENTAGE 		0.75f
 #define PREPRECHARGE_LOADDETECT	0.10f
