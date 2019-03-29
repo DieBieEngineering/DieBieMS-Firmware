@@ -12,6 +12,7 @@
 #include "driverSWADC128D818.h"
 #include "driverSWEMC2305.h"
 #include "driverSWSHT21.h"
+#include "driverSWMCP3221.h"
 
 #define I2CADDRISLMain       0x44
 #define I2CADDRISLAux        0x45

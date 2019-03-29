@@ -578,6 +578,11 @@
               <FilePath>..\Drivers\SWDrivers\Src\driverSWLTC6804.c</FilePath>
             </File>
             <File>
+              <FileName>driverSWMCP3221.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWMCP3221.c</FilePath>
+            </File>
+            <File>
               <FileName>driverSWPCAL6416.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\SWDrivers\Src\driverSWPCAL6416.c</FilePath>

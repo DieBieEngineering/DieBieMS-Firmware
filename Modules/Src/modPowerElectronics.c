@@ -67,10 +67,10 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->packInSOADischarge       = true;	
 	modPowerElectronicsPackStateHandle->watchDogTime             = 255;
 	modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
-	modPowerElectronicsPackStateHandle->temperatures[0]          = 200.0f;
-	modPowerElectronicsPackStateHandle->temperatures[1]          = 200.0f;
-	modPowerElectronicsPackStateHandle->temperatures[2]          = 200.0f;
-	modPowerElectronicsPackStateHandle->temperatures[3]          = 200.0f;
+	modPowerElectronicsPackStateHandle->temperatures[0]          = -50.0f;
+	modPowerElectronicsPackStateHandle->temperatures[1]          = -50.0f;
+	modPowerElectronicsPackStateHandle->temperatures[2]          = -50.0f;
+	modPowerElectronicsPackStateHandle->temperatures[3]          = -50.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryHigh          = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryLow           = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryAverage       = 0.0f;
@@ -110,7 +110,7 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packVoltage,0.004f);
 	
 	// Register terminal commands
-	modTerminalRegisterCommandCallBack("testcellconnection","Test the cell connection between cell monitor and pack.",0,modPowerElectronicsTerminalCellConnectionTest);
+	modTerminalRegisterCommandCallBack("testbms","Test the cell connection between cell monitor and pack and pack vs cell measurement.","[error (V)] [bal drop (mV)]",modPowerElectronicsTerminalCellConnectionTest);
 };
 
 bool modPowerElectronicsTask(void) {
@@ -529,7 +529,7 @@ void modPowerElectronicsCalcThrottle(void) {
 	float inputLowerLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperStart;
 	float inputUpperLimitCharge = modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->cellThrottleUpperMargin;
 	float outputLowerLimitCharge = 1000.0f;
-	float outputUpperLimitCharge = 20.0f;
+	float outputUpperLimitCharge = 100.0f;
 	
 	float inputLowerLimitDisCharge  = cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin;
   float inputUpperLimitDisCharge  = cellSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerMargin + modPowerElectronicsGeneralConfigHandle->cellThrottleLowerStart;
@@ -932,6 +932,39 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 	bool passFail = true;
 	bool overAllPassFail = true;
 	
+	float   argErrorVoltage = 1.0f;
+	int32_t argBalanceDropMiliVoltage = 2;
+	
+	// Handle argument inputs
+	modCommandsPrintf("---------     Test inputs:     ---------");
+	if(argc == 3){
+		// Two arguments given, taking this as balance and error threshold.
+		sscanf(argv[1], "%f", &argErrorVoltage);
+		sscanf(argv[2], "%d", &argBalanceDropMiliVoltage);
+	}else{
+	  modCommandsPrintf("No valid test arguments given. Using defaults:");
+	}
+
+	modCommandsPrintf("Error threshold:   %.1fV",argErrorVoltage);
+	modCommandsPrintf("Balance threshold: %dmV",argBalanceDropMiliVoltage);
+	// end of argument inputs
+	
+	
+	// Start of general voltage test
+	modCommandsPrintf("---  Starting voltage measure test  ---");	
+	modCommandsPrintf("Pack voltage Direct   : %.2fV",modPowerElectronicsPackStateHandle->packVoltage);
+	modCommandsPrintf("Pack voltage CVAverage: %.2fV",modPowerElectronicsPackStateHandle->cellVoltageAverage*modPowerElectronicsGeneralConfigHandle->noOfCellsSeries);
+	modCommandsPrintf("Measure error         : %.2fV",fabs(modPowerElectronicsPackStateHandle->cellVoltageAverage*modPowerElectronicsGeneralConfigHandle->noOfCellsSeries-modPowerElectronicsPackStateHandle->packVoltage));
+	
+	if(fabs(modPowerElectronicsPackStateHandle->cellVoltageAverage*modPowerElectronicsGeneralConfigHandle->noOfCellsSeries-modPowerElectronicsPackStateHandle->packVoltage) > argErrorVoltage){
+		passFail = overAllPassFail = false;
+	}else{
+		passFail = true;
+	}
+	modCommandsPrintf("Result                : %s",passFail ? "Pass" : "Fail");// Tell whether test passed / failed
+	
+	
+	// Start of connection test
 	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait 
 	modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
 	modPowerElectronicsCellMonitorsStartCellConversion();              // Start ADC conversion
@@ -980,7 +1013,7 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 		if((conversionResults[0][cellIDPointer] >= modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage) || (conversionResults[0][cellIDPointer] <= modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage)) {
 			overAllPassFail = passFail = false;
 		}else{
-			if((cellIDPointer != 0) && (cellIDPointer != 11) && (fabs(difference) >= 0.05f))
+			if((cellIDPointer != 0) && (cellIDPointer != 11) && (cellIDPointer != 1) && (fabs(difference) >= 0.05f))
 				overAllPassFail = passFail = false;
 			else
 			  passFail = true;
@@ -1036,7 +1069,7 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 	for(cellIDPointer = 0; cellIDPointer < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries ; cellIDPointer++){
 		float difference = fabs(conversionResults[4][cellIDPointer] - conversionResults[2][cellIDPointer]) + fabs(conversionResults[4][cellIDPointer] - conversionResults[3][cellIDPointer]);                                          // Calculate difference
 		
-		if(difference >= 0.006f)
+		if(difference >= (0.001f*argBalanceDropMiliVoltage))
 			passFail = true;
 		else
 			overAllPassFail = passFail = false;

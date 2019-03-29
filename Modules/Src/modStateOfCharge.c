@@ -55,9 +55,9 @@ bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){
 	if(driverSWStorageManagerStateOfChargeEmpty){
 		// TODO: SoC manager is empy -> Determin SoC from voltage when voltages are available.
 		modStateOfChargeStructTypeDef defaultStateOfCharge;
-		defaultStateOfCharge.generalStateOfCharge = 0.0f;
-		defaultStateOfCharge.generalStateOfHealth = 0.0f;
-		defaultStateOfCharge.remainingCapacityAh = 0.0f;
+		defaultStateOfCharge.generalStateOfCharge = 100.0f;
+		defaultStateOfCharge.generalStateOfHealth = 100.0f;
+		defaultStateOfCharge.remainingCapacityAh = modStateOfChargeGeneralConfigHandle->batteryCapacity;
 		defaultStateOfCharge.remainingCapacityWh = 0.0f;
 		
 		driverSWStorageManagerStateOfChargeEmpty = false;

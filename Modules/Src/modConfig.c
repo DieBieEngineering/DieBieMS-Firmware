@@ -69,7 +69,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
   configLocation->shuntHCFactor	                                 = -0.025f;                 // Shunt factor high current
 	configLocation->shuntHCOffset                                  = -2;                       // Shunt offset high current
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
-	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
+	configLocation->throttleDisChargeIncreaseRate                  = 10;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.
 	configLocation->maxSimultaneousDischargingCells						     = 5;												// Allow a maximum of X cells simultinous discharging trough bleeding resistors.
 	configLocation->timeoutDischargeRetry											     = 4*1000;									// Wait for X seconds before retrying to enable load.
@@ -95,7 +95,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 1000;										// Display / INIT splash screen time.
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
-	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
+	configLocation->notUsedCurrentThreshold										     = 0.5f;										// If abs(packcurrent) < X.XA consider pack as not used.
 	configLocation->notUsedTimeout														     = 60*60*1000;							// If pack is not used for longer than XX minutes disable bms.
 	configLocation->stateOfChargeStoreInterval								     = 60*1000;									// Interval in ms to store state of charge information.
 	configLocation->stateOfChargeMethod                            = socCoulomb;              // Use coulomb counting for SoC calculation

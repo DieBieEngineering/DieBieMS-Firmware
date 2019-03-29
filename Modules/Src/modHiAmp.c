@@ -13,6 +13,7 @@ relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
 
 bool dischargeHCEnable;
 bool modHiAmpShieldPresenceFanDriver;
+bool modHiAmpShieldPresenceAuxADC;
 bool modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
 bool modHiAmpShieldPrePreChargeBulkCapChargeDetected;
 
@@ -40,6 +41,10 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 		driverSWPCAL6416Init(0x07,0xF7,0x07,0xF7,0x07,0xF7);														// Init the IO Extender
 		driverSWADC128D818Init();																												// Init the NTC ADC
 		driverSWSHT21Init();																														// Init the Temperature / humidity sensor
+		
+		if(modHiAmpShieldPresenceAuxADC){
+			driverSWMCP3221Init();                                                        // Init the aux ADC
+		}
 		
 		if(modHiAmpShieldPresenceFanDriver){
 			driverSWEMC2305Init(I2CADDRFANDriver,100);																		// Init the FANDriver with addres and minimal duty cycle
@@ -106,6 +111,8 @@ bool modHiAmpShieldPresentCheck(void) {
 	
 	
 	modHiAmpShieldPresenceFanDriver = (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpShieldPresenceAuxADC    = (driverHWI2C1Write(I2CADDRADC1  ,false,&I2CWrite,0)      == HAL_OK) ? true : false;
+	
 	
 	if(PresenceDetect == HAL_OK)
 		return true;
@@ -311,6 +318,11 @@ void  modHiAmpShieldTemperatureHumidityMeasureTask(void) {
 	modHiAmpPackStateHandle->temperatures[10] = driverSWADC128D818GetTemperature(modHiAmpGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupHiAmpPCB],modHiAmpGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupHiAmpPCB],modHiAmpGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupHiAmpPCB],25.0f,6);
 	modHiAmpPackStateHandle->temperatures[11] = driverSWADC128D818GetTemperature(modHiAmpGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupHiAmpPCB],modHiAmpGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupHiAmpPCB],modHiAmpGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupHiAmpPCB],25.0f,7);
 		
+	// Measure Aux NTC, this one is on the CAN connector
+	if(modHiAmpShieldPresenceAuxADC){
+	  modHiAmpPackStateHandle->temperatures[13] = driverSWMCP3221GetTemperature(modHiAmpGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupHiAmpAUX],modHiAmpGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupHiAmpAUX],modHiAmpGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupHiAmpAUX],25.0f);
+	}
+		
 	// Read Temp and Humidity from SHT21 when ready
 	if(driverSWSHT21PollMeasureReady()){
 		modHiAmpPackStateHandle->temperatures[12] = driverSWSHT21GetTemperature();
@@ -337,15 +349,16 @@ void  modHiAmpShieldResetSensors(void) {
 	modHiAmpPackStateHandle->aux0LoadIncorrect            = false;
 	modHiAmpPackStateHandle->aux1LoadIncorrect            = false;
 	modHiAmpPackStateHandle->auxDCDCOutputOK              = false;
-	modHiAmpPackStateHandle->temperatures[4]              = 200.0f;
-	modHiAmpPackStateHandle->temperatures[5]              = 200.0f;
-	modHiAmpPackStateHandle->temperatures[6]              = 200.0f;
-	modHiAmpPackStateHandle->temperatures[7]              = 200.0f;
-	modHiAmpPackStateHandle->temperatures[8]              = 200.0f;
-	modHiAmpPackStateHandle->temperatures[9]              = 200.0f;
-	modHiAmpPackStateHandle->temperatures[10]             = 200.0f;
-	modHiAmpPackStateHandle->temperatures[11]             = 200.0f;
-	modHiAmpPackStateHandle->temperatures[12]             = 200.0f;
+	modHiAmpPackStateHandle->temperatures[4]              = -50.0f;
+	modHiAmpPackStateHandle->temperatures[5]              = -50.0f;
+	modHiAmpPackStateHandle->temperatures[6]              = -50.0f;
+	modHiAmpPackStateHandle->temperatures[7]              = -50.0f;
+	modHiAmpPackStateHandle->temperatures[8]              = -50.0f;
+	modHiAmpPackStateHandle->temperatures[9]              = -50.0f;
+	modHiAmpPackStateHandle->temperatures[10]             = -50.0f;
+	modHiAmpPackStateHandle->temperatures[11]             = -50.0f;
+	modHiAmpPackStateHandle->temperatures[12]             = -50.0f;
+	modHiAmpPackStateHandle->temperatures[13]             = -50.0f;
 	modHiAmpPackStateHandle->humidity                     = 0.0f;
 	modHiAmpPackStateHandle->hiLoadEnabled                = false;
 	modHiAmpPackStateHandle->hiLoadPreChargeEnabled       = false;

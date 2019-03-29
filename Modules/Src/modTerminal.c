@@ -128,8 +128,10 @@ void modTerminalProcessString(char *str) {
 		modCommandsPrintf("Sensor[9]  : % 3.1f C - E - 'ADC NTC5/WaterDetect'",packState.temperatures[9]);
 		modCommandsPrintf("Sensor[10] : % 3.1f C - I - 'ADC NTC6'",packState.temperatures[10]);
 		modCommandsPrintf("Sensor[11] : % 3.1f C - I - 'ADC NTC7'",packState.temperatures[11]);
-		modCommandsPrintf("Sensor[12] : % 3.1f C - I - 'SHT'",packState.temperatures[12]);
-		modCommandsPrintf("Sensor[13] : % 3.1f %% - I - 'Humidity'",packState.humidity);		
+		modCommandsPrintf("Sensor[12] : % 3.1f C - I - 'SHT-temp'",packState.temperatures[12]);
+		modCommandsPrintf("Sensor[13] : % 3.1f C - I - 'NTC AUX'",packState.temperatures[13]);		
+		modCommandsPrintf("Sensor[--] : % 3.1f %% - I - 'SHT-Humidity'",packState.humidity);
+
 		modCommandsPrintf("-----      waterDetect      -----");		
 		modCommandsPrintf("waterSensors[0]  : % 3.1f C - E - 'IN0'",packState.waterSensors[0]);
 		modCommandsPrintf("waterSensors[1]  : % 3.1f C - E - 'IN1'",packState.waterSensors[1]);

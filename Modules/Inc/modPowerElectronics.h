@@ -14,7 +14,7 @@
 #include "math.h"
 
 #define NoOfCellsPossibleOnBMS	12
-#define NoOfTempSensors         13
+#define NoOfTempSensors         14
 #define NoOfWaterSensors        6
 #define PRECHARGE_PERCENTAGE 		0.75f
 #define ISLErrorThreshold       10
@@ -32,7 +32,8 @@ typedef enum {
 	TEMP_EXT_ADC_NTC5,											// Ext on slave BMS
 	TEMP_INT_ADC_NTC6,											// Int on slave BMS
 	TEMP_INT_ADC_NTC7,											// Int on slave BMS
-	TEMP_INT_SHT														// Int on slave BMS
+	TEMP_INT_SHT,														// Int on slave BMS
+	TEMP_INT_ADC_NTCAUX                     // Ext on the CAN connector
 } modPowerElectronicsTemperatureSensorMapping;
 
 typedef enum {

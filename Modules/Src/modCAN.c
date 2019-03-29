@@ -240,6 +240,12 @@ void modCANSendSimpleStatusSlow(void) {
 	
 	libBufferAppend_uint8(buffer,flagHolder,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_WATER_HCLOAD), buffer, sendIndex);
+	
+	
+	// Send individual temp data
+	sendIndex = 0;
+  libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->temperatures[TEMP_INT_ADC_NTCAUX],&sendIndex);
+	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_TEMP_INDIVIDUAL), buffer, sendIndex);
 }
 
 void CAN_RX0_IRQHandler(void) {
@@ -575,15 +581,15 @@ void modCANHandleSubTaskCharger(void) {
 				}
 				
 				chargerOpState = chargerOpStateNew;
+				
+			  modCANPackStateHandle->chargeBalanceActive = modCANGeneralConfigHandle->allowChargingDuringDischarge;
+			  modPowerElectronicsResetBalanceModeActiveTimeout();
 		  }
+			
 	  }else{
 		  chargerOpState = opInit;
 		}
 	}
-	
-	// Handle:
-	// modCANPackStateHandle->chargeBalanceActive = modCANGeneralConfigHandle->allowChargingDuringDischarge;
-	// modPowerElectronicsResetBalanceModeActiveTimeout();
 }
 
 void modCANRXWatchDog(void){

@@ -37,6 +37,7 @@
 "diebiems\driverswisl28022.o"
 "diebiems\driverswltc6803.o"
 "diebiems\driverswltc6804.o"
+"diebiems\driverswmcp3221.o"
 "diebiems\driverswpcal6416.o"
 "diebiems\driverswsht21.o"
 "diebiems\driverswssd1306.o"
