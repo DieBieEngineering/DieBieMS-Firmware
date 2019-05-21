@@ -143,6 +143,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->cellThrottleLowerStart         = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellThrottleUpperMargin        = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellThrottleLowerMargin        = libBufferGet_float32_auto(data,&ind);           // 4
+		  modCommandsGeneralConfig->packVoltageDataSource          = libBufferGet_uint8(data,&ind);                  // 1
 		  modCommandsGeneralConfig->packCurrentDataSource          = libBufferGet_uint8(data,&ind);                  // 1
 		  modCommandsGeneralConfig->buzzerSignalSource             = libBufferGet_uint8(data,&ind);                  // 1
 		  modCommandsGeneralConfig->buzzerSignalType               = libBufferGet_uint8(data,&ind);                  // 1
@@ -202,6 +203,8 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->HCUsePrecharge                 = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->HCUseLoadDetect                = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->HCLoadDetectThreshold          = libBufferGet_uint32(data,&ind);                 // 4
+			modCommandsGeneralConfig->HCLoadVoltageDataSource        = libBufferGet_uint8(data,&ind);                  // 1
+			modCommandsGeneralConfig->HCLoadCurrentDataSource        = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->timeoutHCPreCharge             = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->timeoutHCPreChargeRetryInterval= libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->timeoutHCRelayOverlap          = libBufferGet_uint32(data,&ind);                 // 4
@@ -260,6 +263,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerStart          ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperMargin         ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerMargin         ,&ind); // 4
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->packVoltageDataSource           ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->packCurrentDataSource           ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalSource              ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalType                ,&ind); // 1
@@ -319,6 +323,8 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCUsePrecharge                  ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCUseLoadDetect                 ,&ind); // 1
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadDetectThreshold           ,&ind); // 4
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadVoltageDataSource         ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadCurrentDataSource         ,&ind); // 1
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreCharge              ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreChargeRetryInterval ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCRelayOverlap           ,&ind); // 4

@@ -12,17 +12,32 @@ relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledState;
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
 
 bool dischargeHCEnable;
-bool modHiAmpShieldPresenceFanDriver;
-bool modHiAmpShieldPresenceAuxADC;
 bool modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
 bool modHiAmpShieldPrePreChargeBulkCapChargeDetected;
+
+bool HVEnableDischarge = false;
+bool HVEnablePreCharge = false;
+bool HVEnableLowSide   = false;
+bool HVEnableCharge    = false;
+
+uint8_t newFanSpeed = 0;
+
+float tempVoltage;
 
 void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer){
 	modHiAmpPackStateHandle     = packStateHandle;																		// Store pack state pointer.
 	modHiAmpGeneralConfigHandle = generalConfigPointer;
 	
-	driverHWI2C1Init();																																// Init the communication bus
-	modHiAmpPackStateHandle->hiAmpShieldPresent = modHiAmpShieldPresentCheck();				// Check presence and store it
+	// Init the communication bus
+	driverHWI2C1Init();
+	
+	// Check whether the slave sensors are present
+	modHiAmpPackStateHandle->slaveShieldPresenceFanDriver = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceAuxADC    = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceADSADC    = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceMasterISL = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceMainISL   = false;
+	modHiAmpPackStateHandle->hiAmpShieldPresent           = modHiAmpShieldPresentCheck();
 	
 	// Initialisation variables
 	modHiAmpShieldResetVariables();																										// Reset the hiAmp shield variables
@@ -30,25 +45,33 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 	modHiAmpShieldRelayControllerRelayEnabledLastState = RELAY_CONTROLLER_INIT;
 	modHiAmpShieldRelayControllerRelayEnabledDesiredLastState = false;
 	modHiAmpShieldPrePreChargeBulkCapChargeDetected = false;
-	
 	modHiAmpShieldRelayStartPrechargeTimeStamp = HAL_GetTick();
 	
 	// Initialise slave board
 	if(modHiAmpPackStateHandle->hiAmpShieldPresent){
 		driverSWDCDCInit(modHiAmpPackStateHandle,modHiAmpGeneralConfigHandle);					// Init the DCDC converter enviroment
 		driverSWDCDCSetEnabledState(true);																							// Enable the converter
-		modHiAmpShieldMainShuntMonitorInit();
-		driverSWPCAL6416Init(0x07,0xF7,0x07,0xF7,0x07,0xF7);														// Init the IO Extender
+		driverSWPCAL6416Init(0x00,0x56,0x00,0x56,0x00,0x56);														// Init the IO Extender
 		driverSWADC128D818Init();																												// Init the NTC ADC
 		driverSWSHT21Init();																														// Init the Temperature / humidity sensor
 		
-		if(modHiAmpShieldPresenceAuxADC){
+		if(modHiAmpPackStateHandle->slaveShieldPresenceMainISL){
+			modHiAmpShieldMainPathMonitorInit();
+		}
+		
+		if(modHiAmpPackStateHandle->slaveShieldPresenceFanDriver){
+			driverSWEMC2305Init(I2CADDRFANDriver,100);																		// Init the FANDriver with addres and minimal duty cycle
+			modHiAmpShieldSetFANSpeedAll(0);																							// Disable all FANs
+		}
+		
+		if(modHiAmpPackStateHandle->slaveShieldPresenceAuxADC){
 			driverSWMCP3221Init();                                                        // Init the aux ADC
 		}
 		
-		if(modHiAmpShieldPresenceFanDriver){
-			driverSWEMC2305Init(I2CADDRFANDriver,100);																		// Init the FANDriver with addres and minimal duty cycle
-			modHiAmpShieldSetFANSpeedAll(0);																							// Disable all FANs
+		if(modHiAmpPackStateHandle->slaveShieldPresenceADSADC){
+			driverSWADS1015Init();
+		}else{
+			driverSWADS1015ResetValues();
 		}
 	}else{
 	  modHiAmpShieldResetSensors();
@@ -58,6 +81,8 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 void modHiAmpTask(void) {
 	if(modDelayTick1ms(&modHiAmpShieldPresenceDetectLastTick,5000)){
 		modHiAmpPackStateHandle->hiAmpShieldPresent = modHiAmpShieldPresentCheck();
+		
+		modHiAmpShieldSetFANSpeedAll(newFanSpeed);
 	}
 	
 	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100)){
@@ -70,7 +95,7 @@ void modHiAmpTask(void) {
 			}
 
 			// Update inputs
-			if(modHiAmpShieldPresenceFanDriver){
+			if(modHiAmpPackStateHandle->slaveShieldPresenceFanDriver){
 				modHiAmpPackStateHandle->FANStatus = driverEMC2305GetFANStatus(I2CADDRFANDriver);
 			}else{
 				driverSWEMC2305FanStatusTypeDef emptyState = {{0,0,0,0},false,false,false};
@@ -90,12 +115,15 @@ void modHiAmpTask(void) {
 			
 			// Update outputs
 			modHiAmpShieldRelayControllerPassSampledInput(dischargeHCEnable,modHiAmpPackStateHandle->hiCurrentLoadVoltage,modHiAmpPackStateHandle->packVoltage);
+			
+			// Update HV Ouputs
+			modHiAmpShieldHVSSRTask();
 		}else{
 			modHiAmpShieldResetSensors();
 	  }
 	}
 	
-
+	driverSWADS1015SampleTask(modHiAmpPackStateHandle->slaveShieldPresenceADSADC);
 	driverSWDCDCEnableTask();
 	modHiAmpShieldRelayControllerTask();
 }
@@ -104,15 +132,16 @@ bool modHiAmpShieldPresentCheck(void) {
 	uint8_t I2CWrite = 0;
 	uint8_t PresenceDetect = 0;
 	
-	PresenceDetect |= driverHWI2C1Write(I2CADDRISLMain    ,false,&I2CWrite,0); // ISL Main
-	PresenceDetect |= driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0); // ISL Aux
-	PresenceDetect |= driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0); // IO Ext
-	PresenceDetect |= driverHWI2C1Write(I2CADDRADC8        ,false,&I2CWrite,0); // NTC ADC
+	PresenceDetect |= driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0);   // ISL Aux DCDC
+	PresenceDetect |= driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0);   // IO Ext
+	PresenceDetect |= driverHWI2C1Write(I2CADDRADC8       ,false,&I2CWrite,0);   // NTC ADC
 	
 	
-	modHiAmpShieldPresenceFanDriver = (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? true : false;
-	modHiAmpShieldPresenceAuxADC    = (driverHWI2C1Write(I2CADDRADC1  ,false,&I2CWrite,0)      == HAL_OK) ? true : false;
-	
+	modHiAmpPackStateHandle->slaveShieldPresenceMasterISL = (driverHWI2C2Write(I2CADDRISLMaster  ,false,&I2CWrite,0) == HAL_OK) ? true : false;	
+	modHiAmpPackStateHandle->slaveShieldPresenceMainISL   = (driverHWI2C1Write(I2CADDRISLMain    ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceFanDriver = (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceAuxADC    = (driverHWI2C1Write(I2CADDRADC8       ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceADSADC    = (driverHWI2C1Write(I2CADS1015        ,false,&I2CWrite,0) == HAL_OK) ? true : false;
 	
 	if(PresenceDetect == HAL_OK)
 		return true;
@@ -126,7 +155,7 @@ uint8_t modHiAmpShieldScanI2CDevices(void) {
 	
 	PresenceMask |= (driverHWI2C1Write(I2CADDRISLMain    ,false,&I2CWrite,0) == HAL_OK) ? (1 << 0) : false; // ISL Main
 	PresenceMask |= (driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0) == HAL_OK) ? (1 << 1) : false; // ISL Aux
-	PresenceMask |= (driverHWI2C1Write(I2CADDRSHT        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 2) : false; // ISL Aux
+	PresenceMask |= (driverHWI2C1Write(I2CADDRSHT        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 2) : false; // SHT
 	PresenceMask |= (driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0) == HAL_OK) ? (1 << 3) : false; // IO Ext
 	PresenceMask |= (driverHWI2C1Write(I2CADDRADC8       ,false,&I2CWrite,0) == HAL_OK) ? (1 << 4) : false; // NTC ADC 8 Channel water/temp
 	PresenceMask |= (driverHWI2C1Write(I2CADDRADC1       ,false,&I2CWrite,0) == HAL_OK) ? (1 << 5) : false; // NTC ADC	1 Channel strutconn temp
@@ -148,30 +177,105 @@ void modHiAmpShieldResetVariables(void) {
   modHiAmpShieldResetSensors();
 }
 
-void modHiAmpShieldMainShuntMonitorInit(void) {
-	driverSWISL28022InitStruct ISLInitStruct;					 																								    // Init the bus voltage and current monitor. (MAIN)
-	ISLInitStruct.ADCSetting = ADC_128_64010US;
-	ISLInitStruct.busVoltageRange = BRNG_60V_1;
-	ISLInitStruct.currentShuntGain = PGA_4_160MV;
-	ISLInitStruct.Mode = MODE_SHUNTANDBUS_CONTINIOUS;
-	driverSWISL28022Init(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,ISLInitStruct);
+void modHiAmpShieldMainPathMonitorInit(void) {
+	if(modHiAmpPackStateHandle->slaveShieldPresenceMainISL) {
+		driverSWISL28022InitStruct ISLInitStruct;					 																								// Init the bus voltage and current monitor. (MAIN)
+		ISLInitStruct.ADCSetting = ADC_128_64010US;
+		ISLInitStruct.busVoltageRange = BRNG_60V_1;
+		ISLInitStruct.currentShuntGain = PGA_4_160MV;
+		ISLInitStruct.Mode = MODE_SHUNTANDBUS_CONTINIOUS;
+		driverSWISL28022Init(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,ISLInitStruct);
+	}
+	
+	if(modHiAmpPackStateHandle->slaveShieldPresenceADSADC) {
+	  // Init the ADS
+	}
 }
 
 float modHiAmpShieldShuntMonitorGetVoltage(void) {
-  float measuredVoltage;
-	driverSWISL28022GetBusVoltage(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredVoltage,0.004f);
+  float measuredVoltage = 0.0f;
+	
+	switch(modHiAmpGeneralConfigHandle->HCLoadVoltageDataSource) {
+	  case sourceLoadHCVoltageNone:
+			measuredVoltage = 0.0f;
+		  break;
+	  case sourceLoadHCVoltageISL28022_2_0X40_LVBatteryIn:
+			if(modHiAmpPackStateHandle->slaveShieldPresenceMasterISL) {
+				driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&measuredVoltage,0.004f);
+			}
+		  break;
+	  case sourceLoadHCVoltageISL28022_1_0X44_LVLoadOutput:
+			if(modHiAmpPackStateHandle->slaveShieldPresenceMainISL) {
+				driverSWISL28022GetBusVoltage(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredVoltage,0.004f);
+			}
+		  break;
+	  case sourceLoadHCVoltageISL28022_1_0X45_DCDC:
+			if(modHiAmpPackStateHandle->hiAmpShieldPresent) {
+			  measuredVoltage = driverSWDCDCGetAuxVoltage();
+			}
+		  break;
+	  case sourceLoadHCVoltageADS1015_AN01_HVBatteryIn:
+			if(modHiAmpPackStateHandle->hiAmpShieldPresent) {
+				measuredVoltage = driverSWADS1015GetVoltage(ADS1015P0N1,0.00527083333f);
+			}
+		  break;
+	  case sourceLoadHCVoltageADS1015_AN23_HVLoadOut:
+			if(modHiAmpPackStateHandle->hiAmpShieldPresent) {
+				measuredVoltage = driverSWADS1015GetVoltage(ADS1015P2N3,0.00527083333f);
+			}
+		  break;
+	  case sourceLoadHCVoltageSumOfIndividualCellVoltages:
+			measuredVoltage = modHiAmpGeneralConfigHandle->noOfCellsSeries*modHiAmpPackStateHandle->cellVoltageAverage;
+		  break;
+	  case sourceLoadHCVoltageCANDieBieShunt:
+			// Get data from CAN shunt
+		  break;
+	  case sourceLoadHCVoltageCANIsabellenhutte:
+		  // Get data from CAN shunt
+		  break;
+		default:
+		  break;
+	}
+	
 	return measuredVoltage;
 }
 
 float modHiAmpShieldShuntMonitorGetCurrent(void) {
-  float measuredCurrent;
-	driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,modHiAmpGeneralConfigHandle->shuntHCOffset,modHiAmpGeneralConfigHandle->shuntHCFactor);
+  float measuredCurrent = 0.0f;
+	
+  switch(modHiAmpGeneralConfigHandle->HCLoadCurrentDataSource) {
+	  case sourceLoadHCCurrentNone:
+			measuredCurrent = 0.0f;
+			break;
+	  case sourceLoadHCCurrentISL28022_2_0X40_LVLCShunt:
+			if(modHiAmpPackStateHandle->slaveShieldPresenceMasterISL) {
+				driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&measuredCurrent,modHiAmpGeneralConfigHandle->shuntLCOffset,modHiAmpGeneralConfigHandle->shuntLCFactor);
+			}
+			break;
+	  case sourceLoadHCCurrentISL28022_1_0X44_LVHCShunt:
+			if(modHiAmpPackStateHandle->slaveShieldPresenceMainISL) {
+				driverSWISL28022GetBusCurrent(ISL28022_SHIELD_MAIN_ADDRES,ISL28022_SHIELD_MAIN_BUS,&measuredCurrent,modHiAmpGeneralConfigHandle->shuntHCOffset,modHiAmpGeneralConfigHandle->shuntHCFactor);
+			}
+			break;
+	  case sourceLoadHCCurrentISL28022_1_0X45_DCDCShunt:
+			measuredCurrent = driverSWDCDCGetAuxCurrent();
+			break;
+	  case sourceLoadHCCurrentCANDieBieShunt:
+			// Get current from CAN shunt
+			break;
+	  case sourceLoadHCCurrentCANIsabellenhutte:
+			// Get current from CAN shunt
+			break;
+		default:
+			break;
+	}
+
 	return measuredCurrent;
 }
 
 void modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed) {
 	modHiAmpPackStateHandle->FANSpeedDutyDesired = newFANSpeed;
-	if(modHiAmpShieldPresenceFanDriver){
+	if(modHiAmpPackStateHandle->slaveShieldPresenceFanDriver){
 		driverSWEMC2305SetFANDutyAll(I2CADDRFANDriver,newFANSpeed);
 	}
 }
@@ -319,7 +423,7 @@ void  modHiAmpShieldTemperatureHumidityMeasureTask(void) {
 	modHiAmpPackStateHandle->temperatures[11] = driverSWADC128D818GetTemperature(modHiAmpGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupHiAmpPCB],modHiAmpGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupHiAmpPCB],modHiAmpGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupHiAmpPCB],25.0f,7);
 		
 	// Measure Aux NTC, this one is on the CAN connector
-	if(modHiAmpShieldPresenceAuxADC){
+	if(modHiAmpPackStateHandle->slaveShieldPresenceAuxADC){
 	  modHiAmpPackStateHandle->temperatures[13] = driverSWMCP3221GetTemperature(modHiAmpGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupHiAmpAUX],modHiAmpGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupHiAmpAUX],modHiAmpGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupHiAmpAUX],25.0f);
 	}
 		
@@ -339,7 +443,7 @@ void  modHiAmpShieldTemperatureHumidityMeasureTask(void) {
 	}
 }
 
-void  modHiAmpShieldResetSensors(void) {	
+void  modHiAmpShieldResetSensors(void) {		
 	modHiAmpPackStateHandle->hiCurrentLoadVoltage         = 0.0f;
 	modHiAmpPackStateHandle->hiCurrentLoadCurrent         = 0.0f;
 	modHiAmpPackStateHandle->hiCurrentLoadPower           = 0.0f;
@@ -371,4 +475,11 @@ void  modHiAmpShieldResetSensors(void) {
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[1]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[2]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[3]     = 0;
+}
+
+void modHiAmpShieldHVSSRTask(void) {
+  driverSWPCAL6416SetOutput(0,0,HVEnableDischarge,false);
+  driverSWPCAL6416SetOutput(0,1,HVEnablePreCharge,false);
+  driverSWPCAL6416SetOutput(0,2,HVEnableLowSide,false);
+  driverSWPCAL6416SetOutput(1,5,HVEnableCharge,true);
 }

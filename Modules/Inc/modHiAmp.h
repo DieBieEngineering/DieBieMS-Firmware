@@ -13,7 +13,9 @@
 #include "driverSWEMC2305.h"
 #include "driverSWSHT21.h"
 #include "driverSWMCP3221.h"
+#include "driverSWADS1015.h"
 
+#define I2CADDRISLMaster     0x40
 #define I2CADDRISLMain       0x44
 #define I2CADDRISLAux        0x45
 #define I2CADDRSHT           0x40
@@ -41,7 +43,7 @@ void  modHiAmpTask(void);
 bool  modHiAmpShieldPresentCheck(void);
 uint8_t modHiAmpShieldScanI2CDevices(void);
 void  modHiAmpShieldResetVariables(void);
-void  modHiAmpShieldMainShuntMonitorInit(void);
+void  modHiAmpShieldMainPathMonitorInit(void);
 float modHiAmpShieldShuntMonitorGetVoltage(void);
 float modHiAmpShieldShuntMonitorGetCurrent(void);
 void  modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed);
@@ -50,5 +52,6 @@ void  modHiAmpShieldRelayControllerTask(void);
 void  modHiAmpShieldRelayControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge);
 void  modHiAmpShieldTemperatureHumidityMeasureTask(void);
 void  modHiAmpShieldResetSensors(void);
+void  modHiAmpShieldHVSSRTask(void);
 
 #endif

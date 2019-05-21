@@ -4,12 +4,13 @@
 // Define the hardware version here:
 //#define EFoilV1
 //#define EFoilV2
-#define ESK8
+//#define ESK8
+#define TDHVSolar
 
 // Firmware version
 #define FW_VERSION_MAJOR		0
-#define FW_VERSION_MINOR		27
-#define FW_REAL_VERSION			"V0.27"
+#define FW_VERSION_MINOR		29
+#define FW_REAL_VERSION			"V0.29"
 
 // UUID
 #define STM32_UUID					((uint32_t*)0x1FFFF7AC)
@@ -27,6 +28,14 @@
 #ifdef EFoilV2
   #define HW_NAME "EFoilBMSHW2"
 	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 12
+	#define HW_LIM_CELL_MONITOR_IC_TYPE                    2
+	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
+	#define HW_LIM_MIN_NOT_USED_DELAY                      5000
+#endif
+
+#ifdef TDHVSolar
+  #define HW_NAME "TDHVSolar"
+	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 7
 	#define HW_LIM_CELL_MONITOR_IC_TYPE                    2
 	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
 	#define HW_LIM_MIN_NOT_USED_DELAY                      5000

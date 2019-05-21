@@ -31,6 +31,7 @@
 "diebiems\driverhwswitches.o"
 "diebiems\driverhwuart2.o"
 "diebiems\driverswadc128d818.o"
+"diebiems\driverswads1015.o"
 "diebiems\driverswcc1101.o"
 "diebiems\driverswdcdc.o"
 "diebiems\driverswemc2305.o"

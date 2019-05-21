@@ -576,13 +576,46 @@ typedef enum {
 } configCANSpeedTypeEnum;
 
 typedef enum {
-	sourceNone = 0,
-	sourceLowCurrentShunt,
-	sourceHighCurrentShunt,
-	sourceLowPlusHighCurrentShunt,
-	sourceCANDieBieShunt,
-	sourceCANIsaBellenHuette
+	sourcePackVoltageNone = 0,
+	sourcePackVoltageISL28022_2_0X40_LVBatteryIn,
+	sourcePackVoltageISL28022_1_0X44_LVLoadOutput,
+	sourcePackVoltageISL28022_1_0X45_DCDC,
+	sourcePackVoltageADS1015_AN01_HVBatteryIn,
+	sourcePackVoltageADS1015_AN23_HVLoadOut,
+  sourcePackVoltageSumOfIndividualCellVoltages,
+  sourcePackVoltageCANDieBieShunt,
+  sourcePackVoltageCANIsabellenhutte
+} configPackVoltageDataSourceEnum;
+
+typedef enum {
+	sourcePackCurrentNone = 0,
+	sourcePackCurrentLowCurrentShunt,
+	sourcePackCurrentHighCurrentShunt,
+	sourcePackCurrentLowPlusHighCurrentShunt,
+	sourcePackCurrentCANDieBieShunt,
+	sourcePackCurrentCANIsaBellenHuette
 } configPackCurrentDataSourceEnum;
+
+typedef enum {
+	sourceLoadHCVoltageNone = 0,
+	sourceLoadHCVoltageISL28022_2_0X40_LVBatteryIn,
+	sourceLoadHCVoltageISL28022_1_0X44_LVLoadOutput,
+	sourceLoadHCVoltageISL28022_1_0X45_DCDC,
+	sourceLoadHCVoltageADS1015_AN01_HVBatteryIn,
+	sourceLoadHCVoltageADS1015_AN23_HVLoadOut,
+  sourceLoadHCVoltageSumOfIndividualCellVoltages,
+  sourceLoadHCVoltageCANDieBieShunt,
+  sourceLoadHCVoltageCANIsabellenhutte,
+} configLoadHCVoltageDataSourceEnum;
+
+typedef enum {
+	sourceLoadHCCurrentNone = 0,
+	sourceLoadHCCurrentISL28022_2_0X40_LVLCShunt,
+	sourceLoadHCCurrentISL28022_1_0X44_LVHCShunt,
+	sourceLoadHCCurrentISL28022_1_0X45_DCDCShunt,
+  sourceLoadHCCurrentCANDieBieShunt,
+  sourceLoadHCCurrentCANIsabellenhutte,
+} configLoadHCCurrentDataSourceEnum;
 
 typedef enum {
 	socNone = 0,

@@ -7,10 +7,6 @@ uint16_t voltageUnder;
 uint16_t voltageOver;
 uint32_t voltageLimitReg;
 
-int8_t returnPEC = -1;
-
-uint8_t rxConfig [1][8];
-
 void driverSWLTC6804DelayMS(uint32_t delayMS) {
 	uint32_t currentTick = HAL_GetTick();
 	while(!modDelayTick1ms(&currentTick,delayMS)){};
@@ -20,8 +16,9 @@ void driverSWLTC6804Init(driverLTC6804ConfigStructTypedef configStruct, uint8_t 
 	driverSWLTC6804ConfigStruct = configStruct;
 	driverSWLTC6804TotalNumerOfICs = totalNumberOfLTCs;
 	
-	//uint8_t rxConfig [driverSWLTC6804TotalNumerOfICs][8];
+	uint8_t rxConfig [driverSWLTC6804TotalNumerOfICs][8];
 	uint8_t LTCScanCount = 0;
+	int8_t returnPEC = -1;
 	
 	driverHWSPI1Init(LTC6804_CS_GPIO_Port,LTC6804_CS_Pin);
 	driverSWLTC6804WakeIC();
@@ -88,6 +85,24 @@ void driverSWLTC6804ResetAuxVoltageRegisters(void) {
   cmd[3] = (uint8_t)(cmd_pec);
   
   driverSWLTC6804WakeIC();     //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
+  driverSWLTC6804Write(cmd,4);
+}
+
+void driverSWLTC6804StartCellAndAuxVoltageConversion(uint8_t MD,uint8_t DCP) {	
+  uint8_t cmd[4];
+  uint16_t cmd_pec;
+	uint8_t ADCVAX[2]; //!< Cell Voltage conversion command.
+	
+  ADCVAX[0] = ((MD & 0x02) >> 1) + 0x04;
+  ADCVAX[1] = ((MD & 0x01) << 7) + 0x6F + (DCP<<4);
+
+  cmd[0] = ADCVAX[0];
+  cmd[1] = ADCVAX[1];
+  cmd_pec = driverSWLTC6804CalcPEC15(2, ADCVAX);
+  cmd[2] = (uint8_t)(cmd_pec >> 8);
+  cmd[3] = (uint8_t)(cmd_pec);
+  
+	driverSWLTC6804WakeIC();
   driverSWLTC6804Write(cmd,4);
 }
 
@@ -342,6 +357,18 @@ void driverSWLTC6804ReadStatusGroups(uint8_t reg, uint8_t total_ic, uint8_t *dat
 	driverSWLTC6804WriteRead(cmd,4,data,(REG_LEN*total_ic));
 }
 
+bool driverSWLTC6804ReadAuxSensors(uint16_t tempVoltages[3]){
+	uint16_t readAuxSensors[1][6];
+	
+	driverSWLTC6804ReadAuxVoltages(0,1,readAuxSensors);
+	
+	tempVoltages[0] = readAuxSensors[0][0]; // Humidity
+	tempVoltages[1] = readAuxSensors[0][1]; // NTC
+	tempVoltages[2] = 0;                    // No sensor
+	
+	return false;
+}
+
 int8_t driverSWLTC6804ReadAuxVoltages(uint8_t reg, uint8_t total_ic, uint16_t aux_codes[][6]) {
   const uint8_t NUM_RX_BYT = 8;
   const uint8_t BYT_IN_REG = 6;
@@ -533,6 +560,24 @@ void driverSWLTC6804WakeIC(void){
 	driverSWLTC6804DelayMS(1);
 }
 
+float driverSWLTC6804ConvertTemperatureExt(uint16_t inputValue,uint32_t ntcNominal,uint32_t ntcSeriesResistance,uint16_t ntcBetaFactor, float ntcNominalTemp) {
+	static float scalar;
+	static float steinhart;
+	
+  scalar = 30000.0f / (float)inputValue - 1.0f;
+  scalar = (float)ntcSeriesResistance / scalar;
+  steinhart = scalar / (float)ntcNominal;               // (R/Ro)
+  steinhart = log(steinhart);                           // ln(R/Ro)
+  steinhart /= (float)ntcBetaFactor;                    // 1/B * ln(R/Ro)
+  steinhart += 1.0f / (ntcNominalTemp + 273.15f);       // + (1/To)
+  steinhart = 1.0f / steinhart;                         // Invert
+  steinhart -= 273.15f;                                 // convert to degree
+	
+	if(steinhart < -30.0f)
+		steinhart = 200;
+	
+  return steinhart;
+}
 
 
 

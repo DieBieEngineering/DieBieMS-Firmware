@@ -17,37 +17,47 @@ bool driverSWISL28022GetBusCurrent(uint8_t i2cAddres, uint8_t i2cBus, float *bus
 	// ToDo make register to current conversion register dependent
 	uint8_t writeDataC[1] = {REG_SHUNTVOLTAGE};
 	uint8_t readDataC[2];
+	uint8_t commSucces = HAL_OK;
 	static int16_t busCurrentInt;
 
 	if(i2cBus == 1){
-		driverHWI2C1Write(i2cAddres,false,writeDataC,1);
-		driverHWI2C1Read(i2cAddres,readDataC,2);
+		commSucces |= driverHWI2C1Write(i2cAddres,false,writeDataC,1);
+		commSucces |= driverHWI2C1Read(i2cAddres,readDataC,2);
 	}else if(i2cBus == 2){
-		driverHWI2C2Write(i2cAddres,false,writeDataC,1);
-		driverHWI2C2Read(i2cAddres,readDataC,2);
+		commSucces |= driverHWI2C2Write(i2cAddres,false,writeDataC,1);
+		commSucces |= driverHWI2C2Read(i2cAddres,readDataC,2);
 	}
 	
-	busCurrentInt = (readDataC[0] << 9) | (readDataC[1] << 1);
-	*busCurrent = scalar*(busCurrentInt+offset);
+	if(commSucces == HAL_OK) {
+		busCurrentInt = (readDataC[0] << 9) | (readDataC[1] << 1);
+		*busCurrent = scalar*(busCurrentInt+offset);
+	}else{
+		*busCurrent = 0.0f;
+	}
 	
-	return false;
+	return commSucces == HAL_OK;
 };
 
 bool driverSWISL28022GetBusVoltage(uint8_t i2cAddres, uint8_t i2cBus, float *busVoltage, float scalar){
 	uint8_t writeDataV[1] = {REG_BUSVOLTAGE};
 	uint8_t readDataV[2];
+	uint8_t commSucces = HAL_OK;
 	uint16_t busVoltageInt;
 	
 	if(i2cBus == 1){
-	  driverHWI2C1Write(i2cAddres,false,writeDataV,1);
-	  driverHWI2C1Read(i2cAddres,readDataV,2);
+	  commSucces |= driverHWI2C1Write(i2cAddres,false,writeDataV,1);
+	  commSucces |= driverHWI2C1Read(i2cAddres,readDataV,2);
 	}else if(i2cBus == 2){
-	  driverHWI2C2Write(i2cAddres,false,writeDataV,1);
-	  driverHWI2C2Read(i2cAddres,readDataV,2);
+	  commSucces |= driverHWI2C2Write(i2cAddres,false,writeDataV,1);
+	  commSucces |= driverHWI2C2Read(i2cAddres,readDataV,2);
 	}
 
-	busVoltageInt = (readDataV[0] << 6) | (readDataV[1] >> 2);
-	*busVoltage = scalar*busVoltageInt;		
+	if(commSucces == HAL_OK) {
+		busVoltageInt = (readDataV[0] << 6) | (readDataV[1] >> 2);
+		*busVoltage = scalar*busVoltageInt;	
+  }else{
+		*busVoltage = 0.0f;
+  }		
 	
-	return false;
+	return commSucces == HAL_OK;
 };

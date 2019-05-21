@@ -20,7 +20,7 @@
 IWDG_HandleTypeDef handleIWDG;
 modConfigGeneralConfigStructTypedef *generalConfig;
 modStateOfChargeStructTypeDef       *generalStateOfCharge;
-modPowerElectronicsPackStateTypedef   packState;
+modPowerElectronicsPackStateTypedef packState;
 
 void SystemClock_Config(void);
 void mainWatchDogInitAndStart(void);

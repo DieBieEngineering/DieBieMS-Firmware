@@ -570,7 +570,7 @@ void modCANHandleSubTaskCharger(void) {
 					  chargerOpStateNew = opCharging;
 						break;
 					case opCharging:
-						modCANOpenChargerSetCurrentVoltageReady(20.0f*modCANPackStateHandle->throttleDutyCharge/1000,modCANGeneralConfigHandle->noOfCellsSeries*modCANGeneralConfigHandle->cellSoftOverVoltage+0.6f,true);
+						modCANOpenChargerSetCurrentVoltageReady(30.0f*modCANPackStateHandle->throttleDutyCharge/1000,modCANGeneralConfigHandle->noOfCellsSeries*modCANGeneralConfigHandle->cellSoftOverVoltage+0.6f,true);
 					
 					  if(modCANPackStateHandle->powerDownDesired)
 					    chargerOpStateNew = opInit;

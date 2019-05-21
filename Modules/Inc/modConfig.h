@@ -31,6 +31,7 @@ typedef struct {
 	float    cellThrottleLowerStart;																							// Discharge throttle rande
 	float    cellThrottleUpperMargin;																							// Margin from the upper cell voltage extremes
   float    cellThrottleLowerMargin;                                             // Margin from the lower cell voltage extremes
+	uint8_t  packVoltageDataSource;                                               // Enum value of pack voltage data source (what source to derive the voltage information from different ADC options)
 	uint8_t  packCurrentDataSource;                                               // Enum value of pack current data source (what source to derive the current information from LC/HC/LC+HC/CAN)
 	uint8_t  buzzerSignalSource;                                                  // - Stores what source shoud be taken to trigger
 	uint8_t	 buzzerSignalType;                                                    // - Stores what sound pattern should be made
@@ -101,6 +102,8 @@ typedef struct {
 	uint8_t  HCUsePrecharge;                                                      // choice whether to precharge or not
 	uint8_t  HCUseLoadDetect;                                                     // Enable or disable the load detect mechanism
 	uint32_t HCLoadDetectThreshold;																								// - The minimal time the precharge cycle should take for load detection when load detection is enabled
+	uint8_t  HCLoadVoltageDataSource;                                             // Data source for the HC load voltage
+	uint8_t  HCLoadCurrentDataSource;                                             // Data source for the HC load current	
 	uint32_t timeoutHCPreCharge;																									// If threshold is not reached within this time in ms goto error state
 	uint32_t timeoutHCPreChargeRetryInterval;                                     // When pre charge failed, wait this long
 	uint32_t timeoutHCRelayOverlap;																								// When pre charge succeeded turn on main relay and wait this long before disabling precharge

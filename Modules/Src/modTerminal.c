@@ -62,6 +62,8 @@ void modTerminalProcessString(char *str) {
 		modCommandsPrintf("Pack voltage Direct   : %.2fV",packState.packVoltage);
 		modCommandsPrintf("Pack voltage CVAverage: %.2fV",packState.cellVoltageAverage*generalConfig->noOfCellsSeries);		
 		modCommandsPrintf("Pack current          : %.2fA",packState.packCurrent);
+		modCommandsPrintf("LC Load voltage       : %.2fV",packState.loCurrentLoadVoltage);
+		modCommandsPrintf("HC Load voltage       : %.2fV",packState.hiCurrentLoadVoltage);	
 		modCommandsPrintf("Low  current          : %.2fA",packState.loCurrentLoadCurrent);
 		modCommandsPrintf("High current          : %.2fA",packState.hiCurrentLoadCurrent);		
 		modCommandsPrintf("State of charge       : %.1f%%",generalStateOfCharge->generalStateOfCharge);
@@ -98,8 +100,7 @@ void modTerminalProcessString(char *str) {
 			default:
 				modCommandsPrintf("Operational state     : %s","Unknown");
 				break;
-		}
-		modCommandsPrintf("Load voltage          : %.2fV",packState.loCurrentLoadVoltage);
+		}	
 		modCommandsPrintf("Cell voltage high     : %.3fV",packState.cellVoltageHigh);
 		modCommandsPrintf("Cell voltage low      : %.3fV",packState.cellVoltageLow);
 		modCommandsPrintf("Cell voltage average  : %.3fV",packState.cellVoltageAverage);
@@ -107,7 +108,11 @@ void modTerminalProcessString(char *str) {
 		modCommandsPrintf("Discharge enabled     : %s",disChargeEnabled ? "True" : "False");
 		modCommandsPrintf("Charge enabled        : %s",chargeEnabled ? "True" : "False");	
     modCommandsPrintf("Power button pressed  : %s",packState.powerButtonActuated ? "True" : "False");	
-    modCommandsPrintf("CAN safety state      : %s",packState.safetyOverCANHCSafeNSafe	? "True" : "False");	
+    modCommandsPrintf("CAN safety state      : %s",packState.safetyOverCANHCSafeNSafe	? "True" : "False");
+    modCommandsPrintf("Extended BMS          : %s",packState.hiAmpShieldPresent	? "True" : "False");
+    modCommandsPrintf("DCDC enabled          : %s",packState.auxDCDCEnabled	? "True" : "False");
+    modCommandsPrintf("DCDC voltage          : %.2fV",packState.auxVoltage);
+    modCommandsPrintf("DCDC output OK        : %s",packState.auxDCDCOutputOK	? "True" : "False");
 		
 		modCommandsPrintf("---End Battery Pack Status---");
 		modCommandsPrintf(" ");

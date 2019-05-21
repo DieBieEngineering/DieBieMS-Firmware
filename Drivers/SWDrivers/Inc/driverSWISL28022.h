@@ -11,7 +11,6 @@
 #define ISL28022_SHIELD_AUX_ADDRES  0x45
 #define ISL28022_SHIELD_AUX_BUS     1
 
-
 typedef enum {
 	BRNG_16V = 0,
 	BRNG_32V,

@@ -17,19 +17,19 @@
 #define NoOfTempSensors         14
 #define NoOfWaterSensors        6
 #define PRECHARGE_PERCENTAGE 		0.75f
-#define ISLErrorThreshold       10
+#define VinErrorThreshold       10
 
 typedef enum {
 	TEMP_EXT_LTC_NTC0 = 0,									// EXT on master BMS on LTC
 	TEMP_EXT_LTC_NTC1,											// EXT on master BMS on LTC
 	TEMP_INT_LTC_CHIP,											// Int on master BMS inside LTC Chip
 	TEMP_INT_STM_NTC,												// Int on master BMS outside STM Chip
-	TEMP_EXT_ADC_NTC0,											// Ext on slave BMS
-	TEMP_EXT_ADC_NTC1,											// Ext on slave BMS
-	TEMP_EXT_ADC_NTC2,											// Ext on slave BMS
-	TEMP_EXT_ADC_NTC3,											// Ext on slave BMS
-	TEMP_EXT_ADC_NTC4,											// Ext on slave BMS
-	TEMP_EXT_ADC_NTC5,											// Ext on slave BMS
+	TEMP_EXT_ADC_NTC0,											// Ext on slave BMS OR water detect
+	TEMP_EXT_ADC_NTC1,											// Ext on slave BMS OR water detect
+	TEMP_EXT_ADC_NTC2,											// Ext on slave BMS OR water detect
+	TEMP_EXT_ADC_NTC3,											// Ext on slave BMS OR water detect
+	TEMP_EXT_ADC_NTC4,											// Ext on slave BMS OR water detect
+	TEMP_EXT_ADC_NTC5,											// Ext on slave BMS OR water detect
 	TEMP_INT_ADC_NTC6,											// Int on slave BMS
 	TEMP_INT_ADC_NTC7,											// Int on slave BMS
 	TEMP_INT_SHT,														// Int on slave BMS
@@ -45,8 +45,13 @@ typedef enum {
 
 typedef struct {
 	// Master BMS
-	uint16_t  throttleDutyCharge;
-	uint16_t  throttleDutyDischarge;
+	uint16_t throttleDutyGeneralTemperatureBMS;
+	uint16_t throttleDutyChargeVoltage;
+	uint16_t throttleDutyChargeTemperatureBattery;
+	uint16_t throttleDutyCharge;
+	uint16_t throttleDutyDischargeVoltage;
+	uint16_t throttleDutyDischargeTemperatureBattery;
+	uint16_t throttleDutyDischarge;
 	float    SoC;
 	float    SoCCapacityAh;
 	OperationalStateTypedef operationalState;
@@ -115,6 +120,14 @@ typedef struct {
 	uint8_t  IOOUT0;
 	uint8_t  FANSpeedDutyDesired;
 	driverSWEMC2305FanStatusTypeDef FANStatus;
+	
+	// Slave sensors
+	bool slaveShieldPresenceFanDriver;
+	bool slaveShieldPresenceAuxADC;
+	bool slaveShieldPresenceADSADC;
+	bool slaveShieldPresenceMasterISL;
+	bool slaveShieldPresenceMainISL;
+	
 } modPowerElectronicsPackStateTypedef;
 
 void  modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
@@ -134,8 +147,8 @@ void  modPowerElectronicsCalcThrottle(void);
 int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);
 float modPowerElectronicsMapVariableFloat(float inputVariable, float inputLowerLimit, float inputUpperLimit, float outputLowerLimit, float outputUpperLimit);
 void  modPowerElectronicsInitISL(void);
-void modPowerElectronicsCheckWaterSensors(void);
-void modPowerElectronicsSubTaskBuzzer(void);
+void  modPowerElectronicsCheckWaterSensors(void);
+void  modPowerElectronicsSubTaskBuzzer(void);
 bool  modPowerElectronicsHCSafetyCANAndPowerButtonCheck(void);
 void  modPowerElectronicsResetBalanceModeActiveTimeout(void);
 void  modPowerElectronicsCellMonitorsInit(void);
@@ -147,6 +160,12 @@ void  modPowerElectronicsCellMonitorsEnableBalanceResistors(uint16_t);
 void  modPowerElectronicsCellMonitorsReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags);
 void  modPowerElectronicsCellMonitorsCheckAndSolveInitState(void);
 float modPowerElectronicsCalcPackCurrent(void);
-void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv);
+void  modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv);
+void  modPowerElectronicsCheckPackSOA(void);
+void  modPowerElectronicsSamplePackAndLCData(void);
+void  modPowerElectrinicsSamplePackVoltage(float *voltagePointer);
+void  modPowerElectronicsLCSenseSample(void);
+void  modPowerElectronicsLCSenseInit(void);
+uint16_t modPowerElectronicsLowestInThree(uint16_t num1,uint16_t num2,uint16_t num3);
 
 #endif
