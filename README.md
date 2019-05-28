@@ -1,6 +1,6 @@
 # DieBieMS-Firmware
 
-This is the firmware for this hardware : https://github.com/DieBieEngineering/DieBieMS <-look here for a project description.
+This is the firmware for this hardware : https://github.com/DieBieEngineering/DieBieMS <-look here for a project description..
 
 When combined with this bootloader : https://github.com/DieBieEngineering/DieBieMS-Bootloader
 
