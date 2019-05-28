@@ -118,7 +118,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		
 		  libBufferAppend_uint8(modCommandsSendBuffer, modCommandsGeneralConfig->noOfCellsSeries, &ind);                // Cell count
 		  for(cellPointer = 0; cellPointer < modCommandsGeneralConfig->noOfCellsSeries; cellPointer++){
-				if(modCommandsGeneralState->cellBalanceResistorEnableMask & (1 << cellPointer))
+				if(modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellBleedActive)
 				  libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellVoltage*-1.0f, 1e3, &ind);    // Individual cells
 				else
 					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellVoltage, 1e3, &ind);          // Individual cells
@@ -187,6 +187,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->CANIDStyle                     = libBufferGet_uint8(data,&ind);                  // 1
       modCommandsGeneralConfig->canBusSpeed                    = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->emitStatusOverCAN              = libBufferGet_uint8(data,&ind);                  // 1
+			modCommandsGeneralConfig->emitStatusProtocol             = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->waterSensorEnableMask          = libBufferGet_uint16(data,&ind);                 // 2
 			modCommandsGeneralConfig->waterSensorThreshold           = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->tempEnableMaskBMS              = libBufferGet_uint32(data,&ind);                 // 4
@@ -228,6 +229,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->externalEnableOperationalState                  = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->chargeEnableOperationalState                    = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->DCDCEnableInverted                              = libBufferGet_uint8(data,&ind); // 1
+			modCommandsGeneralConfig->DCDCTargetVoltage                               = libBufferGet_float32_auto(data,&ind); // 1
 			modCommandsGeneralConfig->powerDownDelay                                  = libBufferGet_uint32(data,&ind);// 4
 			
 			ind = 0;
@@ -307,6 +309,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->CANIDStyle                      ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->canBusSpeed                     ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->emitStatusOverCAN               ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->emitStatusProtocol              ,&ind); // 1
 			libBufferAppend_uint16(       modCommandsSendBuffer,modCommandsToBeSendConfig->waterSensorEnableMask           ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->waterSensorThreshold            ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBMS               ,&ind); // 4
@@ -348,6 +351,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->externalEnableOperationalState  ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->chargeEnableOperationalState    ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->DCDCEnableInverted              ,&ind); // 1
+			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->DCDCTargetVoltage               ,&ind); // 4			
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->powerDownDelay                  ,&ind); // 4
 			
 		  modCommandsSendPacket(modCommandsSendBuffer, ind);

@@ -39,17 +39,37 @@ void modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneral
   modCANHandle.pTxMsg = &TxMessage;
   modCANHandle.pRxMsg = &RxMessage;
 	
-  modCANHandle.Init.Prescaler = 9;
-  modCANHandle.Init.Mode = CAN_MODE_NORMAL;
-  modCANHandle.Init.SJW = CAN_SJW_1TQ;
-  modCANHandle.Init.BS1 = CAN_BS1_5TQ;
-  modCANHandle.Init.BS2 = CAN_BS2_2TQ;
-  modCANHandle.Init.TTCM = DISABLE;
-  modCANHandle.Init.ABOM = ENABLE; // Enable this for automatic recovery?
-  modCANHandle.Init.AWUM = DISABLE;
-  modCANHandle.Init.NART = DISABLE;
-  modCANHandle.Init.RFLM = DISABLE;
-  modCANHandle.Init.TXFP = DISABLE;
+	switch(modCANGeneralConfigHandle->canBusSpeed) {
+		case canSpeedBaud125k:
+			modCANHandle.Init.Prescaler = 36;
+			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
+			modCANHandle.Init.SJW = CAN_SJW_1TQ;
+			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
+			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
+			break;
+		case canSpeedBaud250k:
+			modCANHandle.Init.Prescaler = 18;
+			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
+			modCANHandle.Init.SJW = CAN_SJW_1TQ;
+			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
+			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
+			break;
+		case canSpeedBaud500k:
+		default:
+			modCANHandle.Init.Prescaler = 9;
+			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
+			modCANHandle.Init.SJW = CAN_SJW_1TQ;
+			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
+			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
+			break;
+	}
+	
+	modCANHandle.Init.TTCM = DISABLE;
+	modCANHandle.Init.ABOM = ENABLE; // Enable this for automatic recovery?
+	modCANHandle.Init.AWUM = DISABLE;
+	modCANHandle.Init.NART = DISABLE;
+	modCANHandle.Init.RFLM = DISABLE;
+	modCANHandle.Init.TXFP = DISABLE;
 	
   if(HAL_CAN_Init(&modCANHandle) != HAL_OK)
     while(true){};

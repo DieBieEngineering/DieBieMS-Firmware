@@ -13,11 +13,12 @@
 #include "stdbool.h"
 #include "math.h"
 
-#define NoOfCellsPossibleOnBMS	12
-#define NoOfTempSensors         14
-#define NoOfWaterSensors        6
-#define PRECHARGE_PERCENTAGE 		0.75f
-#define VinErrorThreshold       10
+#define NoOfCellsPossibleOnBMS	      60
+#define NoOfCellMonitorsPossibleOnBMS 5
+#define NoOfTempSensors               14
+#define NoOfWaterSensors              6
+#define PRECHARGE_PERCENTAGE 		      0.75f
+#define VinErrorThreshold             10
 
 typedef enum {
 	TEMP_EXT_LTC_NTC0 = 0,									// EXT on master BMS on LTC
@@ -90,14 +91,17 @@ typedef struct {
 	float    waterSensors[NoOfWaterSensors];
 	uint8_t  buzzerOn;
 	uint8_t  watchDogTime;
-	cellMonitorCellsTypedef cellVoltagesIndividual[NoOfCellsPossibleOnBMS];
+	cellMonitorCellsTypeDef cellVoltagesIndividual[NoOfCellsPossibleOnBMS];
 	modPowerElectronicsPackOperationalCellStatesTypedef packOperationalCellState;
 	
 	// Slave BMS
 	uint8_t  hiAmpShieldPresent;
 	uint32_t hiCurrentLoadPreChargeDuration;
 	uint8_t  hiCurrentLoadDetected;
+	uint32_t hiCurrentLoadHVPreChargeDuration;
+	uint8_t  hiCurrentLoadHVDetected;	
 	uint8_t  hiCurrentLoadState;
+	uint8_t  hiCurrentLoadStateHV;
 	float    hiCurrentLoadVoltage;
 	float    hiCurrentLoadCurrent;
 	float		 hiCurrentLoadPower;
@@ -116,6 +120,9 @@ typedef struct {
 	uint8_t  hiLoadEnabled;
 	uint8_t  hiLoadPreChargeEnabled;
 	uint8_t  hiLoadPreChargeError;
+	uint8_t  hiLoadHVEnabled;
+	uint8_t  hiLoadHVPreChargeEnabled;
+	uint8_t  hiLoadHVPreChargeError;	
 	uint8_t	 IOIN1;
 	uint8_t  IOOUT0;
 	uint8_t  FANSpeedDutyDesired;
@@ -128,6 +135,10 @@ typedef struct {
 	bool slaveShieldPresenceMasterISL;
 	bool slaveShieldPresenceMainISL;
 	
+	// Slave modules -> TODO move into struct.
+	float    cellModuleVoltages[NoOfCellMonitorsPossibleOnBMS][12];
+	uint16_t cellModuleBalanceResistorEnableMask[NoOfCellMonitorsPossibleOnBMS];
+	
 } modPowerElectronicsPackStateTypedef;
 
 void  modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
@@ -139,9 +150,10 @@ void  modPowerElectronicsSetCharge(bool newState);
 void  modPowerElectronicsDisableAll(void);
 void  modPowerElectronicsCalculateCellStats(void);
 void  modPowerElectronicsSubTaskBalaning(void);
+void  modPowerElectronicsCallMinitorsCalcBalanceResistorArray(void);
 void  modPowerElectronicsSubTaskVoltageWatch(void);
 void  modPowerElectronicsUpdateSwitches(void);
-void  modPowerElectronicsSortCells(cellMonitorCellsTypedef *cells, uint8_t cellCount);
+void  modPowerElectronicsSortCells(cellMonitorCellsTypeDef *cells, uint8_t cellCount);
 void  modPowerElectronicsCalcTempStats(void);
 void  modPowerElectronicsCalcThrottle(void);
 int32_t modPowerElectronicsMapVariableInt(int32_t inputVariable, int32_t inputLowerLimit, int32_t inputUpperLimit, int32_t outputLowerLimit, int32_t outputUpperLimit);
@@ -157,8 +169,10 @@ void  modPowerElectronicsCellMonitorsStartCellConversion(void);
 void  modPowerElectronicsCellMonitorsStartLoadedCellConversion(bool PUP);
 void  modPowerElectronicsCellMonitorsStartTemperatureConversion(void);
 void  modPowerElectronicsCellMonitorsEnableBalanceResistors(uint16_t);
+void  modPowerElectronicsCellMonitorsEnableBalanceResistorsArray(void);
 void  modPowerElectronicsCellMonitorsReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags);
 void  modPowerElectronicsCellMonitorsCheckAndSolveInitState(void);
+void  modPowerElectronicsCellMonitorsArrayTranslate(void);
 float modPowerElectronicsCalcPackCurrent(void);
 void  modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv);
 void  modPowerElectronicsCheckPackSOA(void);

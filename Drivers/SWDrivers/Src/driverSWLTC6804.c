@@ -2,10 +2,7 @@
 
 uint8_t driverSWLTC6804TotalNumerOfICs = 0;
 driverLTC6804ConfigStructTypedef driverSWLTC6804ConfigStruct;
-
-uint16_t voltageUnder;
-uint16_t voltageOver;
-uint32_t voltageLimitReg;
+uint32_t voltageLimitReg; 
 
 void driverSWLTC6804DelayMS(uint32_t delayMS) {
 	uint32_t currentTick = HAL_GetTick();
@@ -26,7 +23,7 @@ void driverSWLTC6804Init(driverLTC6804ConfigStructTypedef configStruct, uint8_t 
 	while((LTCScanCount < 5) && (returnPEC == -1)){
 	  returnPEC =	driverSWLTC6804ReadConfigRegister(driverSWLTC6804TotalNumerOfICs,rxConfig);
 		driverSWLTC6804WakeIC();
-		driverSWLTC6804WriteConfigRegister(driverSWLTC6804TotalNumerOfICs);
+		driverSWLTC6804WriteConfigRegister(driverSWLTC6804TotalNumerOfICs,0,false);
 		driverSWLTC6804WakeIC();
 		LTCScanCount++;
 	}
@@ -160,7 +157,7 @@ void driverSWLTC6804StartAuxVoltageConversion(uint8_t MD, uint8_t CHG) {
   driverSWLTC6804Write(cmd,4);
 }
 
-bool driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypedef *cellVoltages) {
+bool driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypeDef *cellVoltages) {
 	bool dataValid = true;
 	static uint16_t cellVoltageCodes[1][12]; 
 	
@@ -178,6 +175,24 @@ bool driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypedef *cellVoltages) {
 	}else{
 		dataValid = false;
 	}
+	
+	return dataValid;
+}
+
+bool driverSWLTC6804ReadCellVoltagesArray(float cellVoltagesArray[][12]) {
+	bool dataValid = true;
+	uint16_t cellVoltageArrayCodes[driverSWLTC6804TotalNumerOfICs][12]; 
+	
+	driverSWLTC6804ReadCellVoltageRegisters(CELL_CH_ALL,driverSWLTC6804TotalNumerOfICs,cellVoltageArrayCodes);
+	
+  for(uint8_t modulePointer = 0; modulePointer < driverSWLTC6804TotalNumerOfICs; modulePointer++) {
+		for(uint8_t cellPointer = 0; cellPointer < 12; cellPointer++){
+			if(cellVoltageArrayCodes[modulePointer][cellPointer]*0.0001f < 10.0f)
+			  cellVoltagesArray[modulePointer][cellPointer] = cellVoltageArrayCodes[modulePointer][cellPointer]*0.0001f;
+			else
+				dataValid = false;
+		}
+  }
 	
 	return dataValid;
 }
@@ -263,11 +278,23 @@ void driverSWLTC6804ReadCellVoltageGroups(uint8_t reg, uint8_t total_ic, uint8_t
 }
 
 bool driverSWLTC6804ReadVoltageFlags(uint16_t *underVoltageFlags, uint16_t *overVoltageFlags) {
+	// Variables
+	uint16_t newVoltageUnder = 0;
+	uint16_t newVoltageOver  = 0;
 	driverSWLTC6804StatusStructTypedef driverSWLTC6804StatusStruct[driverSWLTC6804TotalNumerOfICs];
 	
+	// Get the data from the modules
 	driverSWLTC6804ReadStatusValues(driverSWLTC6804TotalNumerOfICs,driverSWLTC6804StatusStruct);
-	*underVoltageFlags = voltageUnder = driverSWLTC6804StatusStruct[0].underVoltage;
-	*overVoltageFlags  = voltageOver = driverSWLTC6804StatusStruct[0].overVoltage;
+	
+	// Combine it
+	for(uint8_t modulePointer = 0; modulePointer < driverSWLTC6804TotalNumerOfICs; modulePointer++) {
+		newVoltageUnder |= driverSWLTC6804StatusStruct[modulePointer].underVoltage;
+		newVoltageOver  |= driverSWLTC6804StatusStruct[modulePointer].overVoltage;
+	}
+	
+	// Transfer the data to the output
+	*underVoltageFlags = newVoltageUnder;
+	*overVoltageFlags  = newVoltageOver;
   return false;
 }
 
@@ -291,16 +318,17 @@ uint8_t driverSWLTC6804ReadStatusValues(uint8_t total_ic, driverSWLTC6804StatusS
 		statusArray[current_ic].sumOfCells          = ((status_data[data_counter+1] << 8) | status_data[data_counter]) * 0.0001f;
 		statusArray[current_ic].dieTemperature      = (((status_data[data_counter+3] << 8) | status_data[data_counter+2]) * 0.0001f)/0.0075f - 273.0f;
 		statusArray[current_ic].voltageAnalogSupply = ((status_data[data_counter+5] << 8) | status_data[data_counter+4]) * 0.0001f;
-		data_counter = data_counter + 6;
+		data_counter += 6;
 		// Calculate PEC
 		received_pec = (status_data[data_counter] << 8) + status_data[data_counter+1];         //The received PEC for the current_ic is transmitted as the 7th and 8th after the 6 cell voltage data bytes
+		data_counter += 2;
 		data_pec = driverSWLTC6804CalcPEC15(BYT_IN_REG, &status_data[current_ic * NUM_RX_BYT]);
 		if(received_pec != data_pec) {
 			pec_error = -1;															                                     //The pec_error variable is simply set negative if any PEC errors are detected in the serial data
 		}
 	}
 	
-	driverSWLTC6804ReadStatusGroups(2,total_ic,status_data);
+	driverSWLTC6804ReadStatusGroups(2,total_ic,status_data);	
 	data_counter = 0;
 	
 	for (uint8_t current_ic = 0 ; current_ic < total_ic; current_ic++) {
@@ -324,9 +352,10 @@ uint8_t driverSWLTC6804ReadStatusValues(uint8_t total_ic, driverSWLTC6804StatusS
 			statusArray[current_ic].overVoltage |= (registersCombinedTemp & (1 << bitPointer*2)) ? (1 << bitPointer) : 0;				// And do the same for the overvoltage bits
 		
 		statusArray[current_ic].muxFail  = 0;		
-		data_counter = data_counter + 6;
+		data_counter += 6;
 		// Calculate PEC
 		received_pec = (status_data[data_counter] << 8) + status_data[data_counter+1];         //The received PEC for the current_ic is transmitted as the 7th and 8th after the 6 cell voltage data bytes
+		data_counter += 2;
 		data_pec = driverSWLTC6804CalcPEC15(BYT_IN_REG, &status_data[current_ic * NUM_RX_BYT]);
 		if(received_pec != data_pec) {
 			pec_error = -1;															                                     //The pec_error variable is simply set negative if any PEC errors are detected in the serial data
@@ -338,7 +367,7 @@ uint8_t driverSWLTC6804ReadStatusValues(uint8_t total_ic, driverSWLTC6804StatusS
 }
 
 void driverSWLTC6804ReadStatusGroups(uint8_t reg, uint8_t total_ic, uint8_t *data ) {
-  const uint8_t REG_LEN = 6; //number of bytes in each ICs register + 2 bytes for the PEC
+  const uint8_t REG_LEN = 8; //number of bytes in each ICs register + 2 bytes for the PEC
   uint8_t cmd[4];
   uint16_t cmd_pec;
   
@@ -449,7 +478,7 @@ void driverSWLTC6804ReadAuxGroups(uint8_t reg, uint8_t total_ic, uint8_t *data) 
 	driverSWLTC6804WriteRead(cmd,4,data,(REG_LEN*total_ic));
 }
 
-void driverSWLTC6804WriteConfigRegister(uint8_t totalNumberOfLTCs) {
+void driverSWLTC6804WriteConfigRegister(uint8_t totalNumberOfLTCs, uint16_t *balanceEnableMaskArray, bool useArray) {
   const uint8_t BYTES_IN_REG = 6;
   const uint8_t CMD_LEN = 4+(8*totalNumberOfLTCs);
   uint8_t *cmd;
@@ -458,14 +487,20 @@ void driverSWLTC6804WriteConfigRegister(uint8_t totalNumberOfLTCs) {
 	uint8_t tx_cfg[totalNumberOfLTCs][6];
 	uint16_t VuV = driverSWLTC6804ConfigStruct.CellUnderVoltageLimit/(16*0.0001);
 	uint16_t VoV = driverSWLTC6804ConfigStruct.CellOverVoltageLimit/(16*0.0001);
+	uint16_t activeBalanceMask;	
 	
   for(int i = 0; i<totalNumberOfLTCs;i++) {
+		if(useArray)
+			activeBalanceMask = balanceEnableMaskArray[i];
+		else
+			activeBalanceMask = driverSWLTC6804ConfigStruct.DisChargeEnableMask;
+		
     tx_cfg[i][0] = (driverSWLTC6804ConfigStruct.GPIO5 << 7) | (driverSWLTC6804ConfigStruct.GPIO4 << 6) | (driverSWLTC6804ConfigStruct.GPIO3 << 5) | (driverSWLTC6804ConfigStruct.GPIO2 << 4) | (driverSWLTC6804ConfigStruct.GPIO1 << 3) | (driverSWLTC6804ConfigStruct.ReferenceON << 2) | (driverSWLTC6804ConfigStruct.ADCOption);
     tx_cfg[i][1] = (VuV & 0xFF) ;
     tx_cfg[i][2] = ((VoV & 0x0F) << 4) | (VuV >> 8) ;
     tx_cfg[i][3] = (VoV >> 4) ; 
-    tx_cfg[i][4] = (driverSWLTC6804ConfigStruct.DisChargeEnableMask & 0xFF) ;
-    tx_cfg[i][5] = ((driverSWLTC6804ConfigStruct.DischargeTimout & 0x0F) << 4) | (driverSWLTC6804ConfigStruct.DisChargeEnableMask >> 8) ;
+    tx_cfg[i][4] = (activeBalanceMask & 0xFF) ;
+    tx_cfg[i][5] = ((driverSWLTC6804ConfigStruct.DischargeTimout & 0x0F) << 4) | (activeBalanceMask >> 8) ;
   }
   
   cmd = (uint8_t *)malloc(CMD_LEN*sizeof(uint8_t));
@@ -486,6 +521,7 @@ void driverSWLTC6804WriteConfigRegister(uint8_t totalNumberOfLTCs) {
     cmd_index = cmd_index + 2;
   }
 
+	driverSWLTC6804WakeIC();
 	driverSWLTC6804Write(cmd,CMD_LEN);
   free(cmd);
 }
@@ -494,8 +530,12 @@ void driverSWLTC6804EnableBalanceResistors(uint16_t enableMask) {
 	driverSWLTC6804ConfigStruct.DisChargeEnableMask = enableMask;
 	
 	if(driverSWLTC6804TotalNumerOfICs == 1) {
-		driverSWLTC6804WriteConfigRegister(driverSWLTC6804TotalNumerOfICs);
+		driverSWLTC6804WriteConfigRegister(driverSWLTC6804TotalNumerOfICs,0,false);
 	}
+}
+
+void driverSWLTC6804EnableBalanceResistorsArray(uint16_t *enableMask) {
+	driverSWLTC6804WriteConfigRegister(driverSWLTC6804TotalNumerOfICs,enableMask,true);
 }
 
 uint16_t driverSWLTC6804CalcPEC15(uint8_t len, uint8_t *data) {

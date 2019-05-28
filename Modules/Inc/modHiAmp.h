@@ -48,10 +48,13 @@ float modHiAmpShieldShuntMonitorGetVoltage(void);
 float modHiAmpShieldShuntMonitorGetCurrent(void);
 void  modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed);
 void  modHiAmpShieldRelayControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage);
+void  modHiAmpShieldHVSSRControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage);
 void  modHiAmpShieldRelayControllerTask(void);
+void  modHiAmpShieldHVSSRControllerTask(void);
 void  modHiAmpShieldRelayControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge);
+void  modHiAmpShieldHVSSRControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge);
+void  modHiAmpShieldHVSSRApplyOutputs(void);
 void  modHiAmpShieldTemperatureHumidityMeasureTask(void);
 void  modHiAmpShieldResetSensors(void);
-void  modHiAmpShieldHVSSRTask(void);
 
 #endif

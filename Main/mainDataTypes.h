@@ -570,9 +570,9 @@ typedef enum {
 } configChargerEnableStateTypeEnum;
 
 typedef enum {
-  baud125k = 0,
-	baud250k,
-	baud500k
+  canSpeedBaud125k = 0,
+	canSpeedBaud250k,
+	canSpeedBaud500k
 } configCANSpeedTypeEnum;
 
 typedef enum {
@@ -644,9 +644,23 @@ typedef enum {
   buzzerSignalTypePulse1000_4	
 } buzzerSignalType;
 
+typedef enum {
+	canEmitProtocolNone = 0,
+  canEmitProtocolDieBieEngineering,
+	canEmitProtocolMGElectronics
+} canEmitProtocol;
+
 typedef struct {
-	float cellVoltage;
+	float   cellVoltage;
 	uint8_t cellNumber;
-} cellMonitorCellsTypedef;
+	bool    cellBleedActive;
+} cellMonitorCellsTypeDef;
+
+typedef struct {
+  float    voltages[12];
+	uint16_t balanceMask;
+	float    temperatures[8];
+	float    humidity;
+} cellMonitorModuleTypeDef;
 
 #endif /* DATATYPES_H_ */

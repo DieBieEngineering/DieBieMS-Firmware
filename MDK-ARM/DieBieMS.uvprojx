@@ -548,6 +548,11 @@
               <FilePath>..\Drivers\SWDrivers\Src\driverSWADC128D818.c</FilePath>
             </File>
             <File>
+              <FileName>driverSWADS1015.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWADS1015.c</FilePath>
+            </File>
+            <File>
               <FileName>driverSWCC1101.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\SWDrivers\Src\driverSWCC1101.c</FilePath>

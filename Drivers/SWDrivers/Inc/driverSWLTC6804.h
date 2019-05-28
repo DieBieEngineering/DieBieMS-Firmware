@@ -185,8 +185,9 @@ typedef struct {
 } driverSWLTC6804StatusStructTypedef;
 
 void     driverSWLTC6804Init(driverLTC6804ConfigStructTypedef configStruct, uint8_t totalNumberOfLTCs);
-void     driverSWLTC6804WriteConfigRegister(uint8_t nIC);
+void     driverSWLTC6804WriteConfigRegister(uint8_t totalNumberOfLTCs, uint16_t *balanceEnableMaskArray, bool useArray);
 void     driverSWLTC6804EnableBalanceResistors(uint16_t enableMask);
+void     driverSWLTC6804EnableBalanceResistorsArray(uint16_t *enableMask);
 int8_t   driverSWLTC6804ReadConfigRegister(uint8_t nIC, uint8_t r_config[][8]);
 void     driverSWLTC6804ResetCellVoltageRegisters(void);
 void     driverSWLTC6804ResetAuxRegisters(void);
@@ -195,7 +196,8 @@ void     driverSWLTC6804StartCellAndAuxVoltageConversion(uint8_t MD,uint8_t DCP)
 void     driverSWLTC6804StartCellVoltageConversion(uint8_t MD,uint8_t DCP, uint8_t CH);
 void     driverSWLTC6804StartLoadedCellVoltageConversion(uint8_t MD,uint8_t DCP, uint8_t CH,uint8_t PUP);
 void     driverSWLTC6804StartAuxVoltageConversion(uint8_t MD, uint8_t CHG);
-bool     driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypedef *cellVoltages);
+bool     driverSWLTC6804ReadCellVoltages(cellMonitorCellsTypeDef *cellVoltages);
+bool     driverSWLTC6804ReadCellVoltagesArray(float cellVoltagesArrayp[][12]);
 uint8_t  driverSWLTC6804ReadCellVoltageRegisters(uint8_t reg, uint8_t total_ic, uint16_t cell_codes[][12]);
 void     driverSWLTC6804ReadCellVoltageGroups(uint8_t reg, uint8_t total_ic, uint8_t *data);
 int8_t   driverSWLTC6804ReadAuxVoltages(uint8_t reg, uint8_t total_ic, uint16_t aux_codes[][6]);

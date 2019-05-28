@@ -19,6 +19,7 @@ typedef struct {
 	// Master BMS
 	uint8_t  noOfCellsSeries;																											// Number of cell groups in series in pack
 	uint8_t  noOfCellsParallel;                                                   // Number of cells in parallel group
+	uint8_t  noOfCellsPerModule;                                                  // Number of cells per module
 	float    batteryCapacity;																											// Battery capacity in Ah
 	float    cellHardUnderVoltage;																								// If the lowest cell is under this voltage -> Error situation, turn all off and power down
 	float    cellHardOverVoltage;																									// If the upper cell is above this voltage -> Error situation, turn all off and power down
@@ -74,6 +75,7 @@ typedef struct {
 	uint8_t  CANID;																																// Stores the CAN ID of the device.
 	uint8_t  CANIDStyle;                                                          // Store the ID style used to communicate over CAN
 	uint8_t  emitStatusOverCAN;                                                   // Enable or disable sending of status over CAN
+	uint8_t  emitStatusProtocol;																									// The protocol type / format to send the status data
 	uint16_t waterSensorEnableMask;                                               // Stores the mask to select the inputs to act as water detector.
 	float    waterSensorThreshold;                                                // - The threshold the enabled water sensor input should pass in order to trigger the water detected state.
 	uint32_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
@@ -93,6 +95,7 @@ typedef struct {
 	uint8_t  canBusSpeed;																													// CAN bus baudrate
 	uint8_t  chargeEnableOperationalState;                                        // State to enter when BMS is turned on due to charger
 	uint8_t  DCDCEnableInverted;                                                  // States whether or not to invert the DCDC enable signal
+	float    DCDCTargetVoltage;                                                   // Target output voltage for the DCDC converter, this is checked in order to validate the slave sensors.
 	
 	// Slave - HiAmp Config
 	uint32_t NTCTopResistor[modConfigNoOfNTCTypes];                               // NTC Pullup resistor value
