@@ -129,7 +129,7 @@ void modHiAmpTask(void) {
 			modHiAmpPackStateHandle->auxVoltage           = driverSWDCDCGetAuxVoltage();
 			modHiAmpPackStateHandle->auxCurrent           = driverSWDCDCGetAuxCurrent();
 			modHiAmpPackStateHandle->auxPower             = modHiAmpPackStateHandle->auxVoltage * modHiAmpPackStateHandle->auxCurrent;
-			modHiAmpPackStateHandle->auxDCDCOutputOK      = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.1f); // Nominal is 12V max error is 10%
+			modHiAmpPackStateHandle->auxDCDCOutputOK      = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,modHiAmpGeneralConfigHandle->DCDCTargetVoltage,0.1f); // Nominal is 12V max error is 10%
 			modHiAmpPackStateHandle->hiCurrentLoadVoltage = modHiAmpShieldShuntMonitorGetVoltage();
 			modHiAmpPackStateHandle->hiCurrentLoadCurrent = modHiAmpShieldShuntMonitorGetCurrent();
 			modHiAmpPackStateHandle->hiCurrentLoadPower   = modHiAmpPackStateHandle->hiCurrentLoadVoltage * modHiAmpPackStateHandle->hiCurrentLoadCurrent;
@@ -289,7 +289,7 @@ float modHiAmpShieldShuntMonitorGetCurrent(void) {
 			// Get current from CAN shunt
 			break;
 	  case sourceLoadHCCurrentCANIsabellenhutte:
-		  measuredCurrent = IVTCurrent;// Get current from CAN shunt
+		  measuredCurrent = driverIVT_GetAverageCurrent();// Get current from CAN shunt
 			break;
 		default:
 			break;

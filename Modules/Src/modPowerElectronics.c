@@ -946,8 +946,9 @@ void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
 			// Convert modules to full array
 			
 			// Read aux voltages
-			//driverSWLTC6804ReadAuxSensors(modPowerElectronicsAuxVoltageArray);
-			//modPowerElectronicsPackStateHandle->temperatures[0] =	modPowerElectronicsPackStateHandle->temperatures[1] = driverSWLTC6804ConvertTemperatureExt(modPowerElectronicsAuxVoltageArray[1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
+			//TODO these were cometnted
+			driverSWLTC6804ReadAuxSensors(modPowerElectronicsAuxVoltageArray);
+			modPowerElectronicsPackStateHandle->temperatures[0] =	modPowerElectronicsPackStateHandle->temperatures[1] = driverSWLTC6804ConvertTemperatureExt(modPowerElectronicsAuxVoltageArray[1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
 		}break;
 		default:
 			break;

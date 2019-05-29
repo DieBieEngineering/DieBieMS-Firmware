@@ -12,8 +12,14 @@
 #include "modCAN.h"
 
 float IVTCurrent;
+float IVTVoltage[3];
+float IVTTemperature;
 
 void driverIVTcanmsgHandle(CanRxMsgTypeDef canMsg);
+float driverIVT_GetAverageCurrent();
+float driverIVT_GetAverageVoltage();
+
+
 
 
 #endif /* SWDRIVERS_INC_DRIVERIVT_H_ */
