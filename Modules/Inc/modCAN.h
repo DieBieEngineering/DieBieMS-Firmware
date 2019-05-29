@@ -20,30 +20,35 @@
 #ifndef MODCAN_H_
 #define MODCAN_H_
 
-#include "generalDefines.h"
-#include "mainDataTypes.h"
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
-#include "modDelay.h"
-#include "modCommands.h"
-#include "libCRC.h"
-#include "libPacket.h"
-#include "libBuffer.h"
-#include "modPowerElectronics.h"
 #include "modConfig.h"
-#include <string.h>
-#include <math.h>
+#include "generalDefines.h"
+#include "mainDataTypes.h"
+
+#include "modPowerElectronics.h"
+
+//#include "modDelay.h"
+//#include "modCommands.h"
+//#include "libCRC.h"
+//#include "libPacket.h"
+//#include "libBuffer.h"
+//#include <string.h>
+//#include <math.h>
 //#include "driverIVT.h"
 
 // Settings
 #define CAN_STATUS_MSG_INT_MS	1
-#define RX_CAN_FRAMES_SIZE	    255       // max 255
-#define RX_CAN_BUFFER_SIZE	    PACKET_MAX_PL_LEN
+#define MODCAN_MAX_CALLBACKS	5
+
+//Moved to modComunicaiton
+//#define RX_CAN_FRAMES_SIZE	    255       // max 255
+//#define RX_CAN_BUFFER_SIZE	    PACKET_MAX_PL_LEN
+
 
 void          modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void          modCANTask(void);
-_Bool 	      modCANSubscribeCallbackBuffered(void (*funptr)(CanRxMsgTypeDef*));
-_Bool		  modCANSubscribeCallbackUnbuffered(void (*funptr)(CanRxMsgTypeDef*));
+_Bool 	      modCANSubscribeCallback(void (*funptr)(CanRxMsgTypeDef*));
 
 void          modCANTransmitExtID(uint32_t id, uint8_t *data, uint8_t len);
 void          modCANTransmitStandardID(uint32_t id, uint8_t *data, uint8_t len);
@@ -52,7 +57,7 @@ CAN_PACKET_ID modCANGetPacketID(CanRxMsgTypeDef canMsg);
 uint32_t      modCANGetCANID(uint32_t destinationID, CAN_PACKET_ID packetID);
 void          modCANRXWatchDog(void);
 
-//* Moved to modComunicaiton.h
+/* Moved to modComunicaiton.h
 void          modCANSendSimpleStatusFast(void);
 void          modCANSendSimpleStatusSlow(void);
 void          modCANSubTaskHandleCommunication(void);

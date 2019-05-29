@@ -1,8 +1,19 @@
-#include "modCAN.h"
+/*
+ * modComunicaiton.c
+ *
+ *  Created on: 29 May 2019
+ *      Author: Tjitte van der Ploeg
+ */
 
+#include "modComunicaiton.h"
 
-int modCanSubscriebIDs = 0;
-void (*modCANRxCallbackPointers[MODCAN_MAX_CALLBACKS])(CanRxMsgTypeDef*);
+#include "modDelay.h"
+#include "modCommands.h"
+#include "libCRC.h"
+#include "libPacket.h"
+#include "libBuffer.h"
+#include <string.h>
+#include <math.h>
 
 // Variables
 CAN_HandleTypeDef      modCANHandle;
@@ -12,114 +23,42 @@ uint32_t               modCANSendStatusSimpleSlowLastTisk;
 uint32_t               modCANSafetyCANMessageTimeout;
 uint32_t               modCANLastRXID;
 uint32_t               modCANLastRXDifferLastTick;
+static uint8_t         modCANRxBuffer[RX_CAN_BUFFER_SIZE];
+static uint8_t         modCANRxBufferLastID;
+static CanRxMsgTypeDef modCANRxFrames[RX_CAN_FRAMES_SIZE];
+static uint8_t         modCANRxFrameRead;
+static uint8_t         modCANRxFrameWrite;
 
-//Moved to modComunicaiton
-//static uint8_t         modCANRxBuffer[RX_CAN_BUFFER_SIZE];
-//static uint8_t         modCANRxBufferLastID;
-//static CanRxMsgTypeDef modCANRxFrames[RX_CAN_FRAMES_SIZE];
-//static uint8_t         modCANRxFrameRead;
-//static uint8_t         modCANRxFrameWrite;
-//uint32_t               modCANLastChargerHeartBeatTick;
-//uint32_t               modCANChargerTaskIntervalLastTick;
-//bool                   modCANChargerPresentOnBus;
-//uint8_t                modCANChargerCANOpenState;
-//uint8_t                modCANChargerChargingState;
-//ChargerStateTypedef chargerOpState = opInit;
-//ChargerStateTypedef chargerOpStateNew = opInit;
+uint32_t               modCANLastChargerHeartBeatTick;
+uint32_t               modCANChargerTaskIntervalLastTick;
+bool                   modCANChargerPresentOnBus;
+uint8_t                modCANChargerCANOpenState;
+uint8_t                modCANChargerChargingState;
+
+ChargerStateTypedef chargerOpState = opInit;
+ChargerStateTypedef chargerOpStateNew = opInit;
 
 modPowerElectronicsPackStateTypedef *modCANPackStateHandle;
 modConfigGeneralConfigStructTypedef *modCANGeneralConfigHandle;
 
-void modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
-  static CanTxMsgTypeDef        TxMessage;
-  static CanRxMsgTypeDef        RxMessage;
-	
-	modCANPackStateHandle = packState;
-	modCANGeneralConfigHandle = generalConfigPointer;
-	
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	
-  modCANHandle.Instance = CAN;
-  modCANHandle.pTxMsg = &TxMessage;
-  modCANHandle.pRxMsg = &RxMessage;
-	
-	switch(modCANGeneralConfigHandle->canBusSpeed) {
-		case canSpeedBaud125k:
-			modCANHandle.Init.Prescaler = 36;
-			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
-			modCANHandle.Init.SJW = CAN_SJW_1TQ;
-			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
-			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
-			break;
-		case canSpeedBaud250k:
-			modCANHandle.Init.Prescaler = 18;
-			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
-			modCANHandle.Init.SJW = CAN_SJW_1TQ;
-			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
-			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
-			break;
-		case canSpeedBaud500k:
-		default:
-			modCANHandle.Init.Prescaler = 9;
-			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
-			modCANHandle.Init.SJW = CAN_SJW_1TQ;
-			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
-			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
-			break;
-	}
-	
-	modCANHandle.Init.TTCM = DISABLE;
-	modCANHandle.Init.ABOM = ENABLE; // Enable this for automatic recovery?
-	modCANHandle.Init.AWUM = DISABLE;
-	modCANHandle.Init.NART = DISABLE;
-	modCANHandle.Init.RFLM = DISABLE;
-	modCANHandle.Init.TXFP = DISABLE;
-	
-  if(HAL_CAN_Init(&modCANHandle) != HAL_OK)
-    while(true){};
-			
-  CAN_FilterConfTypeDef canFilterConfig;
-  canFilterConfig.FilterNumber = 0;
-  canFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-  canFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-  canFilterConfig.FilterIdHigh = 0x0000;
-  canFilterConfig.FilterIdLow = 0x0000;
-  canFilterConfig.FilterMaskIdHigh = 0x0000 << 5;
-  canFilterConfig.FilterMaskIdLow = 0x0000;
-  canFilterConfig.FilterFIFOAssignment = CAN_FIFO0;
-  canFilterConfig.FilterActivation = ENABLE;
-  canFilterConfig.BankNumber = 0;
-  HAL_CAN_ConfigFilter(&modCANHandle, &canFilterConfig);
+void modComunicationInit(void){
+	modCANSubscribeCallback(&modComunicaitonCANRxCallback);
 
-  if(HAL_CAN_Receive_IT(&modCANHandle, CAN_FIFO0) != HAL_OK)
-    while(true){};
-
-  /* moved to modComunicaiton
 	modCANRxFrameRead = 0;
 	modCANRxFrameWrite = 0;
-			
+
 	modCANSendStatusSimpleFastLastTisk = HAL_GetTick();
 	modCANSendStatusSimpleSlowLastTisk = HAL_GetTick();
 	modCANSafetyCANMessageTimeout = HAL_GetTick();
 	modCANErrorLastTick = HAL_GetTick();
-	*/
 }
 
-void modCANTask(void){		
-	// Manage HAL CAN driver's active state
-	if((modCANHandle.State != HAL_CAN_STATE_BUSY_RX)) {
-		//if(modDelayTick1ms(&modCANErrorLastTick,1000))
-	  HAL_CAN_Receive_IT(&modCANHandle, CAN_FIFO0);
-	}else{
-		modCANErrorLastTick = HAL_GetTick();
-	}
-	
-	/*Moved to comunicaiton
+void modComunicationTask(){
 	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
 		// Send status messages with interval
 		if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
 			modCANSendSimpleStatusFast();
-		
+
 		// Send status messages with interval
 		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
 			modCANSendSimpleStatusSlow();
@@ -127,147 +66,29 @@ void modCANTask(void){
 
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
 		modCANPackStateHandle->safetyOverCANHCSafeNSafe = false;
-	*/
-	// Handle received CAN bus data
-	modCANSubTaskHandleCommunication();
-	modCANRXWatchDog();
-	
-	//TODO move to current monitor
-	// Control the charger
-	modCANHandleSubTaskCharger();
 }
 
-//Subscribe a function to the callback list for buffered RX massages.
-//Returns true if successful
-_Bool modCANSubscribeCallback(void (*funptr)(CanRxMsgTypeDef*)){
-	if(modCanSubscriebIDs < MODCAN_MAX_CALLBACKS){
-		modCANRxCallbackPointers[modCanSubscriebIDs] = funptr;
-		modCanSubscriebIDs++;
-		return true;
+void modComunicaitonCANRxCallback(CanRxMsgTypeDef *canMsg){
+	// Handle CAN message
+	if(canMsg->IDE == CAN_ID_STD) {         // Standard ID
+		modCANHandleCANOpenMessage(*canMsg);
 	}
-	else
-		return false;
-}
-
-
-uint32_t modCANGetDestinationID(CanRxMsgTypeDef canMsg) {
-	uint32_t destinationID;
-	
-	switch(modCANGeneralConfigHandle->CANIDStyle) {
-		default:																																					// Default to VESC style ID
-	  case CANIDStyleVESC:
-			destinationID = canMsg.ExtId & 0xFF;
-			break;
-		case CANIDStyleFoiler:
-			destinationID = (canMsg.ExtId >> 8) & 0xFF;
-			break;
-	}
-	
-	return destinationID;
-}
-
-CAN_PACKET_ID modCANGetPacketID(CanRxMsgTypeDef canMsg) {
-	CAN_PACKET_ID packetID;
-
-	switch(modCANGeneralConfigHandle->CANIDStyle) {
-		default:																																					// Default to VESC style ID
-	  case CANIDStyleVESC:
-			packetID = (CAN_PACKET_ID)((canMsg.ExtId >> 8) & 0xFF);
-			break;
-		case CANIDStyleFoiler:
-			packetID = (CAN_PACKET_ID)((canMsg.ExtId) & 0xFF);
-			break;
-	}
-	
-	return packetID;
-}
-
-uint32_t modCANGetCANID(uint32_t destinationID, CAN_PACKET_ID packetID) {
-	uint32_t returnCANID;
-	
-	switch(modCANGeneralConfigHandle->CANIDStyle) {
-		default:																																					// Default to VESC style ID
-	  case CANIDStyleVESC:
-			returnCANID = ((uint32_t) destinationID) | ((uint32_t)packetID << 8);
-			break;
-		case CANIDStyleFoiler:
-			returnCANID = ((uint32_t) destinationID << 8) | ((uint32_t)packetID);
-			break;
-	}
-	
-  return returnCANID;
-}
-
-
-
-void CAN_RX0_IRQHandler(void) {
-  HAL_CAN_IRQHandler(&modCANHandle);
-}
-
-void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *CanHandle) {
-	//Call subscribed callback funktions
-	for(int index = 0; index < modCanSubscriebIDs; index++){
-		(*modCANRxCallbackPointers[index])(CanHandle->pRxMsg);
-	}
-
-	/*Moved to modComunicaiton
-	// Handle CAN message	
-	if((*CanHandle->pRxMsg).IDE == CAN_ID_STD) {         // Standard ID
-		modCANHandleCANOpenMessage(*CanHandle->pRxMsg);
-	}else{                                               // Extended ID
-		if((*CanHandle->pRxMsg).ExtId == 0x0A23){
-			modCANHandleKeepAliveSafetyMessage(*CanHandle->pRxMsg);
-		}else{
-			uint8_t destinationID = modCANGetDestinationID(*CanHandle->pRxMsg);
+	else{                                               // Extended ID
+		if(canMsg->ExtId == 0x0A23){
+		modCANHandleKeepAliveSafetyMessage(*canMsg);
+		}
+		else{
+			uint8_t destinationID = modCANGetDestinationID(*canMsg);
 			if(destinationID == modCANGeneralConfigHandle->CANID){
-				modCANRxFrames[modCANRxFrameWrite++] = *CanHandle->pRxMsg;
+				modCANRxFrames[modCANRxFrameWrite++] = *canMsg;
 				if(modCANRxFrameWrite >= RX_CAN_FRAMES_SIZE) {
 					modCANRxFrameWrite = 0;
 				}
 			}
 		}
 	}
-	*/
-  HAL_CAN_Receive_IT(&modCANHandle, CAN_FIFO0);
 }
 
-
-void modCANTransmitExtID(uint32_t id, uint8_t *data, uint8_t len) {
-	CanTxMsgTypeDef txmsg;
-	txmsg.IDE = CAN_ID_EXT;
-	txmsg.ExtId = id;
-	txmsg.RTR = CAN_RTR_DATA;
-	txmsg.DLC = len;
-	memcpy(txmsg.Data, data, len);
-
-	modCANHandle.pTxMsg = &txmsg;
-	HAL_CAN_Transmit(&modCANHandle,1);
-}
-
-void modCANTransmitStandardID(uint32_t id, uint8_t *data, uint8_t len) {
-	CanTxMsgTypeDef txmsg;
-	txmsg.IDE = CAN_ID_STD;
-	txmsg.StdId = id;
-	txmsg.RTR = CAN_RTR_DATA;
-	txmsg.DLC = len;
-	memcpy(txmsg.Data, data, len);
-	
-	modCANHandle.pTxMsg = &txmsg;
-	HAL_CAN_Transmit(&modCANHandle,1);
-}
-
-void modCANRXWatchDog(void){
-  if(modCANHandle.pRxMsg->ExtId != modCANLastRXID){
-	  modCANLastRXID = modCANHandle.pRxMsg->ExtId;
-		modCANLastRXDifferLastTick = HAL_GetTick();
-	}
-
-	if(modDelayTick1ms(&modCANLastRXDifferLastTick,1000)){
-		modCANInit(modCANPackStateHandle,modCANGeneralConfigHandle);
-	}
-}
-
-/* Moved to modComunicaiton
 void modCANSubTaskHandleCommunication(void) {
 	static int32_t ind = 0;
 	static unsigned int rxbuf_len;
@@ -369,7 +190,7 @@ void modCANSendSimpleStatusFast(void) {
 	flagHolder |= (modCANPackStateHandle->packInSOADischarge     << 5);
 	flagHolder |= (modCANPackStateHandle->chargeBalanceActive    << 6);
 	flagHolder |= (modCANPackStateHandle->powerButtonActuated    << 7);
-	
+
 	// Send (dis)charge throttle and booleans.
 	sendIndex = 0;
 	libBufferAppend_float16(buffer, modCANPackStateHandle->hiCurrentLoadVoltage,1e2,&sendIndex);
@@ -433,7 +254,7 @@ void modCANSendSimpleStatusSlow(void) {
 	libBufferAppend_uint8(buffer,flagHolder,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_WATER_HCLOAD), buffer, sendIndex);
 
-	
+
 	// Send individual temp data
 	sendIndex = 0;
   libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->temperatures[TEMP_INT_ADC_NTCAUX],&sendIndex);
@@ -458,7 +279,7 @@ void modCANSendSimpleStatusSlow(void) {
  * If true, this packet will be passed to the send function of commands.
  * Otherwise, it will be passed to the process function.
  */
-/*Moved to modComunicaiton
+
 void modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, bool send) {
 	uint8_t send_buffer[8];
 
@@ -514,7 +335,7 @@ void modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, boo
 		unsigned short crc = libCRCCalcCRC16(data, len);
 		send_buffer[ind++] = (uint8_t)(crc >> 8);
 		send_buffer[ind++] = (uint8_t)(crc & 0xFF);
-    
+
 		// Old ID method
 		//modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_PROCESS_RX_BUFFER << 8), send_buffer, ind++);
 		modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_PROCESS_RX_BUFFER), send_buffer, ind++);
@@ -580,12 +401,12 @@ void modCANHandleKeepAliveSafetyMessage(CanRxMsgTypeDef canMsg) {
 			modCANSafetyCANMessageTimeout = HAL_GetTick();
 			modCANPackStateHandle->safetyOverCANHCSafeNSafe = (canMsg.Data[0] & 0x02) ? true : false;
 		}
-		
+
 		if(canMsg.Data[0] & 0x04){
 				modCANPackStateHandle->watchDogTime = (canMsg.Data[0] & 0x08) ? 255 : 0;
 		}
 	}
-	
+
 	if(canMsg.DLC >= 2){
 		if(canMsg.Data[1] & 0x10){
 			modCANPackStateHandle->chargeBalanceActive = modCANGeneralConfigHandle->allowChargingDuringDischarge;
@@ -601,28 +422,24 @@ void modCANHandleCANOpenMessage(CanRxMsgTypeDef canMsg) {
 	}else if(canMsg.StdId == 0x048A){
 	  modCANChargerChargingState = canMsg.Data[5];
 	}
-
-  // moved to subscription based rx callback
-  //driverIVTcanmsgHandle(canMsg);
-
 }
 
 void modCANHandleSubTaskCharger(void) {
   //static uint8_t chargerOpState = opInit;
   //static uint8_t chargerOpStateNew = opInit;
-	
+
   if(modDelayTick1ms(&modCANChargerTaskIntervalLastTick, 500)) {
 		// Check charger present
 		modCANOpenChargerCheckPresent();
-		
+
 		if(modCANChargerPresentOnBus) {
 		  // Send HeartBeat from bms
 			modCANOpenBMSSendHeartBeat();
-		
+
 			// Manage operational state and start network
 			if(modCANChargerCANOpenState != 0x05)
 				modCANOpenChargerStartNode();
-			
+
 			if(modCANChargerCANOpenState == 0x05) {
 				switch(chargerOpState) {
 					case opInit:
@@ -642,7 +459,7 @@ void modCANHandleSubTaskCharger(void) {
 						break;
 					case opCharging:
 						modCANOpenChargerSetCurrentVoltageReady(30.0f*modCANPackStateHandle->throttleDutyCharge/1000,modCANGeneralConfigHandle->noOfCellsSeries*modCANGeneralConfigHandle->cellSoftOverVoltage+0.6f,true);
-					
+
 					  if(modCANPackStateHandle->powerDownDesired)
 					    chargerOpStateNew = opInit;
 
@@ -650,13 +467,13 @@ void modCANHandleSubTaskCharger(void) {
 					default:
 						chargerOpStateNew = opInit;
 				}
-				
+
 				chargerOpState = chargerOpStateNew;
-				
+
 			  modCANPackStateHandle->chargeBalanceActive = modCANGeneralConfigHandle->allowChargingDuringDischarge;
 			  modPowerElectronicsResetBalanceModeActiveTimeout();
 		  }
-			
+
 	  }else{
 		  chargerOpState = opInit;
 		}
@@ -684,22 +501,22 @@ void modCANOpenChargerStartNode(void) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[2];
 	libBufferAppend_uint8(buffer, 0x01, &sendIndex);
-	libBufferAppend_uint8(buffer, 0x0A, &sendIndex);	
+	libBufferAppend_uint8(buffer, 0x0A, &sendIndex);
 	modCANTransmitStandardID(0x0000, buffer, sendIndex);
 }
 
 void modCANOpenChargerSetCurrentVoltageReady(float current,float voltage,bool ready) {
 	uint32_t modCANChargerRequestVoltageInt = voltage * 1024;
 	uint16_t modCANChargerRequestCurrentInt = current * 16;
-	
+
 	int32_t sendIndex = 0;
 	uint8_t buffer[8];
 	libBufferAppend_uint16_LSBFirst(buffer, modCANChargerRequestCurrentInt, &sendIndex);
-	libBufferAppend_uint8(buffer, ready, &sendIndex);	
-	libBufferAppend_uint32_LSBFirst(buffer, modCANChargerRequestVoltageInt, &sendIndex);		
+	libBufferAppend_uint8(buffer, ready, &sendIndex);
+	libBufferAppend_uint32_LSBFirst(buffer, modCANChargerRequestVoltageInt, &sendIndex);
 	modCANTransmitStandardID(0x040A, buffer, sendIndex);
 }
-*/
+
 
 
 
