@@ -1,5 +1,4 @@
 #include "modCAN.h"
-
 // Variables
 CAN_HandleTypeDef      modCANHandle;
 uint32_t               modCANErrorLastTick;
@@ -554,6 +553,11 @@ void modCANHandleCANOpenMessage(CanRxMsgTypeDef canMsg) {
 	}else if(canMsg.StdId == 0x048A){
 	  modCANChargerChargingState = canMsg.Data[5];
 	}
+	else if(canMsg.StdId == 0x0561){
+
+	}
+
+  driverIVTcanmsgHandle(canMsg);
 }
 
 void modCANHandleSubTaskCharger(void) {

@@ -1,5 +1,6 @@
 #include "modPowerElectronics.h"
 #include "modTerminal.h"
+#include "driverIVT.h"
 
 modPowerElectronicsPackStateTypedef *modPowerElectronicsPackStateHandle;
 modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
@@ -154,7 +155,7 @@ bool modPowerElectronicsTask(void) {
 		modPowerElectronicsPackStateHandle->packCurrent = modPowerElectronicsCalcPackCurrent();
 		modPowerElectronicsPackStateHandle->packPower   = modPowerElectronicsPackStateHandle->packCurrent * modPowerElectronicsPackStateHandle->packVoltage;
 		
-    // Read the battery cell voltages and temperatures with the cell monitor ICs
+		// Read the battery cell voltages and temperatures with the cell monitor ICs
 		modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();
 		
 		// get STM32 ADC NTC temp
@@ -1316,8 +1317,10 @@ float modPowerElectronicsCalcPackCurrent(void){
 			break;
 		case sourcePackCurrentNone:
 		case sourcePackCurrentCANDieBieShunt:
-		case sourcePackCurrentCANIsaBellenHuette:
 			returnCurrent = 0.0f;
+			break;
+		case sourcePackCurrentCANIsaBellenHuette:
+			returnCurrent = IVTCurrent;
 			break;	
 		default:
 			break;

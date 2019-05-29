@@ -1,4 +1,5 @@
 #include "modHiAmp.h"
+#include "driverIVT.h"
 
 modPowerElectronicsPackStateTypedef *modHiAmpPackStateHandle;
 modConfigGeneralConfigStructTypedef *modHiAmpGeneralConfigHandle;
@@ -288,7 +289,7 @@ float modHiAmpShieldShuntMonitorGetCurrent(void) {
 			// Get current from CAN shunt
 			break;
 	  case sourceLoadHCCurrentCANIsabellenhutte:
-			// Get current from CAN shunt
+		  measuredCurrent = IVTCurrent;// Get current from CAN shunt
 			break;
 		default:
 			break;

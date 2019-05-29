@@ -33,7 +33,7 @@
 #include "modConfig.h"
 #include <string.h>
 #include <math.h>
-
+#include "driverIVT.h";
 // Settings
 #define CAN_STATUS_MSG_INT_MS		1
 #define RX_CAN_FRAMES_SIZE	    255       // max 255
