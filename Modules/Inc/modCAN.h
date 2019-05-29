@@ -33,22 +33,29 @@
 #include "modConfig.h"
 #include <string.h>
 #include <math.h>
-#include "driverIVT.h";
+//#include "driverIVT.h"
+
 // Settings
-#define CAN_STATUS_MSG_INT_MS		1
+#define CAN_STATUS_MSG_INT_MS	1
 #define RX_CAN_FRAMES_SIZE	    255       // max 255
 #define RX_CAN_BUFFER_SIZE	    PACKET_MAX_PL_LEN
 
 void          modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void          modCANTask(void);
+_Bool 	      modCANSubscribeCallbackBuffered(void (*funptr)(CanRxMsgTypeDef*));
+_Bool		  modCANSubscribeCallbackUnbuffered(void (*funptr)(CanRxMsgTypeDef*));
+
+void          modCANTransmitExtID(uint32_t id, uint8_t *data, uint8_t len);
+void          modCANTransmitStandardID(uint32_t id, uint8_t *data, uint8_t len);
 uint32_t      modCANGetDestinationID(CanRxMsgTypeDef canMsg);
 CAN_PACKET_ID modCANGetPacketID(CanRxMsgTypeDef canMsg);
 uint32_t      modCANGetCANID(uint32_t destinationID, CAN_PACKET_ID packetID);
+void          modCANRXWatchDog(void);
+
+//* Moved to modComunicaiton.h
 void          modCANSendSimpleStatusFast(void);
 void          modCANSendSimpleStatusSlow(void);
 void          modCANSubTaskHandleCommunication(void);
-void          modCANTransmitExtID(uint32_t id, uint8_t *data, uint8_t len);
-void          modCANTransmitStandardID(uint32_t id, uint8_t *data, uint8_t len);
 void          modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, bool send);
 void          modCANSetESCDuty(uint8_t controllerID, float duty);
 void          modCANSetESCCurrent(uint8_t controllerID, float current);
@@ -61,10 +68,11 @@ static void   modCANSendPacketWrapper(unsigned char *data, unsigned int len);
 void          modCANHandleKeepAliveSafetyMessage(CanRxMsgTypeDef canMsg);
 void          modCANHandleCANOpenMessage(CanRxMsgTypeDef canMsg);
 void          modCANHandleSubTaskCharger(void);
-void          modCANRXWatchDog(void);
 void          modCANOpenChargerCheckPresent(void);
 void          modCANOpenBMSSendHeartBeat(void);
 void          modCANOpenChargerStartNode(void);
 void          modCANOpenChargerSetCurrentVoltageReady(float current,float voltage,bool ready);
+//*/
+
 
 #endif /* MODCAN_H_ */

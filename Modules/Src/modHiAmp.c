@@ -79,6 +79,9 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 		driverSWADC128D818Init();																												// Init the NTC ADC
 		driverSWSHT21Init();																														// Init the Temperature / humidity sensor
 		
+		//Init IVT module
+		driverIVTinit();
+
 		if(modHiAmpPackStateHandle->slaveShieldPresenceMainISL){
 			modHiAmpShieldMainPathMonitorInit();
 		}

@@ -15,7 +15,8 @@ float IVTCurrent;
 float IVTVoltage[3];
 float IVTTemperature;
 
-void driverIVTcanmsgHandle(CanRxMsgTypeDef canMsg);
+void driverIVTinit(void);
+//void driverIVTcanmsgHandle(CanRxMsgTypeDef *canMsg);
 float driverIVT_GetAverageCurrent();
 float driverIVT_GetAverageVoltage();
 

@@ -1,4 +1,10 @@
 #include "modCAN.h"
+
+#define MODCAN_MAX_CALLBACKS	5
+
+int modCanSubscriebIDs = 0;
+void (*modCANRxCallbackPointers[MODCAN_MAX_CALLBACKS])(CanRxMsgTypeDef*);
+
 // Variables
 CAN_HandleTypeDef      modCANHandle;
 uint32_t               modCANErrorLastTick;
@@ -107,6 +113,7 @@ void modCANTask(void){
 		modCANErrorLastTick = HAL_GetTick();
 	}
 	
+	//TODO move to comunicaiton
 	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
 		// Send status messages with interval
 		if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
@@ -116,7 +123,7 @@ void modCANTask(void){
 		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
 			modCANSendSimpleStatusSlow();
 	}
-	
+	//TODO move to HC
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
 		modCANPackStateHandle->safetyOverCANHCSafeNSafe = false;
 		
@@ -124,9 +131,27 @@ void modCANTask(void){
 	modCANSubTaskHandleCommunication();
 	modCANRXWatchDog();
 	
+	//TODO move to current monitor
 	// Control the charger
 	modCANHandleSubTaskCharger();
 }
+
+//Subscribe a function to the callback list for buffered RX massages.
+//Returns true if successful
+_Bool modCANSubscribeCallbackBuffered(void (*funptr)(CanRxMsgTypeDef*)){
+	if(modCanSubscriebIDs < MODCAN_MAX_CALLBACKS){
+		modCANRxCallbackPointers[modCanSubscriebIDs] = funptr;
+		modCanSubscriebIDs++;
+		return true;
+	}
+	else
+		return false;
+}
+
+_Bool modCANSubscribeCallbackUnbuffered(void (*funptr)(CanRxMsgTypeDef*)){
+
+}
+
 
 uint32_t modCANGetDestinationID(CanRxMsgTypeDef canMsg) {
 	uint32_t destinationID;
@@ -272,6 +297,12 @@ void CAN_RX0_IRQHandler(void) {
 }
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *CanHandle) {
+	//Call subscribed callback funktions
+	for(int index = 0; index < modCanSubscriebIDs; index++){
+		(*modCANRxCallbackPointers[index])(CanHandle->pRxMsg);
+	}
+
+	//todo make these calls also subscription based
 	// Handle CAN message	
 	if((*CanHandle->pRxMsg).IDE == CAN_ID_STD) {         // Standard ID
 		modCANHandleCANOpenMessage(*CanHandle->pRxMsg);
@@ -303,6 +334,9 @@ void modCANSubTaskHandleCommunication(void) {
 	while(modCANRxFrameRead != modCANRxFrameWrite) {
 		CanRxMsgTypeDef rxmsg = modCANRxFrames[modCANRxFrameRead++];
 
+
+
+		//TODO move this if statement to modComunication
 		if(rxmsg.IDE == CAN_ID_EXT) {
 			uint8_t destinationID = modCANGetDestinationID(rxmsg);
 			CAN_PACKET_ID cmd = modCANGetPacketID(rxmsg);
@@ -364,6 +398,7 @@ void modCANSubTaskHandleCommunication(void) {
 				}
 		}
 
+		//Till here
 		if(modCANRxFrameRead >= RX_CAN_FRAMES_SIZE)
 			modCANRxFrameRead = 0;
 	}
@@ -553,11 +588,10 @@ void modCANHandleCANOpenMessage(CanRxMsgTypeDef canMsg) {
 	}else if(canMsg.StdId == 0x048A){
 	  modCANChargerChargingState = canMsg.Data[5];
 	}
-	else if(canMsg.StdId == 0x0561){
 
-	}
+  // moved to subscription based rx callback
+  //driverIVTcanmsgHandle(canMsg);
 
-  driverIVTcanmsgHandle(canMsg);
 }
 
 void modCANHandleSubTaskCharger(void) {
