@@ -19,3 +19,6 @@ asccprj.scc
 *.PrjPCBStructure
 *.wmf
 Project\ Outputs*
+Debug*
+.settings*
+*.launch
