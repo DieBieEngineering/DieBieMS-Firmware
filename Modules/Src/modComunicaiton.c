@@ -66,6 +66,10 @@ void modComunicationTask(){
 
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
 		modCANPackStateHandle->safetyOverCANHCSafeNSafe = false;
+
+	//TODO move to current monitor
+	// Control the charger
+	modCANHandleSubTaskCharger();
 }
 
 void modComunicaitonCANRxCallback(CanRxMsgTypeDef *canMsg){

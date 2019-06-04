@@ -21,7 +21,7 @@ int driverIVTMeasurementCount = 0;
 void driverIVTcanmsgHandle(CanRxMsgTypeDef *canMsg);
 
 void driverIVTinit(){
-	modCANSubscribeCallbackBuffered(&driverIVTcanmsgHandle);
+	modCANSubscribeCallback(&driverIVTcanmsgHandle);
 }
 
 void driverIVTcanmsgHandle(CanRxMsgTypeDef *canMsg){

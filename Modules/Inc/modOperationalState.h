@@ -8,6 +8,7 @@
 #include "modConfig.h"
 #include "modStateOfCharge.h"
 #include "math.h"
+#include "modSafeState.h"
 
 #ifndef MODOPERATIONALSTATE_H_
 #define MODOPERATIONALSTATE_H_

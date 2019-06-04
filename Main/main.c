@@ -14,6 +14,7 @@
 #include "modCAN.h"
 #include "modHiAmp.h"
 #include "modComunicaiton.h"
+#include "modSafestate.h"
 
 // This next define enables / disables the watchdog
 #define AllowDebug
@@ -29,8 +30,8 @@ void mainWatchDogReset(void);
 void Error_Handler(void);
 
 int main(void) {			
-  HAL_Init();
-  SystemClock_Config();
+    HAL_Init();
+  	SystemClock_Config();
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
 	mainWatchDogInitAndStart();
 	
@@ -52,6 +53,7 @@ int main(void) {
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 	modHiAmpInit(&packState,generalConfig);																		// Initialize the HiAmp shield enviroment if any
 	modComunicationInit();
+	modSafeStateInit();
 
   while(true) {
 		modEffectTask();
@@ -61,8 +63,11 @@ int main(void) {
 		modCANTask();
 		modHiAmpTask();
 		modComunicationTask();
+
+		//Safestate task. Handles the safestate flipflop and resets it. It also uses modOperatinalstate to set the opstate of the BMS.
+		modSafeStateTask();
 		mainWatchDogReset();
-		
+
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
   }

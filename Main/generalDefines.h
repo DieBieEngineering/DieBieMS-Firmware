@@ -43,7 +43,8 @@
 #endif
 
 #ifdef TDHVSolar
-  #define HW_NAME "TDHVSolar"
+	#define HW_NAME "TDHVSolar"
+	#define HAS_FLIPFLOP
 	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 7
 	#define HW_LIM_CELL_MONITOR_IC_TYPE                    2
 	#define HW_LIM_CELL_MONITOR_IC_COUNT                   5

@@ -890,8 +890,12 @@ void modPowerElectronicsCellMonitorsInit(void){
 		case CELL_MON_LTC6804_1: {
 			driverLTC6804ConfigStructTypedef configStruct;
 			configStruct.GPIO1                    = true;																										// Do not pull down this pin (false = pull down)
-			configStruct.GPIO2                    = true;																										// 
-			configStruct.GPIO3                    = true;																										// 
+			configStruct.GPIO2                    = true;
+#ifdef TDHVSolar
+			configStruct.GPIO3                    = false;// BMS interlock
+#else
+			configStruct.GPIO3                    = true;// BMS interlock
+#endif
 			configStruct.GPIO4                    = true;																										// 
 			configStruct.GPIO5                    = true;																										//
 			configStruct.ReferenceON              = true;																										// Reference ON

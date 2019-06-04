@@ -17,7 +17,7 @@
 #define NoOfCellMonitorsPossibleOnBMS 5
 #define NoOfTempSensors               14
 #define NoOfWaterSensors              6
-#define PRECHARGE_PERCENTAGE 		      0.75f
+#define PRECHARGE_PERCENTAGE 		  0.95f
 #define VinErrorThreshold             10
 
 typedef enum {

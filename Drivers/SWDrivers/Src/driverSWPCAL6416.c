@@ -40,6 +40,20 @@ void driverSWPCAL6416SetOutput(uint8_t port, uint8_t pin, bool newState, bool wr
 	}
 };
 
+uint8_t readdata[2];
+
 bool driverSWPCAL6416GetInput(uint8_t port, uint8_t pin, bool readFromChip){
-	return false;
+	if((port == 0) || (port > 2)){
+		return false;
+	}
+
+	if(readFromChip){
+		uint8_t data[1];
+
+		data[0] = port - 1;
+		driverHWI2C1Write(PCAL6461_ADDRES,false,data,sizeof(data));
+		driverHWI2C1Read(PCAL6461_ADDRES, readdata + port - 1, 1);
+	}
+
+	return (readdata[port-1] & 1 << pin) ? true : false;
 };

@@ -132,9 +132,7 @@ void modCANTask(void){
 	modCANSubTaskHandleCommunication();
 	modCANRXWatchDog();
 	
-	//TODO move to current monitor
-	// Control the charger
-	modCANHandleSubTaskCharger();
+
 }
 
 //Subscribe a function to the callback list for buffered RX massages.

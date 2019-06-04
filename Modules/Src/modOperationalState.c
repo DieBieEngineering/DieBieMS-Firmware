@@ -66,6 +66,8 @@ void modOperationalStateTask(void) {
 						break;
 				}
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+			}else if(modOperationalStateLastState == OP_STATE_SAFESTATE){								//Just came out of safestate.
+				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}
 			
 			driverHWSwitchesSetSwitchState(SWITCH_DRIVER,SWITCH_SET);								// Enable FET driver.
@@ -291,6 +293,21 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Turn flash fast on debug and power LED
 			modOperationalStateUpdateStates();
 			break;
+		case OP_STATE_SAFESTATE:
+			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			modPowerElectronicsDisableAll();
+			modDisplayShowInfo(DISP_MODE_ERROR,modOperationalStateDisplayData);
+
+			//Try to go out of safestate.
+			if(packOperationalCellStateLastErrorState == PACK_STATE_NORMAL){
+				if(modSafestateTryReset()){
+					modOperationalStateSetNewState(OP_STATE_INIT);
+					modOperationalStateUpdateStates();
+				}
+			}
+			break;
+
 		default:
 			modOperationalStateSetAllStates(OP_STATE_ERROR);
 			break;
@@ -315,11 +332,19 @@ void modOperationalStateTask(void) {
 	};
 	
 	// In case of extreme cellvoltages goto error state
+	// TODO also check on cell temperature and current.
 	if((modOperationalStatePackStatehandle->packOperationalCellState == PACK_STATE_ERROR_HARD_CELLVOLTAGE) && (modOperationalStatePackStatehandle->packOperationalCellState != packOperationalCellStateLastErrorState) && !modOperationalStateForceOn){
 		packOperationalCellStateLastErrorState = modOperationalStatePackStatehandle->packOperationalCellState; // Meganism to make error situation only trigger once
 		modOperationalStateSetNewState(OP_STATE_ERROR);														// TODO: show error message then power down
+		modOperationalStateUpdateStates();
 	}
 	
+	//In case of safestate flipflop active go to software safestate.
+	if(modSafeStateCheckSafestate()){
+		modOperationalStateSetNewState(OP_STATE_SAFESTATE);
+		modOperationalStateUpdateStates();
+	}
+
 	// Move the button pressed state to the status struct
 	modOperationalStatePackStatehandle->powerOnLongButtonPress = modPowerStateGetLongButtonPressState(); 
 	

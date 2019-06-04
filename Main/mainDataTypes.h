@@ -478,18 +478,20 @@ typedef enum {
 } CAN_ID_STYLE;
 
 typedef enum {
-	OP_STATE_INIT = 0,											// 0
-	OP_STATE_CHARGING,											// 1
-	OP_STATE_PRE_CHARGE,										// 2
+	OP_STATE_INIT = 0,										// 0
+	OP_STATE_CHARGING,										// 1
+	OP_STATE_PRE_CHARGE,									// 2
 	OP_STATE_LOAD_ENABLED,									// 3
 	OP_STATE_BATTERY_DEAD,									// 4
-	OP_STATE_POWER_DOWN,										// 5
-	OP_STATE_EXTERNAL,											// 6
-	OP_STATE_ERROR,													// 7
+	OP_STATE_POWER_DOWN,									// 5
+	OP_STATE_EXTERNAL,										// 6
+	OP_STATE_ERROR,											// 7
 	OP_STATE_ERROR_PRECHARGE,								// 8
-	OP_STATE_BALANCING,											// 9
-	OP_STATE_CHARGED,												// 10
-	OP_STATE_FORCEON,												// 11
+	OP_STATE_BALANCING,										// 9
+	OP_STATE_CHARGED,										// 10
+	OP_STATE_FORCEON,										// 11
+	OP_STATE_OFF,
+	OP_STATE_SAFESTATE,
 } OperationalStateTypedef;
 
 typedef enum {

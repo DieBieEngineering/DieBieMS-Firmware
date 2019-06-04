@@ -490,18 +490,18 @@ void modHiAmpShieldHVSSRControllerTask(void) {
 				break;
 			case RELAY_CONTROLLER_TIMOUT:
 			case RELAY_CONTROLLER_NOLOAD:				
-        modHiAmpShieldHVSSRControllerSetRelayOutputState(false,false);
-			  modHiAmpPackStateHandle->hiLoadHVEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeError = true;
-			  modHiAmpShieldHVSSRTimeoutLastTick = HAL_GetTick();
-			  modHiAmpPackStateHandle->hiCurrentLoadHVDetected = false;
+				modHiAmpShieldHVSSRControllerSetRelayOutputState(false,false);
+				modHiAmpPackStateHandle->hiLoadHVEnabled = false;
+				modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = false;
+				modHiAmpPackStateHandle->hiLoadHVPreChargeError = true;
+				modHiAmpShieldHVSSRTimeoutLastTick = HAL_GetTick();
+				modHiAmpPackStateHandle->hiCurrentLoadHVDetected = false;
 				break;
 			case RELAY_CONTROLLER_ENABLED:
 				modHiAmpShieldHVSSRControllerSetRelayOutputState(true,false);
-			  modHiAmpPackStateHandle->hiLoadHVEnabled = true;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeError = false;
+				modHiAmpPackStateHandle->hiLoadHVEnabled = true;
+				modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = false;
+				modHiAmpPackStateHandle->hiLoadHVPreChargeError = false;
 				break;
 			default:
 				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
