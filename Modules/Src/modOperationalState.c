@@ -305,7 +305,7 @@ void modOperationalStateTask(void) {
 					modOperationalStateSetNewState(OP_STATE_INIT);
 					modOperationalStateUpdateStates();
 					modEffectChangeState(STAT_LED_POWER,STAT_SET);
-					modEffectChangeState(STAT_LED_DEBUG,STAT_SET);
+					modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);
 				}
 			}
 			break;

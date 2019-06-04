@@ -559,13 +559,21 @@ void modHiAmpShieldHVSSRControllerSetRelayOutputState(bool newStateRelay, bool n
 	HVEnableDischarge = newStateRelay;
 	HVEnablePreCharge = newStatePreCharge;
 	
-  driverSWPCAL6416SetOutput(0,0,HVEnableDischarge,false);
-  driverSWPCAL6416SetOutput(0,1,HVEnablePreCharge,false);
-  driverSWPCAL6416SetOutput(0,2,HVEnableLowSide,false);
-  driverSWPCAL6416SetOutput(1,5,HVEnableCharge,true);
+	if(HVEnableDischarge || HVEnablePreCharge || HVEnableCharge){
+		HVEnableLowSide = true;
+	}
+
+	driverSWPCAL6416SetOutput(0,0,HVEnableDischarge,false);
+	driverSWPCAL6416SetOutput(0,1,HVEnablePreCharge,false);
+	driverSWPCAL6416SetOutput(0,2,HVEnableLowSide,false);
+  	  driverSWPCAL6416SetOutput(1,5,HVEnableCharge,true);
 }
 
 void modHiAmpShieldHVSSRApplyOutputs(void) {
+	if(HVEnableDischarge || HVEnablePreCharge || HVEnableCharge){
+			HVEnableLowSide = true;
+	}
+
   driverSWPCAL6416SetOutput(0,0,HVEnableDischarge,false);
   driverSWPCAL6416SetOutput(0,1,HVEnablePreCharge,false);
   driverSWPCAL6416SetOutput(0,2,HVEnableLowSide,false);
