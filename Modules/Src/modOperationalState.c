@@ -294,8 +294,8 @@ void modOperationalStateTask(void) {
 			modOperationalStateUpdateStates();
 			break;
 		case OP_STATE_SAFESTATE:
-			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
-			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH);										// Turn flash fast on debug and power LED
+			modEffectChangeState(STAT_LED_POWER,STAT_FLASH);										// Turn flash fast on debug and power LED
 			modPowerElectronicsDisableAll();
 			modDisplayShowInfo(DISP_MODE_ERROR,modOperationalStateDisplayData);
 
@@ -304,6 +304,8 @@ void modOperationalStateTask(void) {
 				if(modSafestateTryReset()){
 					modOperationalStateSetNewState(OP_STATE_INIT);
 					modOperationalStateUpdateStates();
+					modEffectChangeState(STAT_LED_POWER,STAT_SET);
+					modEffectChangeState(STAT_LED_DEBUG,STAT_SET);
 				}
 			}
 			break;
