@@ -213,3 +213,11 @@ void     driverSWLTC6804WakeIC(void);
 uint16_t driverSWLTC6804CalcPEC15(uint8_t len, uint8_t *data);
 float    driverSWLTC6804ConvertTemperatureExt(uint16_t inputValue,uint32_t ntcNominal,uint32_t ntcSeriesResistance,uint16_t ntcBetaFactor, float ntcNominalTemp);
 
+//I2C functions
+bool driverSWLTC6804_I2C1Write_All(uint16_t DevAddress, bool readWrite, uint8_t *pData, uint16_t Size);
+bool driverSWLTC6804_I2C1Read_All(uint16_t DevAddress, uint8_t *pData, uint16_t Size);
+
+//External I2C ADS128
+void driverSWLTC6804_ExternalAdcInit(uint8_t ic_length);
+void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel, float* valeus, uint8_t ic_length);
+

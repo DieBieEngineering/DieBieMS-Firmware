@@ -619,5 +619,220 @@ float driverSWLTC6804ConvertTemperatureExt(uint16_t inputValue,uint32_t ntcNomin
   return steinhart;
 }
 
+void driverSWLTC6804_ExternalAdcWriteRegister_All(uint8_t slaveAddres, uint8_t reg, uint8_t valeu, uint8_t ic_length){
+	uint16_t PEC;
+
+	//comand + pec + ic_length*(combytes + pec)
+	int length = 4 + ((ic_length*(6+2)));
+	uint8_t* bytesToSend = (uint8_t *) malloc(length * sizeof(uint8_t));
+
+	uint8_t cmd[9+4];
+
+	bytesToSend[0] = 0x07;
+	bytesToSend[1] = 0x21;
+	PEC = driverSWLTC6804CalcPEC15(2, bytesToSend);
+	bytesToSend[2] = (PEC >> 8) & 0xFF;
+	bytesToSend[3] = PEC & 0xFF;
+
+	for (int ic = 0; ic < ic_length; ic++) {
+		uint8_t addr = slaveAddres | 0x00;
+
+		bytesToSend[4 + (ic * 8) + 0] = ((addr  & 0xF0) >> 4) | 0x60; //START
+		bytesToSend[4 + (ic * 8) + 1] = ((addr  & 0x0F) << 4) | 0x08; //NACK
+		bytesToSend[4 + (ic * 8) + 2] = ((reg   & 0xF0) >> 4) | 0x00; //Blank
+		bytesToSend[4 + (ic * 8) + 3] = ((reg   & 0x0F) << 4) | 0x08; //NACK
+		bytesToSend[4 + (ic * 8) + 4] = ((valeu & 0xF0) >> 4) | 0x00; //BLANK
+		bytesToSend[4 + (ic * 8) + 5] = ((valeu & 0x0F) << 4) | 0x09; //NACK + STOP
+
+		PEC = driverSWLTC6804CalcPEC15(6, bytesToSend + 4 + (ic*8));
+		bytesToSend[4 + (ic * 8) + 6] = (PEC >> 8) & 0xFF;
+		bytesToSend[4 + (ic * 8) + 7] = (PEC) & 0xFF;
+	}
+
+	//Write WRCOM registers command
+	driverSWLTC6804Write(bytesToSend, length);
+
+	//Write STCOM commmand
+	cmd[0] = 0x07 & 0xFF;
+	cmd[1] = 0x23 & 0xFF;
+	PEC = driverSWLTC6804CalcPEC15(2, cmd);
+	cmd[2] = (PEC >> 8) & 0xFF;
+	cmd[3] = PEC & 0xFF;
+
+	cmd[4] = 0xff;
+	cmd[5] = 0xff;
+	cmd[6] = 0xff;
+	cmd[7] = 0xff;
+	cmd[8] = 0xff;
+	cmd[9] = 0xff;
+	cmd[10] = 0xff;
+	cmd[11] = 0xff;
+	cmd[12] = 0xff;
+
+
+	//Write STCOM commmand + 72(=9*8) dummy clocks
+	driverSWLTC6804Write(cmd,4+9);
+
+	free(bytesToSend);
+}
+
+void driverSWLTC6804_ExternalAdcReadRegister16_All(uint8_t slaveAddres, uint8_t reg, uint16_t* valeus, uint8_t ic_length){
+	uint16_t PEC;
+
+	//comand + pec + ic_length*(combytes + pec)
+	int length = 4 + ((ic_length*(6+2)));
+	uint8_t* bytesToSend = (uint8_t *) malloc(length * sizeof(uint8_t));
+	uint8_t cmd[4 + 9];
+
+	bytesToSend[0] = 0x07;
+	bytesToSend[1] = 0x21;
+	PEC = driverSWLTC6804CalcPEC15(2, bytesToSend);
+	bytesToSend[2] = (PEC >> 8) & 0xFF;
+	bytesToSend[3] = PEC & 0xFF;
+
+	for (int ic = 0; ic < ic_length; ic++) {
+		uint8_t addr = slaveAddres | 0x00;
+
+		bytesToSend[4 + (ic * 8) + 0] = ((addr  & 0xF0) >> 4) | 0x60; //START
+		bytesToSend[4 + (ic * 8) + 1] = ((addr  & 0x0F) << 4) | 0x08; //NACK
+		bytesToSend[4 + (ic * 8) + 2] = ((reg   & 0xF0) >> 4) | 0x00; //Blank
+		bytesToSend[4 + (ic * 8) + 3] = ((reg   & 0x0F) << 4) | 0x08; //NACK
+		bytesToSend[4 + (ic * 8) + 4] =  0x70; //NO Transmit
+		bytesToSend[4 + (ic * 8) + 5] =  0x00; //ACK
+
+		PEC = driverSWLTC6804CalcPEC15(6, bytesToSend + 4 + (ic*8));
+		bytesToSend[4 + (ic * 8) + 6] = (PEC >> 8) & 0xFF;
+		bytesToSend[4 + (ic * 8) + 7] = (PEC) & 0xFF;
+	}
+
+	//Write WRCOM registers command
+	driverSWLTC6804Write(bytesToSend, length);
+
+	//Write STCOM commmand
+	cmd[0] = 0x07 & 0xFF;
+	cmd[1] = 0x23 & 0xFF;
+	PEC = driverSWLTC6804CalcPEC15(2, cmd);
+	cmd[2] = (PEC >> 8) & 0xFF;
+	cmd[3] = PEC & 0xFF;
+	cmd[4] = 0x00;
+	cmd[5] =0x00;
+	cmd[6] = 0x00;
+	cmd[7] = 0x00;
+	cmd[8] = 0x00;
+	cmd[9] = 0x00;
+	cmd[10] = 0x00;
+	cmd[11] = 0x00;
+	cmd[12] = 0x00;
+	driverSWLTC6804Write(cmd,4+9);
+
+	for (int ic = 0; ic < ic_length; ic++) {
+		uint8_t addr = slaveAddres | 0x01; //Read
+
+		bytesToSend[4 + (ic * 8) + 0] = ((addr  & 0xF0) >> 4) | 0x60; //START
+		bytesToSend[4 + (ic * 8) + 1] = ((addr  & 0x0F) << 4) | 0x08; //NACK
+		bytesToSend[4 + (ic * 8) + 2] = 0x0F | 0x00; //Blank
+		bytesToSend[4 + (ic * 8) + 3] = 0xF0 | 0x00; //ACK
+		bytesToSend[4 + (ic * 8) + 4] = 0x0F | 0x00; //Black
+		bytesToSend[4 + (ic * 8) + 5] = 0xF0 | 0x09; //NACK + STOP
+
+		PEC = driverSWLTC6804CalcPEC15(6, bytesToSend + 4 + (ic*8));
+		bytesToSend[4 + (ic * 8) + 6] = (PEC >> 8) & 0xFF;
+		bytesToSend[4 + (ic * 8) + 7] = (PEC) & 0xFF;
+	}
+	//Write WRCOM registers command
+	driverSWLTC6804Write(bytesToSend, length);
+
+	//Write STCOM commmand
+	cmd[0] = 0x07 & 0xFF;
+	cmd[1] = 0x23 & 0xFF;
+	PEC = driverSWLTC6804CalcPEC15(2, cmd);
+	cmd[2] = (PEC >> 8) & 0xFF;
+	cmd[3] = PEC & 0xFF;
+	driverSWLTC6804Write(cmd,4+9);
+
+
+	//Get Response (RDCOMM)
+	cmd[0] = 0x07;
+	cmd[1] = 0x22;
+	PEC = driverSWLTC6804CalcPEC15(2, cmd);
+	cmd[2] = (PEC >> 8) & 0xFF;
+	cmd[3] = PEC & 0xFF;
+	driverSWLTC6804WriteRead(cmd, 4, bytesToSend, length -4);
+
+	for (int ic = 0; ic < ic_length; ic++) {
+		valeus[ic] = ((bytesToSend[4 + (ic * 8) + 2]&0x0F) << 12) | ((bytesToSend[4 + (ic * 8) + 3]&0xF0) << 8) | ((bytesToSend[4 + (ic * 8) + 4]&0x0F) << 4) | ((bytesToSend[4 + (ic * 8) + 5]&0xF0) );
+	}
+
+	//Free allocated space
+	free(bytesToSend);
+}
+
+//External I2C ADS128
+void driverSWLTC6804_ExternalAdcInit(uint8_t ic_length){
+	//uint32_t maxDelayIntervals = 20;
+	//bool adcBusy = true;
+	//driverSWADC128StartupDelayLastTick = HAL_GetTick();
+
+	//uint8_t registerPointer = 0x0C;
+	//uint8_t readData = 0x00;
+
+	// Check busy register
+	//while(maxDelayIntervals && adcBusy) {
+	//	if(modDelayTick1ms(&driverSWADC128StartupDelayLastTick,10) && maxDelayIntervals){
+	//		maxDelayIntervals--;
+	//
+	//		driverHWI2C1Write(ADC128D818_ADDRES,false,&registerPointer,1);
+	//		driverHWI2C1Read(ADC128D818_ADDRES,&readData,1);
+	//
+	//		if(!(readData & 0x01))
+	//			adcBusy = false;
+	//	}
+	//}
+
+	//uint8_t configBytes[] = {0x00,0x08};																															// Configuration register -> disable ADC conversion and reset registers
+	//driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
+	driverSWLTC6804WakeIC();
+	driverSWLTC6804_ExternalAdcWriteRegister_All(0x1D, 0x00, 0x08, ic_length);
+
+		//configBytes[0] = 0x0B;																																						// Advanced config register Mode 1 + ext ref
+		//configBytes[1] = 0x03;
+		//driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
+	driverSWLTC6804_ExternalAdcWriteRegister_All(0x1D, 0x0B, 0x03, ic_length);
+
+		//configBytes[0] = 0x07;																																						// Configuration rate register -> continious conversion
+		//configBytes[1] = 0x01;
+		//driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
+	driverSWLTC6804_ExternalAdcWriteRegister_All(0x1D, 0x07, 0x01, ic_length);
+
+		//configBytes[0] = 0x08;																																						// Channel disable register -> disable channel 6
+		//configBytes[1] = 0x00;
+		//driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
+	driverSWLTC6804_ExternalAdcWriteRegister_All(0x1D, 0x08, 0x00, ic_length);
+
+		//configBytes[0] = 0x03;																																						// Interrupt enable register -> disable all interrupts
+		//configBytes[1] = 0xFF;
+		//driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
+	driverSWLTC6804_ExternalAdcWriteRegister_All(0x1D, 0x03, 0xFF, ic_length);
+
+	//configBytes[0] = 0x00;																																						// Configuration register -> enable ADC conversion
+	//configBytes[1] = 0x01;
+	//driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
+	driverSWLTC6804_ExternalAdcWriteRegister_All(0x1D, 0x00, 0x01, ic_length);
+
+}
+void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel, float* valeus, uint8_t ic_length){
+	driverSWLTC6804WakeIC();
+	if(channel > 7)
+			return;
+
+	uint8_t registerPointer = 0x20 + channel;
+	uint16_t readCodes[ic_length];
+
+	driverSWLTC6804_ExternalAdcReadRegister16_All(slaveAddres, registerPointer, readCodes, ic_length);
+
+	for (int i = 0; i < ic_length; i++) {
+		valeus[i] = ((float)readCodes[i] / 4095.0f) * 5.0f;
+	}
+}
 
 
