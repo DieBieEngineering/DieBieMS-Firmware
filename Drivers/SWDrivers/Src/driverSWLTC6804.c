@@ -624,7 +624,8 @@ void driverSWLTC6804_ExternalAdcWriteRegister_All(uint8_t slaveAddres, uint8_t r
 
 	//comand + pec + ic_length*(combytes + pec)
 	int length = 4 + ((ic_length*(6+2)));
-	uint8_t* bytesToSend = (uint8_t *) malloc(length * sizeof(uint8_t));
+	//uint8_t* bytesToSend = (uint8_t *) malloc(length * sizeof(uint8_t));
+	uint8_t bytesToSend[44];
 
 	uint8_t cmd[9+4];
 
@@ -635,12 +636,14 @@ void driverSWLTC6804_ExternalAdcWriteRegister_All(uint8_t slaveAddres, uint8_t r
 	bytesToSend[3] = PEC & 0xFF;
 
 	for (int ic = 0; ic < ic_length; ic++) {
-		uint8_t addr = slaveAddres | 0x00;
+		uint8_t addr = (slaveAddres << 1) | 0x00;
 
 		bytesToSend[4 + (ic * 8) + 0] = ((addr  & 0xF0) >> 4) | 0x60; //START
 		bytesToSend[4 + (ic * 8) + 1] = ((addr  & 0x0F) << 4) | 0x08; //NACK
+
 		bytesToSend[4 + (ic * 8) + 2] = ((reg   & 0xF0) >> 4) | 0x00; //Blank
 		bytesToSend[4 + (ic * 8) + 3] = ((reg   & 0x0F) << 4) | 0x08; //NACK
+
 		bytesToSend[4 + (ic * 8) + 4] = ((valeu & 0xF0) >> 4) | 0x00; //BLANK
 		bytesToSend[4 + (ic * 8) + 5] = ((valeu & 0x0F) << 4) | 0x09; //NACK + STOP
 
@@ -659,21 +662,30 @@ void driverSWLTC6804_ExternalAdcWriteRegister_All(uint8_t slaveAddres, uint8_t r
 	cmd[2] = (PEC >> 8) & 0xFF;
 	cmd[3] = PEC & 0xFF;
 
-	cmd[4] = 0xff;
-	cmd[5] = 0xff;
-	cmd[6] = 0xff;
-	cmd[7] = 0xff;
-	cmd[8] = 0xff;
-	cmd[9] = 0xff;
-	cmd[10] = 0xff;
-	cmd[11] = 0xff;
-	cmd[12] = 0xff;
+	cmd[4] = 0x00;
+	cmd[5] =0x00;
+	cmd[6] = 0x00;
+	cmd[7] = 0x00;
+	cmd[8] = 0x00;
+	cmd[9] = 0x00;
+	cmd[10] = 0x00;
+	cmd[11] = 0x00;
+	cmd[12] = 0x00;
 
 
 	//Write STCOM commmand + 72(=9*8) dummy clocks
 	driverSWLTC6804Write(cmd,4+9);
 
-	free(bytesToSend);
+
+	//Get Response (RDCOMM)
+	cmd[0] = 0x07;
+	cmd[1] = 0x22;
+	PEC = driverSWLTC6804CalcPEC15(2, cmd);
+	cmd[2] = (PEC >> 8) & 0xFF;
+	cmd[3] = PEC & 0xFF;
+	driverSWLTC6804WriteRead(cmd, 4, bytesToSend, length -4);
+
+	//free(bytesToSend);
 }
 
 void driverSWLTC6804_ExternalAdcReadRegister16_All(uint8_t slaveAddres, uint8_t reg, uint16_t* valeus, uint8_t ic_length){
@@ -681,7 +693,9 @@ void driverSWLTC6804_ExternalAdcReadRegister16_All(uint8_t slaveAddres, uint8_t 
 
 	//comand + pec + ic_length*(combytes + pec)
 	int length = 4 + ((ic_length*(6+2)));
-	uint8_t* bytesToSend = (uint8_t *) malloc(length * sizeof(uint8_t));
+	//uint8_t* bytesToSend = (uint8_t *) malloc(length * sizeof(uint8_t));
+	uint8_t bytesToSend[44];
+
 	uint8_t cmd[4 + 9];
 
 	bytesToSend[0] = 0x07;
@@ -691,14 +705,14 @@ void driverSWLTC6804_ExternalAdcReadRegister16_All(uint8_t slaveAddres, uint8_t 
 	bytesToSend[3] = PEC & 0xFF;
 
 	for (int ic = 0; ic < ic_length; ic++) {
-		uint8_t addr = slaveAddres | 0x00;
+		uint8_t addr = (slaveAddres << 1);
 
 		bytesToSend[4 + (ic * 8) + 0] = ((addr  & 0xF0) >> 4) | 0x60; //START
-		bytesToSend[4 + (ic * 8) + 1] = ((addr  & 0x0F) << 4) | 0x08; //NACK
+		bytesToSend[4 + (ic * 8) + 1] = ((addr  & 0x0F) << 4) | 0x08; //nack
 		bytesToSend[4 + (ic * 8) + 2] = ((reg   & 0xF0) >> 4) | 0x00; //Blank
-		bytesToSend[4 + (ic * 8) + 3] = ((reg   & 0x0F) << 4) | 0x08; //NACK
-		bytesToSend[4 + (ic * 8) + 4] =  0x70; //NO Transmit
-		bytesToSend[4 + (ic * 8) + 5] =  0x00; //ACK
+		bytesToSend[4 + (ic * 8) + 3] = ((reg   & 0x0F) << 4) | 0x08; //nack
+		bytesToSend[4 + (ic * 8) + 4] = (((addr | 0x01)  & 0xF0) >> 4) | 0x60; //START
+		bytesToSend[4 + (ic * 8) + 5] = (((addr | 0x01)  & 0x0F) << 4) | 0x08; //NACK
 
 		PEC = driverSWLTC6804CalcPEC15(6, bytesToSend + 4 + (ic*8));
 		bytesToSend[4 + (ic * 8) + 6] = (PEC >> 8) & 0xFF;
@@ -723,16 +737,30 @@ void driverSWLTC6804_ExternalAdcReadRegister16_All(uint8_t slaveAddres, uint8_t 
 	cmd[10] = 0x00;
 	cmd[11] = 0x00;
 	cmd[12] = 0x00;
-	driverSWLTC6804Write(cmd,4+9);
+	driverSWLTC6804Write(cmd,4+(3*3));
+
+	//Get Response (RDCOMM)
+	cmd[0] = 0x07;
+	cmd[1] = 0x22;
+	PEC = driverSWLTC6804CalcPEC15(2, cmd);
+	cmd[2] = (PEC >> 8) & 0xFF;
+	cmd[3] = PEC & 0xFF;
+	driverSWLTC6804WriteRead(cmd, 4, bytesToSend, length -4);
+
+	bytesToSend[0] = 0x07;
+	bytesToSend[1] = 0x21;
+	PEC = driverSWLTC6804CalcPEC15(2, bytesToSend);
+	bytesToSend[2] = (PEC >> 8) & 0xFF;
+	bytesToSend[3] = PEC & 0xFF;
 
 	for (int ic = 0; ic < ic_length; ic++) {
-		uint8_t addr = slaveAddres | 0x01; //Read
+		bytesToSend[4 + (ic * 8) + 0] = 0x0F | 0x00; //BLANK
+		bytesToSend[4 + (ic * 8) + 1] = 0xF0 | 0x00; //Ack
 
-		bytesToSend[4 + (ic * 8) + 0] = ((addr  & 0xF0) >> 4) | 0x60; //START
-		bytesToSend[4 + (ic * 8) + 1] = ((addr  & 0x0F) << 4) | 0x08; //NACK
 		bytesToSend[4 + (ic * 8) + 2] = 0x0F | 0x00; //Blank
-		bytesToSend[4 + (ic * 8) + 3] = 0xF0 | 0x00; //ACK
-		bytesToSend[4 + (ic * 8) + 4] = 0x0F | 0x00; //Black
+		bytesToSend[4 + (ic * 8) + 3] = 0xF0 | 0x09; //NACK + STOP
+
+		bytesToSend[4 + (ic * 8) + 4] = 0x0F | 0x70; //No Transmit
 		bytesToSend[4 + (ic * 8) + 5] = 0xF0 | 0x09; //NACK + STOP
 
 		PEC = driverSWLTC6804CalcPEC15(6, bytesToSend + 4 + (ic*8));
@@ -743,12 +771,12 @@ void driverSWLTC6804_ExternalAdcReadRegister16_All(uint8_t slaveAddres, uint8_t 
 	driverSWLTC6804Write(bytesToSend, length);
 
 	//Write STCOM commmand
-	cmd[0] = 0x07 & 0xFF;
-	cmd[1] = 0x23 & 0xFF;
+	cmd[0] = 0x07;
+	cmd[1] = 0x23;
 	PEC = driverSWLTC6804CalcPEC15(2, cmd);
 	cmd[2] = (PEC >> 8) & 0xFF;
 	cmd[3] = PEC & 0xFF;
-	driverSWLTC6804Write(cmd,4+9);
+	driverSWLTC6804Write(cmd,4+(2*3));
 
 
 	//Get Response (RDCOMM)
@@ -760,11 +788,13 @@ void driverSWLTC6804_ExternalAdcReadRegister16_All(uint8_t slaveAddres, uint8_t 
 	driverSWLTC6804WriteRead(cmd, 4, bytesToSend, length -4);
 
 	for (int ic = 0; ic < ic_length; ic++) {
-		valeus[ic] = ((bytesToSend[4 + (ic * 8) + 2]&0x0F) << 12) | ((bytesToSend[4 + (ic * 8) + 3]&0xF0) << 8) | ((bytesToSend[4 + (ic * 8) + 4]&0x0F) << 4) | ((bytesToSend[4 + (ic * 8) + 5]&0xF0) );
+		//valeus[ic] = ((bytesToSend[4 + (ic * 8) + 2]&0x0F) << 12) | ((bytesToSend[4 + (ic * 8) + 3]&0xF0) << 8) | ((bytesToSend[4 + (ic * 8) + 4]&0x0F) << 4) | ((bytesToSend[4 + (ic * 8) + 5]&0xF0) );
+		valeus[ic] = ((bytesToSend[(ic * 8)]&0x0F) << 12) | ((bytesToSend[(ic * 8) + 1]&0xF0) << 4) | ((bytesToSend[(ic * 8) + 2]&0x0F) << 4) | ((bytesToSend[(ic * 8) + 3]&0xF0) );
+
 	}
 
 	//Free allocated space
-	free(bytesToSend);
+	//free(bytesToSend);
 }
 
 //External I2C ADS128
@@ -831,7 +861,7 @@ void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel
 	driverSWLTC6804_ExternalAdcReadRegister16_All(slaveAddres, registerPointer, readCodes, ic_length);
 
 	for (int i = 0; i < ic_length; i++) {
-		valeus[i] = ((float)readCodes[i] / 4095.0f) * 5.0f;
+		valeus[i] = (float)((readCodes[i]>>4) & 0x0FFF) / 4096.0f * 5.0f;
 	}
 }
 
