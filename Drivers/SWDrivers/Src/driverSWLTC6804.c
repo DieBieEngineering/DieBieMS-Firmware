@@ -850,7 +850,7 @@ void driverSWLTC6804_ExternalAdcInit(uint8_t ic_length){
 	driverSWLTC6804_ExternalAdcWriteRegister_All(0x1D, 0x00, 0x01, ic_length);
 
 }
-void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel, float* valeus, uint8_t ic_length){
+void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel, uint16_t* valeus, uint8_t ic_length){
 	driverSWLTC6804WakeIC();
 	if(channel > 7)
 			return;
@@ -858,11 +858,43 @@ void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel
 	uint8_t registerPointer = 0x20 + channel;
 	uint16_t readCodes[ic_length];
 
-	driverSWLTC6804_ExternalAdcReadRegister16_All(slaveAddres, registerPointer, readCodes, ic_length);
+	driverSWLTC6804_ExternalAdcReadRegister16_All(slaveAddres, registerPointer,  valeus, ic_length);
+}
 
-	for (int i = 0; i < ic_length; i++) {
-		valeus[i] = (float)((readCodes[i]>>4) & 0x0FFF) / 4096.0f * 5.0f;
+void driverSWLTC6804_ExternalAdcReadAllTemperatures(float* output,float* max_out, float* min_out, uint8_t ic_length){
+	uint16_t* raw = malloc(ic_length * sizeof(uint16_t) );
+
+
+	float min = 1000;
+	float max = -1000;
+
+	for(int channel = 0; channel < 8; channel++){
+		driverSWLTC6804_ExternalAdcReadChannel(0x1D, channel, raw, ic_length);
+
+		for(int ic = 0; ic < ic_length; ic++){
+			float scalar;
+			float steinhart;
+
+			scalar = 4095.0f /  (float)(4095 -(raw[ic]>>4) ) -1.0f;
+			steinhart = log(scalar);                           // ln(R/Ro)
+			steinhart /= 4160.0f;                    // 1/B * ln(R/Ro)
+			steinhart += 1.0f / (25.0 + 273.15f);       // + (1/To)
+			steinhart = 1.0f / steinhart;                         // Invert
+			steinhart -= 273.15f;                                 // convert to degree
+
+			if(steinhart < -30.0f)
+				steinhart = 200;
+
+			output[(ic * 8) + channel] = steinhart;
+
+			if(output[(ic * 8) + channel] > max)max = output[(ic * 8) + channel];
+			if(output[(ic * 8) + channel] < min)min = output[(ic * 8) + channel];
+		}
 	}
+	*max_out = max;
+	*min_out = min;
+
+	free(raw);
 }
 
 

@@ -219,5 +219,5 @@ bool driverSWLTC6804_I2C1Read_All(uint16_t DevAddress, uint8_t *pData, uint16_t 
 
 //External I2C ADS128
 void driverSWLTC6804_ExternalAdcInit(uint8_t ic_length);
-void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel, float* valeus, uint8_t ic_length);
-
+void driverSWLTC6804_ExternalAdcReadChannel(uint8_t slaveAddres, uint8_t channel, uint16_t* valeus, uint8_t ic_length);
+void driverSWLTC6804_ExternalAdcReadAllTemperatures(float* output,float* max_out, float* min_out, uint8_t ic_length);
