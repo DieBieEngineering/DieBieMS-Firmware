@@ -125,7 +125,7 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
 	modPowerElectronicsBalanceModeActiveLastTick      = HAL_GetTick();
 	modPowerElectronicsSOAChargeChangeLastTick        = HAL_GetTick();
-	modPowerElectronicsSOADisChargeChangeLastTick     = HAL_GetTick();	
+	modPowerElectronicsSOADisChargeChangeLastTick     = HAL_GetTick();
 	
 	// Sample the first pack voltage moment
 	if(modPowerElectronicsPackStateHandle->slaveShieldPresenceMasterISL)
@@ -199,8 +199,8 @@ bool modPowerElectronicsTask(void) {
 			modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
 		}
 		
-		// Control the charge input bypass diode
-		if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed && (modPowerElectronicsPackStateHandle->packCurrent >= (modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold + modPowerElectronicsChargeDiodeBypassHysteresis + 0.5f))){
+		// Control the charge input bypass diode 
+		if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed && (modPowerElectronicsPackStateHandle->loCurrentLoadCurrent >= (modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold + modPowerElectronicsChargeDiodeBypassHysteresis + 0.5f))){
 			driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,SWITCH_SET);
 			modPowerElectronicsChargeDiodeBypassHysteresis = -0.2f;
 		}else{
@@ -319,10 +319,7 @@ void modPowerElectronicsSubTaskBalaning(void) {
 				
 			modPowerElectronicsSortCells(sortedCellArray,modPowerElectronicsGeneralConfigHandle->noOfCellsSeries);
 			
-			
-			//temp remove true
-			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || true) {																							// Check if charging is desired. Removed: || !modPowerElectronicsPackStateHandle->chargeAllowed
-				// Old for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
+			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive) {																							// Check if charging is desired. Removed: || !modPowerElectronicsPackStateHandle->chargeAllowed
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries; i++) {
 					if(sortedCellArray[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
 						if(sortedCellArray[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart) {
@@ -336,12 +333,6 @@ void modPowerElectronicsSubTaskBalaning(void) {
 				}
 			}
 		}
-		
-		//modPowerElectronicsPackStateHandle->cellBalanceResistorEnableMask = cellBalanceMaskEnableRegister;
-		
-		//if(lastCellBalanceRegister != cellBalanceMaskEnableRegister)
-		//	modPowerElectronicsCellMonitorsEnableBalanceResistors(cellBalanceMaskEnableRegister);
-		//lastCellBalanceRegister = cellBalanceMaskEnableRegister;
 		
 		modPowerElectronicsCallMinitorsCalcBalanceResistorArray();
 		modPowerElectronicsCellMonitorsEnableBalanceResistorsArray();
@@ -685,7 +676,7 @@ void modPowerElectronicsCalcThrottle(void) {
 	else 
 		modPowerElectronicsPackStateHandle->throttleDutyCharge = 0;
 	
-	// TODO have it configurable to either HC or LC
+	// TODO have it configurable to either HC or LC voltage limits
 	if(modPowerElectronicsPackStateHandle->disChargeHCAllowed)
 		modPowerElectronicsPackStateHandle->throttleDutyDischarge = filteredDisChargeThrottle;
 	else 
@@ -959,7 +950,8 @@ void modPowerElectronicsCellMonitorsArrayTranslate(void) {
   for(uint8_t modulePointer = 0; modulePointer < modPowerElectronicsGeneralConfigHandle->cellMonitorICCount; modulePointer++) {
 	  for(uint8_t modulePointerCell = 0; modulePointerCell < modPowerElectronicsGeneralConfigHandle->noOfCellsPerModule; modulePointerCell++) {
 			modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellVoltage = modPowerElectronicsPackStateHandle->cellModuleVoltages[modulePointer][modulePointerCell];
-			modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellNumber = individualCellPointer++;
+			modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellNumber = individualCellPointer;
+			individualCellPointer++;
 		}
 	}
 }

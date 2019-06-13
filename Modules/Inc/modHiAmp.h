@@ -56,5 +56,7 @@ void  modHiAmpShieldHVSSRControllerSetRelayOutputState(bool newStateRelay, bool 
 void  modHiAmpShieldHVSSRApplyOutputs(void);
 void  modHiAmpShieldTemperatureHumidityMeasureTask(void);
 void  modHiAmpShieldResetSensors(void);
+void  modHiAmpShieldAUX0ControlTask(void);
+void  modHiAmpSimpleFANControlTask(void);
 
 #endif

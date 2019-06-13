@@ -6,6 +6,7 @@ modConfigGeneralConfigStructTypedef *modHiAmpGeneralConfigHandle;
 uint32_t modHiAmpShieldPresenceDetectLastTick;
 uint32_t modHiAmpShieldSamplingLastTick;
 uint32_t modHiAmpShieldHVSSRTaskUpdateLastTick;
+uint32_t modHiAmpShieldLastAUX0UpdateTick;
 
 // Regular relay
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledState;
@@ -150,6 +151,10 @@ void modHiAmpTask(void) {
 	// Cycle switch tasks
 	modHiAmpShieldRelayControllerTask();
 	modHiAmpShieldHVSSRControllerTask();
+	
+	// AUX Control task
+	modHiAmpShieldAUX0ControlTask();
+	modHiAmpSimpleFANControlTask();
 }
 
 bool modHiAmpShieldPresentCheck(void) {
@@ -190,9 +195,9 @@ uint8_t modHiAmpShieldScanI2CDevices(void) {
 }
 
 void modHiAmpShieldResetVariables(void) {
-	modHiAmpPackStateHandle->aux0EnableDesired            = false;
+	modHiAmpPackStateHandle->aux0EnableDesired            = true;
 	modHiAmpPackStateHandle->aux0Enabled                  = false;
-	modHiAmpPackStateHandle->aux1EnableDesired            = false;
+	modHiAmpPackStateHandle->aux1EnableDesired            = true;
 	modHiAmpPackStateHandle->aux1Enabled                  = false;
 	modHiAmpPackStateHandle->auxDCDCEnabled               = false;
 	modHiAmpPackStateHandle->FANSpeedDutyDesired          = 0;
@@ -638,4 +643,24 @@ void  modHiAmpShieldResetSensors(void) {
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[1]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[2]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[3]     = 0;
+}
+
+void modHiAmpShieldAUX0ControlTask(void) {	
+	if(modDelayTick1ms(&modHiAmpShieldLastAUX0UpdateTick,1000)) {
+		if(modHiAmpPackStateHandle->aux0Enabled != modHiAmpPackStateHandle->aux0EnableDesired) {
+			modHiAmpPackStateHandle->aux0Enabled = modHiAmpPackStateHandle->aux0EnableDesired;
+			driverSWPCAL6416SetOutput(0,4,modHiAmpPackStateHandle->aux0Enabled,true);
+		}
+	}
+}
+
+void modHiAmpSimpleFANControlTask(void) {
+	float hysteresys;
+	
+	if(modHiAmpPackStateHandle->aux0EnableDesired)
+		hysteresys = -2.0f;                              // Fans uit
+	else
+		hysteresys = 5.0f;                               // Fans aan
+			
+	modHiAmpPackStateHandle->aux0EnableDesired = !((modHiAmpPackStateHandle->tempBMSHigh+hysteresys >= 70.0f) || (fabs(modHiAmpPackStateHandle->packCurrent)+hysteresys >= 80.0f));
 }

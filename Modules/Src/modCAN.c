@@ -108,18 +108,11 @@ void modCANTask(void){
 		modCANErrorLastTick = HAL_GetTick();
 	}
 	
-	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
-			modCANSendSimpleStatusFast();
-		
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
-			modCANSendSimpleStatusSlow();
-	}
-	
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
 		modCANPackStateHandle->safetyOverCANHCSafeNSafe = false;
+	
+	// Sub task emmitting of status messages.
+	modCANEmitStatusSubTask();
 		
 	// Handle received CAN bus data
 	modCANSubTaskHandleCommunication();
@@ -127,6 +120,29 @@ void modCANTask(void){
 	
 	// Control the charger
 	modCANHandleSubTaskCharger();
+}
+
+void modCANEmitStatusSubTask(void) {
+	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
+		switch(modCANGeneralConfigHandle->emitStatusProtocol) {
+			case canEmitProtocolDieBieEngineering:
+				// Send status messages with interval
+				if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
+					modCANSendSimpleStatusFast();
+				
+				// Send status messages with interval
+				if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
+					modCANSendSimpleStatusSlow();
+				break;
+			case canEmitProtocolMGElectronics:
+				if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))
+					modCANSendMGStatus();
+				break;
+			case canEmitProtocolNone:
+			default:
+				break;
+		}
+	}
 }
 
 uint32_t modCANGetDestinationID(CanRxMsgTypeDef canMsg) {
@@ -266,6 +282,72 @@ void modCANSendSimpleStatusSlow(void) {
 	sendIndex = 0;
   libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->temperatures[TEMP_INT_ADC_NTCAUX],&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_TEMP_INDIVIDUAL), buffer, sendIndex);
+}
+
+void modCANSendMGStatus(void) {
+	int32_t sendIndex;
+	uint8_t buffer[8];
+	
+	// Send voltage - 15FE0000 - 368967680
+	sendIndex = 0;
+	buffer[sendIndex++] = 0;
+	libBufferAppend_uint16_LSBFirst(buffer,(uint16_t)(modCANPackStateHandle->packVoltage/0.001f),&sendIndex);
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;
+	modCANTransmitExtID(0x15FE0000,buffer,8);
+	
+	// Send currents - 15FE0100 - 368967936
+	float chargeCurrent          = (modCANPackStateHandle->loCurrentLoadCurrent > 0) ? modCANPackStateHandle->loCurrentLoadCurrent : 0;
+	float disChargeSumCurrent    = chargeCurrent - modCANPackStateHandle->hiCurrentLoadCurrent;
+	float disChargeSumCurrentPos = (disChargeSumCurrent > 0) ? disChargeSumCurrent : 0;
+	
+	sendIndex = 0;
+	buffer[sendIndex++] = 0;
+	libBufferAppend_uint16_LSBFirst(buffer,(uint16_t)(chargeCurrent/0.01f),&sendIndex);
+	libBufferAppend_uint16_LSBFirst(buffer,(uint16_t)(disChargeSumCurrentPos/0.01f),&sendIndex);
+	libBufferAppend_int16_LSBFirst(buffer,(int16_t)(modCANPackStateHandle->packCurrent/0.01f),&sendIndex);
+	buffer[sendIndex++] = 0xFF;
+	modCANTransmitExtID(0x15FE0100,buffer,8);
+	
+	// Send SoC - 19FE0300 - 436077312
+	sendIndex = 0;
+	buffer[sendIndex++] = 0;
+	buffer[sendIndex++] = (uint8_t)modCANPackStateHandle->SoC;
+	buffer[sendIndex++] = 0;
+	buffer[sendIndex++] = 0;
+	buffer[sendIndex++] = 0;
+	buffer[sendIndex++] = 0;
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;	
+	modCANTransmitExtID(0x19FE0300,buffer,8);
+	
+	// Send temperature - 19FE0600 - 436078080
+	sendIndex = 0;
+	buffer[sendIndex++] = 0;
+	buffer[sendIndex++] = (uint8_t)modCANPackStateHandle->tempBMSHigh;
+	buffer[sendIndex++] = (uint8_t)modCANPackStateHandle->tempBMSLow;
+	buffer[sendIndex++] = (uint8_t)modCANPackStateHandle->tempBMSHigh;
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;
+	buffer[sendIndex++] = 0xFF;
+	modCANTransmitExtID(0x19FE0600,buffer,8);
+	
+	// Send Cell voltages - 19FD0000 - 436011008
+	for(uint8_t cellPointer = 0; cellPointer < modCANGeneralConfigHandle->noOfCellsSeries; cellPointer++) {
+		sendIndex = 0;
+		buffer[sendIndex++] = 0;
+		buffer[sendIndex++] = cellPointer;
+		libBufferAppend_uint16_LSBFirst(buffer,(uint16_t)(modCANPackStateHandle->cellVoltagesIndividual[cellPointer].cellVoltage/0.001f),&sendIndex);
+		buffer[sendIndex++] = 0;
+		buffer[sendIndex++] = 0;
+		buffer[sendIndex++] = 0;
+		buffer[sendIndex++] = 0;
+		modCANTransmitExtID(0x19FD0000,buffer,8);
+	}
 }
 
 void CAN_RX0_IRQHandler(void) {

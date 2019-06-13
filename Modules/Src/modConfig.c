@@ -138,7 +138,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->powerDownDelay                                 = 1000;                    // Wait only minimal to turn off
 	configLocation->canBusSpeed                                    = canSpeedBaud125k;        // 500k CAN baud
 	configLocation->chargeEnableOperationalState                   = opStateChargingModeNormal;// Go to normal mode when a charger is connected
-	configLocation->DCDCEnableInverted                             = true;                    // Invert the DCDC enable signal
+	configLocation->DCDCEnableInverted                             = false;                    // Invert the DCDC enable signal
 	configLocation->DCDCTargetVoltage                              = 12.0f;                   // Target voltage for the DCDC converter
 	
 	// Slave / HiAmp Config
