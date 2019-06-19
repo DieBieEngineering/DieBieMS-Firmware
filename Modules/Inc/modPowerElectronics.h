@@ -137,6 +137,9 @@ typedef struct {
 	
 	// Slave modules -> TODO move into struct.
 	float    cellModuleVoltages[NoOfCellMonitorsPossibleOnBMS][12];
+	float 	ModuleSlaveBMSTemperatures[NoOfCellMonitorsPossibleOnBMS];
+	float 	ModuleSlaveBMSHumidityt[NoOfCellMonitorsPossibleOnBMS];
+	float   ModuleSlaveBMSEXTTemperature[NoOfCellMonitorsPossibleOnBMS][8]; // External i2c ADC.
 	uint16_t cellModuleBalanceResistorEnableMask[NoOfCellMonitorsPossibleOnBMS];
 	
 } modPowerElectronicsPackStateTypedef;

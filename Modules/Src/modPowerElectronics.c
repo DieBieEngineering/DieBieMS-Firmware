@@ -909,6 +909,10 @@ void modPowerElectronicsCellMonitorsInit(void){
 			
 			// Safety signal is managed by the controller, it is configured as open drain and will be kept low by. watchdog will make the output to be released.
 			driverHWSwitchesSetSwitchState(SWITCH_SAFETY_OUTPUT,SWITCH_RESET);
+
+			driverSWLTC6804_ExternalAdcInit(modPowerElectronicsGeneralConfigHandle->cellMonitorICCount);
+			driverSWLTC6804_ExternalAdcReadChannel(0x1D, 1, modPowerElectronicsPackStateHandle->ModuleSlaveBMSEXTTemperature, modPowerElectronicsGeneralConfigHandle->cellMonitorICCount);
+
 		}break;
 		default:
 			break;
@@ -916,6 +920,8 @@ void modPowerElectronicsCellMonitorsInit(void){
 	
 	modPowerElectronicsCellMonitorsTypeActive = (configCellMonitorICTypeEnum)modPowerElectronicsGeneralConfigHandle->cellMonitorType;
 }
+
+uint32_t lastPackTemperatureMeasurement;
 
 void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
 	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
@@ -951,8 +957,46 @@ void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
 			
 			// Read aux voltages
 			//TODO these were cometnted
-			driverSWLTC6804ReadAuxSensors(modPowerElectronicsAuxVoltageArray);
-			modPowerElectronicsPackStateHandle->temperatures[0] =	modPowerElectronicsPackStateHandle->temperatures[1] = driverSWLTC6804ConvertTemperatureExt(modPowerElectronicsAuxVoltageArray[1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
+			//driverSWLTC6804ReadAuxSensors(modPowerElectronicsAuxVoltageArray);
+
+			uint16_t tempvoltages[NoOfCellMonitorsPossibleOnBMS][6];
+			driverSWLTC6804ReadAuxVoltages(0, modPowerElectronicsGeneralConfigHandle->cellMonitorICCount, tempvoltages);
+
+			//Put the sensor readings in module data
+			for (int i = 0; i <modPowerElectronicsGeneralConfigHandle->cellMonitorICCount; i++) {
+				modPowerElectronicsPackStateHandle->ModuleSlaveBMSTemperatures[i] = driverSWLTC6804ConvertTemperatureExt(tempvoltages[i][1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
+				modPowerElectronicsPackStateHandle->ModuleSlaveBMSHumidityt[i] = ((float)tempvoltages[i][0]/50000.0f - 0.1515f)*275.48f;
+			}
+
+			//Glue module data to main BMS data. Currently only save highest temperature and humidity.
+			float maxtemp = -100;
+			float maxRH = 0;
+
+			for (int i = 0; i < modPowerElectronicsGeneralConfigHandle->cellMonitorICCount; i++) {
+				float t = modPowerElectronicsPackStateHandle->ModuleSlaveBMSTemperatures[i];
+				float rh = modPowerElectronicsPackStateHandle->ModuleSlaveBMSHumidityt[i];
+
+				if(t > maxtemp)maxtemp = t;
+				if(rh > maxRH)maxRH = rh;
+			}
+			modPowerElectronicsPackStateHandle->temperatures[TEMP_EXT_LTC_NTC0] = maxtemp;
+			modPowerElectronicsPackStateHandle->temperatures[TEMP_EXT_LTC_NTC1] = maxRH;
+
+			//Limit external ADC measurment rate
+			if(modDelayTick1ms(&lastPackTemperatureMeasurement, 1000)){
+				//driverSWLTC6804_ExternalAdcReadChannel(0x1D, 1, modPowerElectronicsPackStateHandle->ModuleSlaveBMSEXTTemperature, modPowerElectronicsGeneralConfigHandle->cellMonitorICCount);
+
+				float max;
+				float min;
+				driverSWLTC6804_ExternalAdcReadAllTemperatures(modPowerElectronicsPackStateHandle->ModuleSlaveBMSEXTTemperature, &max, &min, modPowerElectronicsGeneralConfigHandle->cellMonitorICCount);
+
+				//Gleu data to used sensor data
+				modPowerElectronicsPackStateHandle->temperatures[8] = max;
+				modPowerElectronicsPackStateHandle->temperatures[9] = min;
+
+			}
+
+
 		}break;
 		default:
 			break;
@@ -1234,11 +1278,17 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 	modCommandsPrintf("------     Overall: %s       ------",overAllPassFail ? "Pass" : "Fail");// Tell whether test passed / failed
 }
 
+#define DEBUG_DISABLE_PACKVOLTAGECHECK
+
 void modPowerElectronicsSamplePackAndLCData(void) {
 	float tempPackVoltage;
 	
 	modPowerElectrinicsSamplePackVoltage(&tempPackVoltage);
 	
+#ifdef DEBUG_DISABLE_PACKVOLTAGECHECK
+	modPowerElectronicsPackStateHandle->packVoltage = tempPackVoltage;
+	modPowerElectronicsVoltageSenseError = false;
+#else
 	if(fabs(tempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 2.0f) {    // If the error is smaller than one volt continue normal operation. 
 		modPowerElectronicsPackStateHandle->packVoltage = tempPackVoltage;
 		modPowerElectronicsLCSenseSample();
@@ -1252,6 +1302,7 @@ void modPowerElectronicsSamplePackAndLCData(void) {
 			modPowerElectronicsLCSenseInit();																												// Reinit I2C and ISL
 		}
 	}
+#endif
 }
 
 void modPowerElectrinicsSamplePackVoltage(float *voltagePointer) {

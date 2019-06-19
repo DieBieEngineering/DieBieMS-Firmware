@@ -56,12 +56,14 @@ void modSafeStateTask(){
 
 	//Measure the source of the safestate
 	if(SafeState){
+		SafeStateEstop = true;
+		SafeStateBMS = true;
+	}
 
-		//Limit the refreshrate of the inputs.
-		if(modDelayTick1ms(&modSafeStateLastTick, 100)){
-			SafeStateEstop = driverSWPCAL6416GetInput(2, 6, true);
-			SafeStateBMS   = driverSWPCAL6416GetInput(2, 7, false);
-		}
+	//Limit the refreshrate of the inputs.
+	if(modDelayTick1ms(&modSafeStateLastTick, 100)){
+		SafeStateEstop = driverSWPCAL6416GetInput(2, 6, true);
+		SafeStateBMS   = driverSWPCAL6416GetInput(2, 7, false);
 	}
 #endif
 }

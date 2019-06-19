@@ -19,6 +19,9 @@
 // This next define enables / disables the watchdog
 #define AllowDebug
 
+//Dangarus: Does not detect some measurement error and turns on anyway!
+#define DEBUG_DISABLE_PACKVOLTAGECHECK
+
 IWDG_HandleTypeDef handleIWDG;
 modConfigGeneralConfigStructTypedef *generalConfig;
 modStateOfChargeStructTypeDef       *generalStateOfCharge;
