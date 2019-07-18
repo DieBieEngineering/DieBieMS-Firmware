@@ -57,7 +57,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 #ifdef DSBTSolar
 	configLocation->noOfCellsSeries														     = 12;											// X Cells in series
 	configLocation->noOfCellsParallel                              = 16;                      // For the efoil battery this will always be this
-	configLocation->noOfCellsPerModule                             = 1;                       // Number of cells per module
+	configLocation->noOfCellsPerModule                             = 12;                      // Number of cells per module
 	configLocation->batteryCapacity														     = 40.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.20f;										// Worst case X.XXV as highest cell voltage
@@ -273,7 +273,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 #ifdef EFoilV2
 	configLocation->noOfCellsSeries														     = 12;											// X Cells in series
 	configLocation->noOfCellsParallel                              = 16;                      // For the efoil battery this will always be this
-	configLocation->noOfCellsPerModule                             = 1;                       // Number of cells per module
+	configLocation->noOfCellsPerModule                             = 12;                       // Number of cells per module
 	configLocation->batteryCapacity														     = 40.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.20f;										// Worst case X.XXV as highest cell voltage
@@ -381,7 +381,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 #ifdef EFoilV1
 	configLocation->noOfCellsSeries														     = 12;											// X Cells in series
 	configLocation->noOfCellsParallel                              = 16;                      // For the efoil battery this will always be this
-	configLocation->noOfCellsPerModule                             = 1;                       // Number of cells per module
+	configLocation->noOfCellsPerModule                             = 12;                       // Number of cells per module
 	configLocation->batteryCapacity														     = 40.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.25f;										// Worst case X.XXV as highest cell voltage
@@ -489,7 +489,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 #ifdef ESK8
 	configLocation->noOfCellsSeries														     = 12;											// X Cells in series
 	configLocation->noOfCellsParallel                              = 4;                       // For the esk8 world this could be many things, set default to 4
-	configLocation->noOfCellsPerModule                             = 1;                       // Number of cells per module
+	configLocation->noOfCellsPerModule                             = 12;                      // Number of cells per module
 	configLocation->batteryCapacity														     = 15.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.35f;										// Worst case X.XXV as highest cell voltage
