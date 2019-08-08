@@ -530,6 +530,40 @@ typedef enum {
 	CAN_PACKET_SSR_STATUS_MAIN_LOAD1	
 } CAN_PACKET_ID;
 
+
+typedef enum {
+	CAN_COB_Battery_Error,
+	CAN_COB_Battery_AUX,
+	CAN_COB_Battery_CellVoltage,
+	CAN_COB_Battery_Opstate = 4,
+	CAN_COB_Battery_PackIV,
+	CAN_COB_Battery_BMSTemperature,
+	CAN_COB_Battery_LoadIV = 9,
+	CAN_COB_Battery_PackTemepratures,
+} CAN_COB_TDSR;
+
+typedef enum {
+	TDSR_OK = 0,
+	TDSR_error_Cell_OverVoltage,
+	TDSR_error_Cell_UnderVoltage,
+	TDSR_error_Cell_OverChargeCurrent,
+	TDSR_error_Cell_OverDischargeCurrent,
+	TDSR_error_Cell_OverTemperaturecharge,
+	TDSR_error_Cell_OverTemperaturedischarge,
+	TDSR_error_Cell_UnderTemperaturecharge,
+	TDSR_error_Cell_UnderTemperaturedischarge,
+
+	TDSR_warning_NoCharge,
+	TDSR_warning_NoDischrage,
+	TDSR_warning_ReducedCharge,
+	TDSR_warning_ReducedDischarge,
+	TDSR_warning_OverDischargeThrotleCurrent,
+	TDSR_warning_OverChargeThrotleCurrent
+
+} BatteryErrors;
+
+
+
 typedef struct {
 	int id;
 	systime_t rx_time;
@@ -648,7 +682,8 @@ typedef enum {
 
 typedef enum {
 	canEmitProtocolNone = 0,
-  canEmitProtocolDieBieEngineering,
+	canEmitProtocolDieBieEngineering,
+	canEMitProtocolTDSR,				//instead of MG, to make tool compatible
 	canEmitProtocolMGElectronics
 } canEmitProtocol;
 

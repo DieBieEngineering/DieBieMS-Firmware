@@ -15,9 +15,9 @@
 
 void modOperationalStateInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer,modStateOfChargeStructTypeDef *generalStateOfCharge);
 void modOperationalStateTask(void);
-void modOperationalStateUpdateStates(void);
-void modOperationalStateSetAllStates(OperationalStateTypedef newState);
-void modOperationalStateSetNewState(OperationalStateTypedef newState);
+//void modOperationalStateUpdateStates(void);
+//void modOperationalStateSetAllStates(OperationalStateTypedef newState);
+//void modOperationalStateSetNewState(OperationalStateTypedef newState);
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState);
 void modOperationalStateTerminateOperation(void);
 bool modOperationalStateDelayedDisable(bool delayedPowerDownDesired);

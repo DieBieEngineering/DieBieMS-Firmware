@@ -15,6 +15,7 @@
 #include "modHiAmp.h"
 #include "modComunicaiton.h"
 #include "modSafestate.h"
+#include "modFanControll.h"
 
 // This next define enables / disables the watchdog
 #define AllowDebug
@@ -57,6 +58,8 @@ int main(void) {
 	modHiAmpInit(&packState,generalConfig);																		// Initialize the HiAmp shield enviroment if any
 	modComunicationInit();
 	modSafeStateInit();
+	modFanCotnrollInit(&packState);
+
 
   while(true) {
 		modEffectTask();
@@ -66,6 +69,7 @@ int main(void) {
 		modCANTask();
 		modHiAmpTask();
 		modComunicationTask();
+		modFanControllTask();
 
 		//Safestate task. Handles the safestate flipflop and resets it. It also uses modOperatinalstate to set the opstate of the BMS.
 		modSafeStateTask();

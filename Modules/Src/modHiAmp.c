@@ -105,10 +105,15 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 	}
 }
 
+uint32_t modHiAmpShieldFanLastTick;
+
 void modHiAmpTask(void) {
 	if(modDelayTick1ms(&modHiAmpShieldPresenceDetectLastTick,5000)){
 		modHiAmpPackStateHandle->hiAmpShieldPresent = modHiAmpShieldPresentCheck();
-		modHiAmpShieldSetFANSpeedAll(newFanSpeed);
+	}
+
+	if(modDelayTick1ms(&modHiAmpShieldFanLastTick,100)){
+			modHiAmpShieldSetFANSpeedAll(modHiAmpPackStateHandle->FANSpeedDutyDesired);
 	}
 	
 	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100)){

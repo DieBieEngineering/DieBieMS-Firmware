@@ -50,6 +50,7 @@ typedef struct {
 	uint16_t throttleDutyChargeVoltage;
 	uint16_t throttleDutyChargeTemperatureBattery;
 	uint16_t throttleDutyCharge;
+	uint16_t throttleDutyHiCurrentCharge;
 	uint16_t throttleDutyDischargeVoltage;
 	uint16_t throttleDutyDischargeTemperatureBattery;
 	uint16_t throttleDutyDischarge;
@@ -70,9 +71,13 @@ typedef struct {
 	float    tempBatteryHigh;
 	float    tempBatteryLow;
 	float    tempBatteryAverage;
+
 	float    tempBMSHigh;
 	float    tempBMSLow;
 	float    tempBMSAverage;
+	float    HumidityBMS;
+	float    HumidityBattery;
+
 	uint8_t  preChargeDesired;
 	uint8_t  disChargeDesired;
 	uint8_t  disChargeLCAllowed;
@@ -142,9 +147,15 @@ typedef struct {
 	float   ModuleSlaveBMSEXTTemperature[NoOfCellMonitorsPossibleOnBMS][8]; // External i2c ADC.
 	uint16_t cellModuleBalanceResistorEnableMask[NoOfCellMonitorsPossibleOnBMS];
 	
+
+
+	BatteryErrors Warning;
+
+
 } modPowerElectronicsPackStateTypedef;
 
 void  modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfig);
+void modPowerElectroicsResetState(void);
 bool  modPowerElectronicsTask(void);
 void  modPowerElectronicsAllowForcedOn(bool allowedState);
 void  modPowerElectronicsSetPreCharge(bool newState);

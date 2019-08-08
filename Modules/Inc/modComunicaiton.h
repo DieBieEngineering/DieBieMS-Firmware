@@ -27,6 +27,8 @@ void modComunicaitonCANRxCallback(CanRxMsgTypeDef *canMsg);
 void          modCANSendSimpleStatusFast(void);
 void          modCANSendSimpleStatusSlow(void);
 void          modCANSubTaskHandleCommunication(void);
+void          modCANSendTDSRStatusFast(void);
+void          modCANSendTDSRStatusSlow(void);
 void          modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, bool send);
 void          modCANSetESCDuty(uint8_t controllerID, float duty);
 void          modCANSetESCCurrent(uint8_t controllerID, float current);

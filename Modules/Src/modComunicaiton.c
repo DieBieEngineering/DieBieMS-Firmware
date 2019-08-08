@@ -55,13 +55,30 @@ void modComunicationInit(void){
 
 void modComunicationTask(){
 	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
-			modCANSendSimpleStatusFast();
+		switch (modCANGeneralConfigHandle->emitStatusProtocol) {
+			case canEmitProtocolNone:
+			case canEmitProtocolDieBieEngineering:
+			case canEmitProtocolMGElectronics:
+			default:
+				// Send status messages with interval
+				if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
+					modCANSendSimpleStatusFast();
 
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
-			modCANSendSimpleStatusSlow();
+				// Send status messages with interval
+				if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
+					modCANSendSimpleStatusSlow();
+
+				break;
+			case canEMitProtocolTDSR:
+				// Send status messages with interval
+				if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,50))                        // 20 Hz
+					modCANSendTDSRStatusFast();
+
+				// Send status messages with interval
+				if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,100))                        // 10 Hz
+					modCANSendTDSRStatusSlow();
+				break;
+		}
 	}
 
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
@@ -198,10 +215,10 @@ void modCANSendSimpleStatusFast(void) {
 	// Send (dis)charge throttle and booleans.
 	sendIndex = 0;
 	libBufferAppend_float16(buffer, modCANPackStateHandle->hiCurrentLoadVoltage,1e2,&sendIndex);
-  libBufferAppend_float16(buffer, modCANPackStateHandle->SoCCapacityAh,1e2,&sendIndex);
-  libBufferAppend_uint8(buffer, (uint8_t)modCANPackStateHandle->SoC,&sendIndex);
-  libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyCharge/10,&sendIndex);
-  libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyDischarge/10,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->SoCCapacityAh,1e2,&sendIndex);
+	libBufferAppend_uint8(buffer, (uint8_t)modCANPackStateHandle->SoC,&sendIndex);
+	libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyCharge/10,&sendIndex);
+	libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyDischarge/10,&sendIndex);
 	libBufferAppend_uint8(buffer,flagHolder,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_THROTTLE_CH_DISCH_BOOL), buffer, sendIndex);
 }
@@ -263,6 +280,90 @@ void modCANSendSimpleStatusSlow(void) {
 	sendIndex = 0;
   libBufferAppend_int8(buffer,(int8_t)modCANPackStateHandle->temperatures[TEMP_INT_ADC_NTCAUX],&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_TEMP_INDIVIDUAL), buffer, sendIndex);
+}
+
+void modCANSendTDSRStatusFast(void) {
+	int32_t sendIndex;
+	uint8_t buffer[8];
+	uint8_t flagHolder = 0;
+	uint8_t disChargeDesiredMask;
+
+	if(modCANGeneralConfigHandle->togglePowerModeDirectHCDelay || modCANGeneralConfigHandle->pulseToggleButton){
+		disChargeDesiredMask = modCANPackStateHandle->disChargeDesired && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+	}else{
+		disChargeDesiredMask = modCANPackStateHandle->disChargeDesired && modCANPackStateHandle->powerButtonActuated && modPowerElectronicsHCSafetyCANAndPowerButtonCheck();
+	}
+
+	flagHolder |= (modCANPackStateHandle->chargeAllowed          << 7);
+	flagHolder |= (modCANPackStateHandle->disChargeHCAllowed     << 6);
+	flagHolder |= (modCANPackStateHandle->hiLoadEnabled          << 5);
+	flagHolder |= (modCANPackStateHandle->chargeBalanceActive    << 4);
+	flagHolder |= (modCANPackStateHandle->operationalState & 0x0F);
+
+	// Send (dis)charge throttle and booleans.
+	sendIndex = 0;
+	libBufferAppend_float16(buffer, modCANPackStateHandle->SoCCapacityAh,1e2,&sendIndex);
+	libBufferAppend_uint8(buffer, (uint8_t)modCANPackStateHandle->SoC,&sendIndex);
+	libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyCharge/10,&sendIndex);
+	libBufferAppend_uint8(buffer, modCANPackStateHandle->throttleDutyDischarge/10,&sendIndex);
+	libBufferAppend_uint8(buffer,flagHolder,&sendIndex);
+	libBufferAppend_int8(buffer, modCANPackStateHandle->throttleDutyHiCurrentCharge/10, &sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_COB_Battery_Opstate), buffer, sendIndex);
+}
+
+void modCANSendTDSRStatusSlow(void) {
+	int32_t sendIndex;
+	uint8_t buffer[8];
+	uint8_t flagHolder = 0;
+
+
+	//Send Battery cell voltage statistics
+	sendIndex = 0;
+	libBufferAppend_float16(buffer, modCANPackStateHandle->cellVoltageLow,1e3,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->cellVoltageHigh,1e3,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->cellVoltageAverage,1e3,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->cellVoltageMisMatch,1e3,&sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_COB_Battery_CellVoltage), buffer, sendIndex);
+
+	//Send battery error
+	sendIndex = 0;
+	libBufferAppend_uint8(buffer, modCANPackStateHandle->Warning,&sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_COB_Battery_Error), buffer, sendIndex);
+
+	//Send BMS load IV
+	sendIndex = 0;
+	libBufferAppend_float32(buffer, modCANPackStateHandle->hiCurrentLoadVoltage,1e5,&sendIndex);
+	libBufferAppend_float32(buffer, modCANPackStateHandle->hiCurrentLoadCurrent,1e5,&sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID, CAN_COB_Battery_LoadIV), buffer, sendIndex);
+
+	//Send Pack IV
+	sendIndex = 0;
+	libBufferAppend_float32(buffer, modCANPackStateHandle->packVoltage,1e5,&sendIndex);
+	libBufferAppend_float32(buffer, modCANPackStateHandle->packCurrent,1e5,&sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID, CAN_COB_Battery_PackIV), buffer, sendIndex);
+
+	//send AUX IV
+	sendIndex = 0;
+	libBufferAppend_float16(buffer, modCANPackStateHandle->auxVoltage,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->auxCurrent,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->auxCurrent * modCANPackStateHandle->auxVoltage,1e2,&sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_COB_Battery_AUX), buffer, sendIndex);
+
+	//send Battery temperatures
+	sendIndex = 0;
+	libBufferAppend_float16(buffer, modCANPackStateHandle->tempBatteryAverage,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->tempBatteryHigh,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->tempBatteryLow,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->HumidityBattery,1e2,&sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_COB_Battery_PackTemepratures), buffer, sendIndex);
+
+	//send BMS Temperature statistics
+	sendIndex = 0;
+	libBufferAppend_float16(buffer, modCANPackStateHandle->tempBMSAverage,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->tempBMSHigh,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->tempBMSLow,1e2,&sendIndex);
+	libBufferAppend_float16(buffer, modCANPackStateHandle->HumidityBMS,1e2,&sendIndex);
+	modCANTransmitStandardID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_COB_Battery_BMSTemperature), buffer, sendIndex);
 }
 
 /**

@@ -21,6 +21,12 @@ uint32_t modOperationalStatePSPDisableDelay;
 uint32_t modOperationalStateWatchDogCountdownLastTick;
 bool modOperationalStateForceOn;
 
+
+//Private funktion predefenitions
+void modOperationalStateUpdateStates(void);
+void modOperationalStateSetAllStates(OperationalStateTypedef newState);
+void modOperationalStateSetNewState(OperationalStateTypedef newState);
+
 void modOperationalStateInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer, modStateOfChargeStructTypeDef *generalStateOfCharge) {
 	modOperationalStatePackStatehandle = packState;
 	modOperationalStateGeneralConfigHandle = generalConfigPointer;
@@ -52,9 +58,17 @@ void modOperationalStateTask(void) {
 						modEffectChangeState(STAT_LED_POWER,STAT_SET);										// Turn LED on in normal operation
 						break;
 				}
+
+			}else if(modOperationalStateLastState == OP_STATE_SAFESTATE){								//Just came out of safestate.
+					modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+					//Reset variables
+					modPowerElectroicsResetState();
+					modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
+
 			}else if(modPowerStateButtonPressedOnTurnon()) {												// Check if button was pressen on turn-on
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+
 			}else if(modOperationalStateNewState == OP_STATE_INIT){								  // USB or CAN origin of turn-on
 				switch(modOperationalStateGeneralConfigHandle->externalEnableOperationalState){
 					case opStateExtNormal:
@@ -65,8 +79,6 @@ void modOperationalStateTask(void) {
 						modOperationalStateSetNewState(OP_STATE_EXTERNAL);								// Serve external control
 						break;
 				}
-				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
-			}else if(modOperationalStateLastState == OP_STATE_SAFESTATE){								//Just came out of safestate.
 				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
 			}
 			
@@ -185,8 +197,8 @@ void modOperationalStateTask(void) {
 			  modOperationalStatePSPDisableDelay = HAL_GetTick();
 			}
 			modPowerElectronicsDisableAll();																				// Disable all power paths
-			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
-			modEffectChangeState(STAT_LED_DEBUG,STAT_RESET);
+			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);												// Turn off power LED
+			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,modOperationalStateGeneralConfigHandle->powerDownDelay))	{					// Wait for the power down delay time to pass
@@ -343,8 +355,10 @@ void modOperationalStateTask(void) {
 	
 	//In case of safestate flipflop active go to software safestate.
 	if(modSafeStateCheckSafestate()){
-		modOperationalStateSetNewState(OP_STATE_SAFESTATE);
-		modOperationalStateUpdateStates();
+		if((modOperationalStateCurrentState != OP_STATE_SAFESTATE) && (modOperationalStateCurrentState != OP_STATE_POWER_DOWN)){
+			modOperationalStateSetNewState(OP_STATE_SAFESTATE);
+			modOperationalStateUpdateStates();
+		}
 	}
 
 	// Move the button pressed state to the status struct
