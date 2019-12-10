@@ -5,31 +5,20 @@ modConfigGeneralConfigStructTypedef *modHiAmpGeneralConfigHandle;
 
 uint32_t modHiAmpShieldPresenceDetectLastTick;
 uint32_t modHiAmpShieldSamplingLastTick;
-uint32_t modHiAmpShieldHVSSRTaskUpdateLastTick;
+uint32_t modHiAmpShieldRelayTimeoutLastTick;
+uint32_t modHiAmpShieldRelayStartPrechargeTimeStamp;
 
-// Regular relay
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledState;
 relayControllerStateTypeDef modHiAmpShieldRelayControllerRelayEnabledLastState;
-bool                        modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
-uint32_t                    modHiAmpShieldRelayTimeoutLastTick;
-uint32_t                    modHiAmpShieldRelayStartPrechargeTimeStamp;
-
-// HV SSR relay
-relayControllerStateTypeDef modHiAmpShieldHVSSRControllerRelayEnabledState;
-relayControllerStateTypeDef modHiAmpShieldHVSSRControllerRelayEnabledLastState;
-bool                        modHiAmpShieldHVSSRControllerRelayEnabledDesiredLastState;
-uint32_t                    modHiAmpShieldHVSSRTimeoutLastTick;
-uint32_t                    modHiAmpShieldHVSSRStartPrechargeTimeStamp;
 
 bool dischargeHCEnable;
+bool modHiAmpShieldRelayControllerRelayEnabledDesiredLastState;
 bool modHiAmpShieldPrePreChargeBulkCapChargeDetected;
-bool modHiAmpShieldPrePreChargeBulkCapChargeHVDetected;
 
-
-bool HVEnableDischarge;
-bool HVEnablePreCharge;
-bool HVEnableLowSide;
-bool HVEnableCharge;
+bool HVEnableDischarge = false;
+bool HVEnablePreCharge = false;
+bool HVEnableLowSide   = false;
+bool HVEnableCharge    = false;
 
 uint8_t newFanSpeed = 0;
 
@@ -43,32 +32,21 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 	driverHWI2C1Init();
 	
 	// Check whether the slave sensors are present
-	modHiAmpPackStateHandle->slaveShieldPresenceFanDriver = false;
-	modHiAmpPackStateHandle->slaveShieldPresenceAuxADC    = false;
-	modHiAmpPackStateHandle->slaveShieldPresenceADSADC    = false;
-	modHiAmpPackStateHandle->slaveShieldPresenceMasterISL = false;
-	modHiAmpPackStateHandle->slaveShieldPresenceMainISL   = false;
-	modHiAmpPackStateHandle->hiAmpShieldPresent           = modHiAmpShieldPresentCheck();
+	modHiAmpPackStateHandle->slaveShieldPresenceOCPotmeter = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceFanDriver  = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceAuxADC     = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceADSADC     = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceMasterISL  = false;
+	modHiAmpPackStateHandle->slaveShieldPresenceMainISL    = false;
+	modHiAmpPackStateHandle->hiAmpShieldPresent            = modHiAmpShieldPresentCheck();
 	
-	// Initialisation variables Relay + HV
+	// Initialisation variables
 	modHiAmpShieldResetVariables();																										// Reset the hiAmp shield variables
-	// Relay
-	modHiAmpShieldPrePreChargeBulkCapChargeDetected = false;
-	modHiAmpShieldRelayControllerRelayEnabledState            = RELAY_CONTROLLER_OFF;
-	modHiAmpShieldRelayControllerRelayEnabledLastState        = RELAY_CONTROLLER_INIT;
+	modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
+	modHiAmpShieldRelayControllerRelayEnabledLastState = RELAY_CONTROLLER_INIT;
 	modHiAmpShieldRelayControllerRelayEnabledDesiredLastState = false;
-	modHiAmpShieldRelayStartPrechargeTimeStamp                = HAL_GetTick();
-	
-	// HV SSR
-	HVEnableDischarge = false;
-	HVEnablePreCharge = false;
-	HVEnableLowSide   = true;
-	HVEnableCharge    = false;
-	modHiAmpShieldPrePreChargeBulkCapChargeHVDetected = false;
-	modHiAmpShieldHVSSRControllerRelayEnabledState            = RELAY_CONTROLLER_OFF;
-	modHiAmpShieldHVSSRControllerRelayEnabledLastState        = RELAY_CONTROLLER_INIT;
-	modHiAmpShieldHVSSRControllerRelayEnabledDesiredLastState = false;
-	modHiAmpShieldHVSSRStartPrechargeTimeStamp                = HAL_GetTick();
+	modHiAmpShieldPrePreChargeBulkCapChargeDetected = false;
+	modHiAmpShieldRelayStartPrechargeTimeStamp = HAL_GetTick();
 	
 	// Initialise slave board
 	if(modHiAmpPackStateHandle->hiAmpShieldPresent){
@@ -96,6 +74,11 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 		}else{
 			driverSWADS1015ResetValues();
 		}
+		
+		if(modHiAmpPackStateHandle->slaveShieldPresenceOCPotmeter){
+			driverSWAD5245Init(I2CADDROCDPOTMETERDriver,modHiAmpGeneralConfigHandle->HCLoadCurrentPotValue);
+		}
+		
 	}else{
 	  modHiAmpShieldResetSensors();
 	}
@@ -104,7 +87,9 @@ void modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfi
 void modHiAmpTask(void) {
 	if(modDelayTick1ms(&modHiAmpShieldPresenceDetectLastTick,5000)){
 		modHiAmpPackStateHandle->hiAmpShieldPresent = modHiAmpShieldPresentCheck();
+		
 		modHiAmpShieldSetFANSpeedAll(newFanSpeed);
+		modHiAmpShieldSetOCDPotvalue(modHiAmpGeneralConfigHandle->HCLoadCurrentPotValue);
 	}
 	
 	if(modDelayTick1ms(&modHiAmpShieldSamplingLastTick,100)){
@@ -128,17 +113,18 @@ void modHiAmpTask(void) {
 			modHiAmpPackStateHandle->auxVoltage           = driverSWDCDCGetAuxVoltage();
 			modHiAmpPackStateHandle->auxCurrent           = driverSWDCDCGetAuxCurrent();
 			modHiAmpPackStateHandle->auxPower             = modHiAmpPackStateHandle->auxVoltage * modHiAmpPackStateHandle->auxCurrent;
-			modHiAmpPackStateHandle->auxDCDCOutputOK      = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,12.0f,0.1f); // Nominal is 12V max error is 10%
+			modHiAmpPackStateHandle->auxDCDCOutputOK      = driverSWDCDCCheckVoltage(modHiAmpPackStateHandle->auxVoltage,modHiAmpGeneralConfigHandle->DCDCTargetVoltage,0.1f);
 			modHiAmpPackStateHandle->hiCurrentLoadVoltage = modHiAmpShieldShuntMonitorGetVoltage();
 			modHiAmpPackStateHandle->hiCurrentLoadCurrent = modHiAmpShieldShuntMonitorGetCurrent();
 			modHiAmpPackStateHandle->hiCurrentLoadPower   = modHiAmpPackStateHandle->hiCurrentLoadVoltage * modHiAmpPackStateHandle->hiCurrentLoadCurrent;
 			modHiAmpPackStateHandle->hiCurrentLoadState   = modHiAmpShieldRelayControllerRelayEnabledState;
-			modHiAmpPackStateHandle->hiCurrentLoadStateHV = modHiAmpShieldHVSSRControllerRelayEnabledState; 			
 			modHiAmpShieldTemperatureHumidityMeasureTask();
 			
-			// Update output state machines Relay + HVSSR
+			// Update outputs
 			modHiAmpShieldRelayControllerPassSampledInput(dischargeHCEnable,modHiAmpPackStateHandle->hiCurrentLoadVoltage,modHiAmpPackStateHandle->packVoltage);
-			modHiAmpShieldHVSSRControllerPassSampledInput(dischargeHCEnable,modHiAmpPackStateHandle->hiCurrentLoadVoltage,modHiAmpPackStateHandle->packVoltage);			
+			
+			// Update HV Ouputs
+			modHiAmpShieldHVSSRTask();
 		}else{
 			modHiAmpShieldResetSensors();
 	  }
@@ -146,10 +132,7 @@ void modHiAmpTask(void) {
 	
 	driverSWADS1015SampleTask(modHiAmpPackStateHandle->slaveShieldPresenceADSADC);
 	driverSWDCDCEnableTask();
-	
-	// Cycle switch tasks
 	modHiAmpShieldRelayControllerTask();
-	modHiAmpShieldHVSSRControllerTask();
 }
 
 bool modHiAmpShieldPresentCheck(void) {
@@ -160,12 +143,12 @@ bool modHiAmpShieldPresentCheck(void) {
 	PresenceDetect |= driverHWI2C1Write(I2CADDRIOExt      ,false,&I2CWrite,0);   // IO Ext
 	PresenceDetect |= driverHWI2C1Write(I2CADDRADC8       ,false,&I2CWrite,0);   // NTC ADC
 	
-	
-	modHiAmpPackStateHandle->slaveShieldPresenceMasterISL = (driverHWI2C2Write(I2CADDRISLMaster  ,false,&I2CWrite,0) == HAL_OK) ? true : false;	
-	modHiAmpPackStateHandle->slaveShieldPresenceMainISL   = (driverHWI2C1Write(I2CADDRISLMain    ,false,&I2CWrite,0) == HAL_OK) ? true : false;
-	modHiAmpPackStateHandle->slaveShieldPresenceFanDriver = (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? true : false;
-	modHiAmpPackStateHandle->slaveShieldPresenceAuxADC    = (driverHWI2C1Write(I2CADDRADC8       ,false,&I2CWrite,0) == HAL_OK) ? true : false;
-	modHiAmpPackStateHandle->slaveShieldPresenceADSADC    = (driverHWI2C1Write(I2CADS1015        ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceMasterISL  = (driverHWI2C2Write(I2CADDRISLMaster   ,false,&I2CWrite,0) == HAL_OK) ? true : false;	
+	modHiAmpPackStateHandle->slaveShieldPresenceMainISL    = (driverHWI2C1Write(I2CADDRISLMain     ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceFanDriver  = (driverHWI2C1Write(I2CADDRFANDriver   ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceAuxADC     = (driverHWI2C1Write(I2CADDRADC8        ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceADSADC     = (driverHWI2C1Write(I2CADS1015         ,false,&I2CWrite,0) == HAL_OK) ? true : false;
+	modHiAmpPackStateHandle->slaveShieldPresenceOCPotmeter = (driverHWI2C1Write(I2CADDROCDPOTMETER ,false,&I2CWrite,0) == HAL_OK) ? true : false;
 	
 	if(PresenceDetect == HAL_OK)
 		return true;
@@ -173,9 +156,9 @@ bool modHiAmpShieldPresentCheck(void) {
 		return false;
 }
 
-uint8_t modHiAmpShieldScanI2CDevices(void) {
+uint16_t modHiAmpShieldScanI2CDevices(void) {
 	uint8_t I2CWrite = 0;
-	uint8_t PresenceMask = 0;
+	uint16_t PresenceMask = 0;
 	
 	PresenceMask |= (driverHWI2C1Write(I2CADDRISLMain    ,false,&I2CWrite,0) == HAL_OK) ? (1 << 0) : false; // ISL Main
 	PresenceMask |= (driverHWI2C1Write(I2CADDRISLAux     ,false,&I2CWrite,0) == HAL_OK) ? (1 << 1) : false; // ISL Aux
@@ -184,7 +167,9 @@ uint8_t modHiAmpShieldScanI2CDevices(void) {
 	PresenceMask |= (driverHWI2C1Write(I2CADDRADC8       ,false,&I2CWrite,0) == HAL_OK) ? (1 << 4) : false; // NTC ADC 8 Channel water/temp
 	PresenceMask |= (driverHWI2C1Write(I2CADDRADC1       ,false,&I2CWrite,0) == HAL_OK) ? (1 << 5) : false; // NTC ADC	1 Channel strutconn temp
 	PresenceMask |= (driverHWI2C1Write(I2CADDRFANDriver  ,false,&I2CWrite,0) == HAL_OK) ? (1 << 6) : false; // FAN Driver
-	PresenceMask |= (driverHWI2C1Write(I2CADS1015        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 7) : false; // HV voltage measure ADC	
+	PresenceMask |= (driverHWI2C1Write(I2CADS1015        ,false,&I2CWrite,0) == HAL_OK) ? (1 << 7) : false; // HV voltage measure ADC	 temp
+	PresenceMask |= (driverHWI2C1Write(I2CADDROCDPOTMETER,false,&I2CWrite,0) == HAL_OK) ? (1 << 8) : false; // Potmeter
+	PresenceMask |= (driverHWI2C1Write(I2CADDREEPROM     ,false,&I2CWrite,0) == HAL_OK) ? (1 << 9) : false; // EEPROM	
 	
   return PresenceMask;
 }
@@ -297,6 +282,13 @@ float modHiAmpShieldShuntMonitorGetCurrent(void) {
 	return measuredCurrent;
 }
 
+
+void modHiAmpShieldSetOCDPotvalue(uint8_t newValue) {
+	if(modHiAmpPackStateHandle->slaveShieldPresenceOCPotmeter){
+		driverSWAD5245SetPotmeterValue(I2CADDROCDPOTMETERDriver,newValue);
+	}
+}
+
 void modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed) {
 	modHiAmpPackStateHandle->FANSpeedDutyDesired = newFANSpeed;
 	if(modHiAmpPackStateHandle->slaveShieldPresenceFanDriver){
@@ -321,43 +313,14 @@ void modHiAmpShieldRelayControllerPassSampledInput(uint8_t relayStateDesired, fl
 	
 	// process new samples and go to precharged state if ok
 	if(modHiAmpShieldRelayControllerRelayEnabledState == RELAY_CONTROLLER_PRECHARGING){
-		if(mainBusVoltage >= batteryVoltage*PRECHARGE_PERCENTAGE)
+		if(mainBusVoltage >= batteryVoltage*PRECHARGE_PERCENTAGE_HC)
 			modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_PRECHARGED;
 	}
 	
 	// process new samples and go to timeout state if voltage drops
 	if(modHiAmpShieldRelayControllerRelayEnabledState == RELAY_CONTROLLER_ENABLED){
-		if((mainBusVoltage <= batteryVoltage*PRECHARGE_PERCENTAGE) && modHiAmpGeneralConfigHandle->HCUsePrecharge)
+		if((mainBusVoltage <= batteryVoltage*PRECHARGE_PERCENTAGE_HC) && modHiAmpGeneralConfigHandle->HCUsePrecharge)
 			modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_TIMOUT;
-	}
-}
-
-void modHiAmpShieldHVSSRControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage) {
-	// HV SSR
-	if(modHiAmpShieldHVSSRControllerRelayEnabledDesiredLastState != relayStateDesired) {
-		if(relayStateDesired && modHiAmpGeneralConfigHandle->HCUseRelay) {
-			if(modHiAmpGeneralConfigHandle->HCUsePrecharge) {
-				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_PRECHARGING;
-				modHiAmpShieldPrePreChargeBulkCapChargeHVDetected = (mainBusVoltage > (batteryVoltage*PREPRECHARGE_LOADDETECT)) ? true : false;
-			}else{
-				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_ENABLED;
-			}
-		}else{
-			modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
-		}
-		modHiAmpShieldHVSSRControllerRelayEnabledDesiredLastState = relayStateDesired;
-	}
-	
-	// process new samples and go to precharged state if ok
-	if(modHiAmpShieldHVSSRControllerRelayEnabledState == RELAY_CONTROLLER_PRECHARGING){
-		if(mainBusVoltage >= batteryVoltage*PRECHARGE_PERCENTAGE)
-			modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_PRECHARGED;
-	}
-	
-	// process new samples and go to timeout state if voltage drops
-	if(modHiAmpShieldHVSSRControllerRelayEnabledState == RELAY_CONTROLLER_ENABLED){
-		if((mainBusVoltage <= batteryVoltage*PRECHARGE_PERCENTAGE) && modHiAmpGeneralConfigHandle->HCUsePrecharge)
-			modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_TIMOUT;
 	}
 }
 
@@ -366,11 +329,13 @@ void modHiAmpShieldRelayControllerTask(void) {
 		switch(modHiAmpShieldRelayControllerRelayEnabledState) {
 			case RELAY_CONTROLLER_INIT:
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			case RELAY_CONTROLLER_OFF:
 				modHiAmpShieldRelayControllerSetRelayOutputState(false,false);
 			  modHiAmpPackStateHandle->hiLoadEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = false;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 			case RELAY_CONTROLLER_PRECHARGING:
@@ -380,6 +345,7 @@ void modHiAmpShieldRelayControllerTask(void) {
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = false;
 			  modHiAmpShieldRelayTimeoutLastTick = HAL_GetTick();
 			  modHiAmpShieldRelayStartPrechargeTimeStamp = HAL_GetTick();
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 			  break;
 			case RELAY_CONTROLLER_PRECHARGED:
@@ -404,6 +370,7 @@ void modHiAmpShieldRelayControllerTask(void) {
 			  modHiAmpPackStateHandle->hiLoadPreChargeEnabled = false;
 			  modHiAmpPackStateHandle->hiLoadPreChargeError = true;
 			  modHiAmpShieldRelayTimeoutLastTick = HAL_GetTick();
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 			case RELAY_CONTROLLER_ENABLED:
@@ -414,6 +381,7 @@ void modHiAmpShieldRelayControllerTask(void) {
 				break;
 			default:
 				modHiAmpShieldRelayControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
+			  //modHiAmpPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 			  modHiAmpPackStateHandle->hiCurrentLoadDetected = false;
 				break;
 		}
@@ -447,125 +415,10 @@ void modHiAmpShieldRelayControllerTask(void) {
 	}
 }
 
-// HVSSR
-void modHiAmpShieldHVSSRControllerTask(void) {
-	if(modHiAmpShieldHVSSRControllerRelayEnabledState != modHiAmpShieldHVSSRControllerRelayEnabledLastState){		// Only on change
-		switch(modHiAmpShieldHVSSRControllerRelayEnabledState) {
-			case RELAY_CONTROLLER_INIT:
-				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
-			case RELAY_CONTROLLER_OFF:
-				modHiAmpShieldHVSSRControllerSetRelayOutputState(false,false);
-			  modHiAmpPackStateHandle->hiLoadHVEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeError = false;
-			  modHiAmpPackStateHandle->hiCurrentLoadHVDetected = false;
-				break;
-			case RELAY_CONTROLLER_PRECHARGING:
-			  modHiAmpShieldHVSSRControllerSetRelayOutputState(false,true);
-			  modHiAmpPackStateHandle->hiLoadHVEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = true;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeError = false;
-			  modHiAmpShieldHVSSRTimeoutLastTick = HAL_GetTick();
-			  modHiAmpShieldHVSSRStartPrechargeTimeStamp = HAL_GetTick();
-			  modHiAmpPackStateHandle->hiCurrentLoadHVDetected = false;
-			  break;
-			case RELAY_CONTROLLER_PRECHARGED:
-				modHiAmpShieldHVSSRControllerSetRelayOutputState(true,true);
-			  modHiAmpPackStateHandle->hiLoadHVEnabled = true;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = true;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeError = false;
-			  modHiAmpShieldHVSSRTimeoutLastTick = HAL_GetTick();
-			  modHiAmpPackStateHandle->hiCurrentLoadHVPreChargeDuration = HAL_GetTick() - modHiAmpShieldHVSSRStartPrechargeTimeStamp;
-			  
-			  if(modHiAmpPackStateHandle->hiCurrentLoadHVPreChargeDuration >= modHiAmpGeneralConfigHandle->HCLoadDetectThreshold) {
-					modHiAmpPackStateHandle->hiCurrentLoadHVDetected = true;
-				}else{
-					modHiAmpPackStateHandle->hiCurrentLoadHVDetected = modHiAmpShieldPrePreChargeBulkCapChargeHVDetected;
-				}
-				
-				break;
-			case RELAY_CONTROLLER_TIMOUT:
-			case RELAY_CONTROLLER_NOLOAD:				
-        modHiAmpShieldHVSSRControllerSetRelayOutputState(false,false);
-			  modHiAmpPackStateHandle->hiLoadHVEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeError = true;
-			  modHiAmpShieldHVSSRTimeoutLastTick = HAL_GetTick();
-			  modHiAmpPackStateHandle->hiCurrentLoadHVDetected = false;
-				break;
-			case RELAY_CONTROLLER_ENABLED:
-				modHiAmpShieldHVSSRControllerSetRelayOutputState(true,false);
-			  modHiAmpPackStateHandle->hiLoadHVEnabled = true;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeEnabled = false;
-			  modHiAmpPackStateHandle->hiLoadHVPreChargeError = false;
-				break;
-			default:
-				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_OFF;
-			  modHiAmpPackStateHandle->hiCurrentLoadHVDetected = false;
-				break;
-		}
-		modHiAmpShieldHVSSRControllerRelayEnabledLastState = modHiAmpShieldHVSSRControllerRelayEnabledState;
-	}
-	
-	if(modHiAmpShieldHVSSRControllerRelayEnabledState == RELAY_CONTROLLER_PRECHARGING){
-		// check delay and go to RELAY_CONTROLLER_TIMOUT if triggered
-		if(modDelayTick1ms(&modHiAmpShieldHVSSRTimeoutLastTick,modHiAmpGeneralConfigHandle->timeoutHCPreCharge))
-			modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_TIMOUT;
-	}
-	
-	if(modHiAmpShieldHVSSRControllerRelayEnabledState == RELAY_CONTROLLER_PRECHARGED){
-		// wait for main relay to enable and then disable pre charge
-		if(modDelayTick1ms(&modHiAmpShieldHVSSRTimeoutLastTick,modHiAmpGeneralConfigHandle->timeoutHCRelayOverlap)) {
-			if(modHiAmpPackStateHandle->hiCurrentLoadHVDetected || !modHiAmpGeneralConfigHandle->HCUseLoadDetect)
-			  modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_ENABLED;
-			else
-				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_NOLOAD;
-		}
-	}	
-	
-	if((modHiAmpShieldHVSSRControllerRelayEnabledState == RELAY_CONTROLLER_TIMOUT) || (modHiAmpShieldHVSSRControllerRelayEnabledState == RELAY_CONTROLLER_NOLOAD)){
-		// check delay and go to RELAY_CONTROLLER_PRECHARGING if triggered
-		if(modDelayTick1ms(&modHiAmpShieldHVSSRTimeoutLastTick,modHiAmpGeneralConfigHandle->timeoutHCPreChargeRetryInterval) && modHiAmpGeneralConfigHandle->timeoutHCPreChargeRetryInterval){
-			if(modHiAmpGeneralConfigHandle->HCUsePrecharge)
-				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_PRECHARGING;
-			else
-				modHiAmpShieldHVSSRControllerRelayEnabledState = RELAY_CONTROLLER_ENABLED;
-		}
-	}
-	
-	// Update charge input
-	if(modDelayTick1ms(&modHiAmpShieldHVSSRTaskUpdateLastTick,100)) {
-		if(modHiAmpPackStateHandle->chargeDesired && modHiAmpPackStateHandle->chargeAllowed && HVEnableLowSide)
-			HVEnableCharge = true;
-		else
-			HVEnableCharge = false;
-		
-		// Apply the desiredOutputs
-	  modHiAmpShieldHVSSRApplyOutputs();
-	}
-}
-
 void modHiAmpShieldRelayControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge) {
 	driverSWPCAL6416SetOutput(0,7,newStatePreCharge,false);																											// Set new state precharge relay
 	driverSWPCAL6416SetOutput(0,6,newStateRelay,false);																												  // Set new state relay hold
 	driverSWPCAL6416SetOutput(0,5,newStateRelay,true);																													// Set new state relay main and write to chip
-}
-
-void modHiAmpShieldHVSSRControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge) {
-	HVEnableDischarge = newStateRelay;
-	HVEnablePreCharge = newStatePreCharge;
-	
-  driverSWPCAL6416SetOutput(0,0,HVEnableDischarge,false);
-  driverSWPCAL6416SetOutput(0,1,HVEnablePreCharge,false);
-  driverSWPCAL6416SetOutput(0,2,HVEnableLowSide,false);
-  driverSWPCAL6416SetOutput(1,5,HVEnableCharge,true);
-}
-
-void modHiAmpShieldHVSSRApplyOutputs(void) {
-  driverSWPCAL6416SetOutput(0,0,HVEnableDischarge,false);
-  driverSWPCAL6416SetOutput(0,1,HVEnablePreCharge,false);
-  driverSWPCAL6416SetOutput(0,2,HVEnableLowSide,false);
-  driverSWPCAL6416SetOutput(1,5,HVEnableCharge,true);
 }
 
 void  modHiAmpShieldTemperatureHumidityMeasureTask(void) {
@@ -638,4 +491,11 @@ void  modHiAmpShieldResetSensors(void) {
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[1]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[2]     = 0;
 	modHiAmpPackStateHandle->FANStatus.FANSpeedRPM[3]     = 0;
+}
+
+void modHiAmpShieldHVSSRTask(void) {
+  driverSWPCAL6416SetOutput(0,0,HVEnableDischarge,false);
+  driverSWPCAL6416SetOutput(0,1,HVEnablePreCharge,false);
+  driverSWPCAL6416SetOutput(0,2,HVEnableLowSide,false);
+  driverSWPCAL6416SetOutput(1,5,HVEnableCharge,true);
 }

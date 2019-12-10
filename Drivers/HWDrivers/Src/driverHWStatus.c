@@ -3,7 +3,7 @@
 const STATPortStruct STATPorts[NoOfSTATs] = 								// Hold all status configuration data
 {
 	{GPIOB,RCC_AHBENR_GPIOAEN,GPIO_PIN_1},									// STAT_LED_DEBUG
-	{GPIOB,RCC_AHBENR_GPIOCEN,GPIO_PIN_3},									// STAT_LED_Power
+	{GPIOB,RCC_AHBENR_GPIOCEN,GPIO_PIN_12},									// STAT_LED_Power
 	{GPIOA,RCC_AHBENR_GPIOCEN,GPIO_PIN_15}									// STAT_BUZZER
 };
 
@@ -11,6 +11,7 @@ void driverHWStatusInit(void) {
 	GPIO_InitTypeDef STATPortHolder;
 	uint8_t STATPointer;
 	
+	// Init the regular IO
 	for(STATPointer = 0; STATPointer < NoOfSTATs; STATPointer++) {
 		RCC->AHBENR |= STATPorts[STATPointer].ClkRegister;						// Enable clock de desired port
 		STATPortHolder.Mode = GPIO_MODE_OUTPUT_PP;										// Push pull output
@@ -19,6 +20,8 @@ void driverHWStatusInit(void) {
 		STATPortHolder.Speed = GPIO_SPEED_HIGH;												// GPIO clock speed
 		HAL_GPIO_Init(STATPorts[STATPointer].Port,&STATPortHolder);		// Perform the IO init 
 	};
+	
+	// Init the SMART LED output
 }
 
 void driverHWSetOutput(STATIDTypedef LEDType,STATStateTypedef State) {

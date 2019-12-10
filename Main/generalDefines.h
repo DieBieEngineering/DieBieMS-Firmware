@@ -6,12 +6,11 @@
 #define EFoilV2
 //#define ESK8
 //#define TDHVSolar
-//#define DSBTSolar
 
 // Firmware version
 #define FW_VERSION_MAJOR		0
-#define FW_VERSION_MINOR		30
-#define FW_REAL_VERSION			"V0.30"
+#define FW_VERSION_MINOR		32
+#define FW_REAL_VERSION			"V0.32"
 
 // UUID
 #define STM32_UUID					((uint32_t*)0x1FFFF7AC)
@@ -34,19 +33,11 @@
 	#define HW_LIM_MIN_NOT_USED_DELAY                      5000
 #endif
 
-#ifdef DSBTSolar
-  #define HW_NAME "DSBTSolarHW1"
-	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 12
-	#define HW_LIM_CELL_MONITOR_IC_TYPE                    2
-	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
-	#define HW_LIM_MIN_NOT_USED_DELAY                      5000
-#endif
-
 #ifdef TDHVSolar
   #define HW_NAME "TDHVSolar"
 	#define HW_LIM_CELL_BALANCE_MAX_SIMULTANEOUS_DISCHARGE 7
 	#define HW_LIM_CELL_MONITOR_IC_TYPE                    2
-	#define HW_LIM_CELL_MONITOR_IC_COUNT                   5
+	#define HW_LIM_CELL_MONITOR_IC_COUNT                   1
 	#define HW_LIM_MIN_NOT_USED_DELAY                      5000
 #endif
 

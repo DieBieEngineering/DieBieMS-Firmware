@@ -118,7 +118,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		
 		  libBufferAppend_uint8(modCommandsSendBuffer, modCommandsGeneralConfig->noOfCellsSeries, &ind);                // Cell count
 		  for(cellPointer = 0; cellPointer < modCommandsGeneralConfig->noOfCellsSeries; cellPointer++){
-				if(modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellBleedActive)
+				if(modCommandsGeneralState->cellBalanceResistorEnableMask & (1 << cellPointer))
 				  libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellVoltage*-1.0f, 1e3, &ind);    // Individual cells
 				else
 					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellVoltage, 1e3, &ind);          // Individual cells
@@ -178,6 +178,8 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->displayTimeoutBatteryError     = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->displayTimeoutBatteryErrorPreCharge = libBufferGet_uint32(data,&ind);            // 4
 			modCommandsGeneralConfig->displayTimeoutSplashScreen     = libBufferGet_uint32(data,&ind);                 // 4
+			modCommandsGeneralConfig->ledOutputType                  = libBufferGet_uint8(data,&ind);                  // 1
+			modCommandsGeneralConfig->ledOutputCount                 = libBufferGet_uint8(data,&ind);                  // 1			
 			modCommandsGeneralConfig->maxUnderAndOverVoltageErrorCount = libBufferGet_uint8(data,&ind);                // 1
 			modCommandsGeneralConfig->notUsedCurrentThreshold        = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->notUsedTimeout                 = libBufferGet_uint32(data,&ind);                 // 4
@@ -187,7 +189,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->CANIDStyle                     = libBufferGet_uint8(data,&ind);                  // 1
       modCommandsGeneralConfig->canBusSpeed                    = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->emitStatusOverCAN              = libBufferGet_uint8(data,&ind);                  // 1
-			modCommandsGeneralConfig->emitStatusProtocol             = libBufferGet_uint8(data,&ind);                  // 1
+			modCommandsGeneralConfig->emitStatusProtocol             = libBufferGet_uint8(data,&ind);                  // 1	
 			modCommandsGeneralConfig->waterSensorEnableMask          = libBufferGet_uint16(data,&ind);                 // 2
 			modCommandsGeneralConfig->waterSensorThreshold           = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->tempEnableMaskBMS              = libBufferGet_uint32(data,&ind);                 // 4
@@ -206,6 +208,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->HCLoadDetectThreshold          = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->HCLoadVoltageDataSource        = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->HCLoadCurrentDataSource        = libBufferGet_uint8(data,&ind);                  // 1
+			modCommandsGeneralConfig->HCLoadCurrentPotValue          = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->timeoutHCPreCharge             = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->timeoutHCPreChargeRetryInterval= libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->timeoutHCRelayOverlap          = libBufferGet_uint32(data,&ind);                 // 4
@@ -229,7 +232,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->externalEnableOperationalState                  = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->chargeEnableOperationalState                    = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->DCDCEnableInverted                              = libBufferGet_uint8(data,&ind); // 1
-			modCommandsGeneralConfig->DCDCTargetVoltage                               = libBufferGet_float32_auto(data,&ind); // 1
+			modCommandsGeneralConfig->DCDCTargetVoltage                               = libBufferGet_float32_auto(data,&ind);// 4
 			modCommandsGeneralConfig->powerDownDelay                                  = libBufferGet_uint32(data,&ind);// 4
 			
 			ind = 0;
@@ -300,6 +303,8 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryError      ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryErrorPreCharge,&ind);//4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutSplashScreen      ,&ind); // 4
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->ledOutputType                   ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->ledOutputCount                  ,&ind); // 1			
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->maxUnderAndOverVoltageErrorCount,&ind); // 1
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->notUsedCurrentThreshold         ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->notUsedTimeout                  ,&ind); // 4
@@ -328,6 +333,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadDetectThreshold           ,&ind); // 4
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadVoltageDataSource         ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadCurrentDataSource         ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->HCLoadCurrentPotValue           ,&ind); // 1
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreCharge              ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCPreChargeRetryInterval ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->timeoutHCRelayOverlap           ,&ind); // 4
@@ -351,7 +357,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->externalEnableOperationalState  ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->chargeEnableOperationalState    ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->DCDCEnableInverted              ,&ind); // 1
-			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->DCDCTargetVoltage               ,&ind); // 4			
+			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->DCDCTargetVoltage    					 ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->powerDownDelay                  ,&ind); // 4
 			
 		  modCommandsSendPacket(modCommandsSendBuffer, ind);

@@ -36,7 +36,7 @@ void driverSWLTC6803ResetCellVoltageRegisters(void) {
 	driverSWLTC6803SendCommand(LTC6803StartCellVoltageADCConversionClear);
 };
 
-bool driverSWLTC6803ReadCellVoltages(cellMonitorCellsTypeDef cellVoltages[12]) {
+bool driverSWLTC6803ReadCellVoltages(cellMonitorCellsTypedef cellVoltages[12]) {
 	uint16_t cellRegisters[12]; 
   int data_counter = 0;
   bool dataValid = true;

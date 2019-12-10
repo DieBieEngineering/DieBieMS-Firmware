@@ -68,6 +68,9 @@ void modTerminalProcessString(char *str) {
 		modCommandsPrintf("High current          : %.2fA",packState.hiCurrentLoadCurrent);		
 		modCommandsPrintf("State of charge       : %.1f%%",generalStateOfCharge->generalStateOfCharge);
 		modCommandsPrintf("Remaining capacity    : %.2fAh",generalStateOfCharge->remainingCapacityAh);
+    modCommandsPrintf("Duty discharge        : %d%%",packState.throttleDutyDischarge/10);
+    modCommandsPrintf("Duty charge           : %d%%",packState.throttleDutyCharge/10);
+		
 		
 		switch(modOperationalStateCurrentState) {
 			case OP_STATE_CHARGING:
@@ -244,22 +247,22 @@ void modTerminalProcessString(char *str) {
 		
 	} else if (strcmp(argv[0], "slave_scan") == 0) {
 		uint8_t bitPointer;
-		char    outputString[9];
-		uint8_t presence = modHiAmpShieldScanI2CDevices();
+		char    outputString[17];     // Also account for the 0 terminator 
+		uint16_t presence = modHiAmpShieldScanI2CDevices();
 		
 		modCommandsPrintf("------  Slave BMS I2C scan  ------");
 		
-		for(bitPointer = 0; bitPointer < 8; bitPointer++){
+		for(bitPointer = 0; bitPointer < 16; bitPointer++){
 		  if(presence & (1 << bitPointer))
-				outputString[7-bitPointer] = '1';
+				outputString[15-bitPointer] = '1';
 			else
-				outputString[7-bitPointer] = '0';
+				outputString[15-bitPointer] = '0';
 		}
 
-		outputString[8] = 0;
+		outputString[16] = 0;          // Apply the 0 string terminator
 		
 		modCommandsPrintf("Presence: 0b%s",outputString);
-		modCommandsPrintf("Bit Order: ADCHV(MSB) - FANDriver - NTCADC1 - NTCADC8 - IOExt - SHT - ISLAux - ISLMain(LSB).");
+		modCommandsPrintf("Bit Order: (MSB) - 000000 - EEPROM - POTMETER - ADCHV - FANDriver - NTCADC1 - NTCADC8 - IOExt - SHT - ISLAux - ISLMain(LSB).");
 		modCommandsPrintf("SHT does not respond when it is doing a conversion.");
 		modCommandsPrintf("------  Slave BMS I2C scan end  ------");
 		

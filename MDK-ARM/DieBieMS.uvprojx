@@ -537,11 +537,21 @@
               <FileType>1</FileType>
               <FilePath>..\Drivers\HWDrivers\Src\driverHWUART2.c</FilePath>
             </File>
+            <File>
+              <FileName>driverHWWS2812.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\HWDrivers\Src\driverHWWS2812.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>Drivers/SWDriver</GroupName>
           <Files>
+            <File>
+              <FileName>driverSWAD5245.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\SWDrivers\Src\driverSWAD5245.c</FilePath>
+            </File>
             <File>
               <FileName>driverSWADC128D818.c</FileName>
               <FileType>1</FileType>
@@ -686,6 +696,11 @@
               <FileName>modUART.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Modules\Src\modUART.c</FilePath>
+            </File>
+            <File>
+              <FileName>modLEDString.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Modules\Src\modLEDString.c</FilePath>
             </File>
           </Files>
         </Group>

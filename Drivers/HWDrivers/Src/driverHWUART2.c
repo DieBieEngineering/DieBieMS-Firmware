@@ -43,10 +43,10 @@ void driverHWUART2Init(uint32_t baudRate) {
     while(true);
   }
 	
-	volatile HAL_StatusTypeDef temp = HAL_UART_Receive_DMA(&driverHWUART2Handle,driverHWUART2ReceiveBuffer,sizeof(driverHWUART2ReceiveBuffer)/sizeof(uint8_t)); // Start receive to DMA transfer
+	HAL_UART_Receive_DMA(&driverHWUART2Handle,driverHWUART2ReceiveBuffer,sizeof(driverHWUART2ReceiveBuffer)/sizeof(uint8_t)); // Start receive to DMA transfer
 	
-  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);		// Will realise interrupt on half and full DMA transfer
-  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+  //HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);																// Will realise interrupt on half and full DMA transfer
+  //HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 };
 
 void driverHWUART2SendChar(uint8_t character) {
@@ -66,6 +66,6 @@ bool driverHWUART2GetChar(char *character) {
 		return false;																																// Indicate there is no char in buffer
 };
 
-void DMA1_Channel6_IRQHandler(void) {		 																				// Will trigger on halve and full
-  HAL_DMA_IRQHandler(&driverHWUART2HDMAHandleRX);
-}
+//void DMA1_Channel6_IRQHandler(void) {		 																				// Will trigger on halve and full
+//  HAL_DMA_IRQHandler(&driverHWUART2HDMAHandleRX);
+//}

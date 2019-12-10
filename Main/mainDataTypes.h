@@ -521,6 +521,7 @@ typedef enum {
 	CAN_PACKET_BMS_KEEP_ALIVE_SAFETY,
 	CAN_PACKET_BMS_STATUS_WATER_HCLOAD,	
 	CAN_PACKET_BMS_STATUS_TEMP_INDIVIDUAL,
+	CAN_PACKET_BMS_LED_CONTROL,
 	CAN_PACKET_SLS_STATUS_CURRENT_RPM = 40,
 	CAN_PACKET_SLS_STATUS_TEMPERATURE,
 	CAN_PACKET_SSR_STATUS_MAIN_V_TEMP = 60,
@@ -570,9 +571,9 @@ typedef enum {
 } configChargerEnableStateTypeEnum;
 
 typedef enum {
-  canSpeedBaud125k = 0,
-	canSpeedBaud250k,
-	canSpeedBaud500k
+  baud125k = 0,
+	baud250k,
+	baud500k
 } configCANSpeedTypeEnum;
 
 typedef enum {
@@ -645,22 +646,20 @@ typedef enum {
 } buzzerSignalType;
 
 typedef enum {
-	canEmitProtocolNone = 0,
+  canEmitProtocolNone = 0,
   canEmitProtocolDieBieEngineering,
-	canEmitProtocolMGElectronics
+  canEmitProtocolMGElectronics
 } canEmitProtocol;
 
-typedef struct {
-	float   cellVoltage;
-	uint8_t cellNumber;
-	bool    cellBleedActive;
-} cellMonitorCellsTypeDef;
+typedef enum {
+  ledOutputTypePlainCathodeGND = 0,
+	ledOutputTypePlainAnodeVCC,
+	ledOutputTypeWS2812B
+} ledOutputType;
 
 typedef struct {
-  float    voltages[12];
-	uint16_t balanceMask;
-	float    temperatures[8];
-	float    humidity;
-} cellMonitorModuleTypeDef;
+	float cellVoltage;
+	uint8_t cellNumber;
+} cellMonitorCellsTypedef;
 
 #endif /* DATATYPES_H_ */

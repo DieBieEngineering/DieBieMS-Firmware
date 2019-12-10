@@ -39,37 +39,17 @@ void modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneral
   modCANHandle.pTxMsg = &TxMessage;
   modCANHandle.pRxMsg = &RxMessage;
 	
-	switch(modCANGeneralConfigHandle->canBusSpeed) {
-		case canSpeedBaud125k:
-			modCANHandle.Init.Prescaler = 36;
-			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
-			modCANHandle.Init.SJW = CAN_SJW_1TQ;
-			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
-			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
-			break;
-		case canSpeedBaud250k:
-			modCANHandle.Init.Prescaler = 18;
-			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
-			modCANHandle.Init.SJW = CAN_SJW_1TQ;
-			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
-			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
-			break;
-		case canSpeedBaud500k:
-		default:
-			modCANHandle.Init.Prescaler = 9;
-			modCANHandle.Init.Mode = CAN_MODE_NORMAL;
-			modCANHandle.Init.SJW = CAN_SJW_1TQ;
-			modCANHandle.Init.BS1 = CAN_BS1_5TQ;
-			modCANHandle.Init.BS2 = CAN_BS2_2TQ;
-			break;
-	}
-	
-	modCANHandle.Init.TTCM = DISABLE;
-	modCANHandle.Init.ABOM = ENABLE; // Enable this for automatic recovery?
-	modCANHandle.Init.AWUM = DISABLE;
-	modCANHandle.Init.NART = DISABLE;
-	modCANHandle.Init.RFLM = DISABLE;
-	modCANHandle.Init.TXFP = DISABLE;
+  modCANHandle.Init.Prescaler = 9;
+  modCANHandle.Init.Mode = CAN_MODE_NORMAL;
+  modCANHandle.Init.SJW = CAN_SJW_1TQ;
+  modCANHandle.Init.BS1 = CAN_BS1_5TQ;
+  modCANHandle.Init.BS2 = CAN_BS2_2TQ;
+  modCANHandle.Init.TTCM = DISABLE;
+  modCANHandle.Init.ABOM = ENABLE; // Enable this for automatic recovery?
+  modCANHandle.Init.AWUM = DISABLE;
+  modCANHandle.Init.NART = DISABLE;
+  modCANHandle.Init.RFLM = DISABLE;
+  modCANHandle.Init.TXFP = DISABLE;
 	
   if(HAL_CAN_Init(&modCANHandle) != HAL_OK)
     while(true){};
@@ -102,7 +82,6 @@ void modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneral
 void modCANTask(void){		
 	// Manage HAL CAN driver's active state
 	if((modCANHandle.State != HAL_CAN_STATE_BUSY_RX)) {
-		//if(modDelayTick1ms(&modCANErrorLastTick,1000))
 	  HAL_CAN_Receive_IT(&modCANHandle, CAN_FIFO0);
 	}else{
 		modCANErrorLastTick = HAL_GetTick();
@@ -277,8 +256,10 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *CanHandle) {
 	if((*CanHandle->pRxMsg).IDE == CAN_ID_STD) {         // Standard ID
 		modCANHandleCANOpenMessage(*CanHandle->pRxMsg);
 	}else{                                               // Extended ID
-		if((*CanHandle->pRxMsg).ExtId == 0x0A23){
+		if((*CanHandle->pRxMsg).ExtId == 0x0A23){          // Keep alive and output 
 			modCANHandleKeepAliveSafetyMessage(*CanHandle->pRxMsg);
+		}else if ((*CanHandle->pRxMsg).ExtId == 0x0A26){
+			modCANRXLEDControl(*CanHandle->pRxMsg);
 		}else{
 			uint8_t destinationID = modCANGetDestinationID(*CanHandle->pRxMsg);
 			if(destinationID == modCANGeneralConfigHandle->CANID){
@@ -468,8 +449,6 @@ void modCANSendBuffer(uint8_t controllerID, uint8_t *data, unsigned int len, boo
 		send_buffer[ind++] = (uint8_t)(crc >> 8);
 		send_buffer[ind++] = (uint8_t)(crc & 0xFF);
     
-		// Old ID method
-		//modCANTransmitExtID(controllerID | ((uint32_t)CAN_PACKET_PROCESS_RX_BUFFER << 8), send_buffer, ind++);
 		modCANTransmitExtID(modCANGetCANID(controllerID,CAN_PACKET_PROCESS_RX_BUFFER), send_buffer, ind++);
 	}
 }
@@ -623,6 +602,20 @@ void modCANRXWatchDog(void){
 	}
 }
 
+void modCANRXLEDControl(CanRxMsgTypeDef canMsg){
+	if(canMsg.DLC == 8) {
+		// Unpack CAN message
+		uint8_t  effectType      =  canMsg.Data[0];
+		uint8_t  effectLayer     =  canMsg.Data[1];
+		uint8_t  effectParameter =  canMsg.Data[2];
+		uint8_t  effectTime      =  canMsg.Data[3];
+		uint32_t effectColor     = (canMsg.Data[5] | (canMsg.Data[6] << 8 ) | (canMsg.Data[7] << 16));
+		
+		// Process LED control package
+		modLEDStringSetEffectFromExternal((effectStringTypes)effectType,effectLayer,effectParameter,effectColor,effectTime,false);
+	}
+}
+
 void modCANOpenChargerCheckPresent(void) {
 	if((HAL_GetTick() - modCANLastChargerHeartBeatTick) < 2000)
 		modCANChargerPresentOnBus = true;
@@ -659,7 +652,4 @@ void modCANOpenChargerSetCurrentVoltageReady(float current,float voltage,bool re
 	libBufferAppend_uint32_LSBFirst(buffer, modCANChargerRequestVoltageInt, &sendIndex);		
 	modCANTransmitStandardID(0x040A, buffer, sendIndex);
 }
-
-
-
 

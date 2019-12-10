@@ -103,7 +103,7 @@ void driverSWLTC6803StartCellVoltageConversion(void);
 void driverSWLTC6803StartLoadedCellVoltageConversion(void);
 void driverSWLTC6803StartTemperatureVoltageConversion(void);
 void driverSWLTC6803ResetCellVoltageRegisters(void);
-bool driverSWLTC6803ReadCellVoltages(cellMonitorCellsTypeDef cellVoltages[12]);
+bool driverSWLTC6803ReadCellVoltages(cellMonitorCellsTypedef cellVoltages[12]);
 bool driverSWLTC6803ReadTempVoltages(uint16_t tempVoltages[3]);
 void driverSWLTC6803WriteConfigRegisters(uint8_t total_ic, uint8_t config[][6]);
 void driverSWLTC6803WriteConfig(driverLTC6803ConfigStructTypedef configStruct);

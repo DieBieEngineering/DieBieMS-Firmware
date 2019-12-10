@@ -31,6 +31,7 @@
 #include "libBuffer.h"
 #include "modPowerElectronics.h"
 #include "modConfig.h"
+#include "modLEDString.h"
 #include <string.h>
 #include <math.h>
 
@@ -62,6 +63,7 @@ void          modCANHandleKeepAliveSafetyMessage(CanRxMsgTypeDef canMsg);
 void          modCANHandleCANOpenMessage(CanRxMsgTypeDef canMsg);
 void          modCANHandleSubTaskCharger(void);
 void          modCANRXWatchDog(void);
+void          modCANRXLEDControl(CanRxMsgTypeDef canMsg);
 void          modCANOpenChargerCheckPresent(void);
 void          modCANOpenBMSSendHeartBeat(void);
 void          modCANOpenChargerStartNode(void);

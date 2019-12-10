@@ -67,6 +67,8 @@ typedef struct {
 	uint32_t displayTimeoutBatteryError;																					// Duration of displaying error symbol
 	uint32_t displayTimeoutBatteryErrorPreCharge;																	// Duration of displaying error symbol
 	uint32_t displayTimeoutSplashScreen;																					// Duration of displaying splash screen + First few samples of ADC's
+	uint8_t  ledOutputType;                                                       // Type of LED to control Plain LED or WS2812B LEDs
+	uint8_t  ledOutputCount;                                                      // Amount of WS2812B leds to control when selected
 	uint8_t  maxUnderAndOverVoltageErrorCount;																		// Threshold that defines max amount of hard over / under voltage errors
 	float    notUsedCurrentThreshold;																							// Threshold that defines whether or not pack is in use.
 	uint32_t notUsedTimeout;																											// Delay time that defines max amount of no operation on-time. When absolute battery curren < notUsedCurrentThreshold for longer than this amount of time -> the system is disabled
@@ -107,8 +109,9 @@ typedef struct {
 	uint32_t HCLoadDetectThreshold;																								// - The minimal time the precharge cycle should take for load detection when load detection is enabled
 	uint8_t  HCLoadVoltageDataSource;                                             // Data source for the HC load voltage
 	uint8_t  HCLoadCurrentDataSource;                                             // Data source for the HC load current	
+	uint8_t  HCLoadCurrentPotValue;                                               // Value that goes into the digital potmeter that sets the fast over current detection theshold. 
 	uint32_t timeoutHCPreCharge;																									// If threshold is not reached within this time in ms goto error state
-	uint32_t timeoutHCPreChargeRetryInterval;                                     // When pre charge failed, wait this long
+  uint32_t timeoutHCPreChargeRetryInterval;                                     // When pre charge failed, wait this long
 	uint32_t timeoutHCRelayOverlap;																								// When pre charge succeeded turn on main relay and wait this long before disabling precharge
 } modConfigGeneralConfigStructTypedef;
 

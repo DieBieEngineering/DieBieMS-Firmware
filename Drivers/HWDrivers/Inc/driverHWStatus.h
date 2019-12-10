@@ -5,7 +5,7 @@
 #include "stdbool.h"
 #include "modDelay.h"
 
-#define NoOfSTATs				3
+#define NoOfSTATs				      3
 #define MAX_BLINKSHORT_CYCLES	20
 #define MAX_BLINKLONG_CYCLES	5
 

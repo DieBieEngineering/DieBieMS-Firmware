@@ -32,8 +32,6 @@ uint32_t chargeIncreaseIntervalTime;
 
 uint16_t  calculatedChargeThrottle = 0;
 
-uint16_t hardUnderVoltageFlags, hardOverVoltageFlags;
-
 void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer) {
 	modPowerElectronicsGeneralConfigHandle                       = generalConfigPointer;
 	modPowerElectronicsPackStateHandle                           = packState;
@@ -98,17 +96,9 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->hiCurrentLoadPreChargeDuration = 0;
 	modPowerElectronicsPackStateHandle->hiCurrentLoadDetected    = false;
 	modPowerElectronicsPackStateHandle->hiCurrentLoadState       = 0;
-	modPowerElectronicsPackStateHandle->hiCurrentLoadStateHV     = 0;
 	modPowerElectronicsPackStateHandle->powerDownDesired         = false;
 	modPowerElectronicsPackStateHandle->powerOnLongButtonPress   = false;
-	
-	// init the module variables empty
-	for( uint8_t modulePointer = 0; modulePointer < NoOfCellMonitorsPossibleOnBMS; modulePointer++) {
-		for(uint8_t cellPointer = 0; cellPointer < 12; cellPointer++)
-			modPowerElectronicsPackStateHandle->cellModuleVoltages[modulePointer][cellPointer] = 0.0f;
-		
-		modPowerElectronicsPackStateHandle->cellModuleBalanceResistorEnableMask[modulePointer] = 0x0000;
-	}
+	modPowerElectronicsPackStateHandle->ledStringCtrlInternExtern= true;
 	
 	// Init the external bus monitor
   modPowerElectronicsInitISL();
@@ -255,7 +245,7 @@ bool modPowerElectronicsSetDisCharge(bool newState) {
 		dischargeLastState = newState;
 	}
 	
-	if((modPowerElectronicsPackStateHandle->loCurrentLoadVoltage < PRECHARGE_PERCENTAGE*(modPowerElectronicsPackStateHandle->packVoltage)) && modPowerElectronicsGeneralConfigHandle->LCUsePrecharge) // Prevent turn on with to low output voltage
+	if((modPowerElectronicsPackStateHandle->loCurrentLoadVoltage < PRECHARGE_PERCENTAGE_LC*(modPowerElectronicsPackStateHandle->packVoltage)) && modPowerElectronicsGeneralConfigHandle->LCUsePrecharge) // Prevent turn on with to low output voltage
 		return false;																																			                                                  // Load voltage to low (output not precharged enough) return whether or not precharge is needed.
 	else
 		return true;
@@ -305,75 +295,10 @@ void modPowerElectronicsCalculateCellStats(void) {
 
 void modPowerElectronicsSubTaskBalaning(void) {
 	static uint32_t delayTimeHolder = 100;
-	static bool     delaytoggle = false;
-	cellMonitorCellsTypeDef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCellsSeries];
-	
-	if(modDelayTick1ms(&modPowerElectronicsCellBalanceUpdateLastTick,delayTimeHolder)) {
-		delaytoggle ^= true;
-		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 200;
-		
-		if(delaytoggle) {
-			for(int k=0; k<modPowerElectronicsGeneralConfigHandle->noOfCellsSeries; k++) {
-				sortedCellArray[k] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[k];	// This will contain the voltages that are unloaded by balance resistors
-			}
-				
-			modPowerElectronicsSortCells(sortedCellArray,modPowerElectronicsGeneralConfigHandle->noOfCellsSeries);
-			
-			
-			//temp remove true
-			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || true) {																							// Check if charging is desired. Removed: || !modPowerElectronicsPackStateHandle->chargeAllowed
-				// Old for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->maxSimultaneousDischargingCells; i++) {
-				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries; i++) {
-					if(sortedCellArray[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
-						if(sortedCellArray[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart) {
-							modPowerElectronicsPackStateHandle->cellVoltagesIndividual[sortedCellArray[i].cellNumber].cellBleedActive = true;
-						}else{
-						  modPowerElectronicsPackStateHandle->cellVoltagesIndividual[sortedCellArray[i].cellNumber].cellBleedActive = false;
-						}
-					}else{
-						modPowerElectronicsPackStateHandle->cellVoltagesIndividual[sortedCellArray[i].cellNumber].cellBleedActive = false;
-					}
-				}
-			}
-		}
-		
-		//modPowerElectronicsPackStateHandle->cellBalanceResistorEnableMask = cellBalanceMaskEnableRegister;
-		
-		//if(lastCellBalanceRegister != cellBalanceMaskEnableRegister)
-		//	modPowerElectronicsCellMonitorsEnableBalanceResistors(cellBalanceMaskEnableRegister);
-		//lastCellBalanceRegister = cellBalanceMaskEnableRegister;
-		
-		modPowerElectronicsCallMinitorsCalcBalanceResistorArray();
-		modPowerElectronicsCellMonitorsEnableBalanceResistorsArray();
-	}
-};
-
-void modPowerElectronicsCallMinitorsCalcBalanceResistorArray(void) {
-	uint8_t modulePointer = 0;
-	uint8_t cellInMaskPointer = 0;
-	
-	// Clear array
-	for(uint8_t moduleClearPointer = 0; moduleClearPointer < NoOfCellMonitorsPossibleOnBMS; moduleClearPointer++) 
-		modPowerElectronicsPackStateHandle->cellModuleBalanceResistorEnableMask[moduleClearPointer] = 0;
-	
-	for(uint8_t cellPointer = 0; cellPointer < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries; cellPointer++) {
-		modulePointer = cellPointer/modPowerElectronicsGeneralConfigHandle->noOfCellsPerModule;
-		cellInMaskPointer = cellPointer % modPowerElectronicsGeneralConfigHandle->noOfCellsPerModule;
-		
-		if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellPointer].cellBleedActive)
-		  modPowerElectronicsPackStateHandle->cellModuleBalanceResistorEnableMask[modulePointer] |= (1 << cellInMaskPointer);
-		else
-			modPowerElectronicsPackStateHandle->cellModuleBalanceResistorEnableMask[modulePointer] &= ~(1 << cellInMaskPointer);
-	}
-}
-
-// Old balance function
-void modPowerElectronicsSubTaskBalaningOld(void) {
-	static uint32_t delayTimeHolder = 100;
 	static uint16_t lastCellBalanceRegister = 0;
 	static bool     delaytoggle = false;
 	uint16_t        cellBalanceMaskEnableRegister = 0;
-	cellMonitorCellsTypeDef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCellsSeries];
+	cellMonitorCellsTypedef sortedCellArray[modPowerElectronicsGeneralConfigHandle->noOfCellsSeries];
 	
 	if(modDelayTick1ms(&modPowerElectronicsCellBalanceUpdateLastTick,delayTimeHolder)) {
 		delaytoggle ^= true;
@@ -402,15 +327,13 @@ void modPowerElectronicsSubTaskBalaningOld(void) {
 		if(lastCellBalanceRegister != cellBalanceMaskEnableRegister)
 			modPowerElectronicsCellMonitorsEnableBalanceResistors(cellBalanceMaskEnableRegister);
 		lastCellBalanceRegister = cellBalanceMaskEnableRegister;
-		
-		modPowerElectronicsCellMonitorsEnableBalanceResistorsArray();
 	}
 };
 
 void modPowerElectronicsSubTaskVoltageWatch(void) {
 	static bool lastdisChargeLCAllowed = false;
 	static bool lastChargeAllowed = false;
-	//uint16_t hardUnderVoltageFlags, hardOverVoltageFlags;
+	uint16_t hardUnderVoltageFlags, hardOverVoltageFlags;
 	
 	modPowerElectronicsCellMonitorsReadVoltageFlags(&hardUnderVoltageFlags,&hardOverVoltageFlags);
 	modPowerElectronicsCalculateCellStats();
@@ -498,9 +421,9 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 };
 
-void modPowerElectronicsSortCells(cellMonitorCellsTypeDef *cells, uint8_t cellCount) {
+void modPowerElectronicsSortCells(cellMonitorCellsTypedef *cells, uint8_t cellCount) {
 	int i,j;
-	cellMonitorCellsTypeDef value;
+	cellMonitorCellsTypedef value;
 
 	for(i=0 ; i<(cellCount-1) ; i++) {
 		for(j=0 ; j<(cellCount-i-1) ; j++) {
@@ -895,7 +818,7 @@ void modPowerElectronicsCellMonitorsInit(void){
 			configStruct.GPIO5                    = true;																										//
 			configStruct.ReferenceON              = true;																										// Reference ON
 			configStruct.ADCOption                = true;																									  // ADC Option register for configuration of over sampling ratio
-			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCellsPerModule;// Number of cells to monitor (that can cause interrupt)
+			configStruct.noOfCells                = modPowerElectronicsGeneralConfigHandle->noOfCellsSeries;// Number of cells to monitor (that can cause interrupt)
 			configStruct.DisChargeEnableMask      = 0x0000;																									// Set enable state of discharge, 1=EnableDischarge, 0=DisableDischarge
 			configStruct.DischargeTimout          = 0;																											// Discharge timout value / limit
 			configStruct.CellUnderVoltageLimit    = modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage; // Undervoltage level, cell voltages under this limit will cause interrupt
@@ -939,28 +862,15 @@ void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
 			// Check config valid and reinit
 			// TODO: Implement
 			
-			// Read cell voltages			
-			driverSWLTC6804ReadCellVoltagesArray(modPowerElectronicsPackStateHandle->cellModuleVoltages);
-			modPowerElectronicsCellMonitorsArrayTranslate();
-			// Convert modules to full array
+			// Read cell voltages
+			driverSWLTC6804ReadCellVoltages(modPowerElectronicsPackStateHandle->cellVoltagesIndividual);
 			
 			// Read aux voltages
-			//driverSWLTC6804ReadAuxSensors(modPowerElectronicsAuxVoltageArray);
-			//modPowerElectronicsPackStateHandle->temperatures[0] =	modPowerElectronicsPackStateHandle->temperatures[1] = driverSWLTC6804ConvertTemperatureExt(modPowerElectronicsAuxVoltageArray[1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
+			driverSWLTC6804ReadAuxSensors(modPowerElectronicsAuxVoltageArray);
+			modPowerElectronicsPackStateHandle->temperatures[0] =	modPowerElectronicsPackStateHandle->temperatures[1] = driverSWLTC6804ConvertTemperatureExt(modPowerElectronicsAuxVoltageArray[1],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupLTCExt],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupLTCExt],25.0f);
 		}break;
 		default:
 			break;
-	}
-}
-
-void modPowerElectronicsCellMonitorsArrayTranslate(void) {
-	uint8_t individualCellPointer = 0;
-	
-  for(uint8_t modulePointer = 0; modulePointer < modPowerElectronicsGeneralConfigHandle->cellMonitorICCount; modulePointer++) {
-	  for(uint8_t modulePointerCell = 0; modulePointerCell < modPowerElectronicsGeneralConfigHandle->noOfCellsPerModule; modulePointerCell++) {
-			modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellVoltage = modPowerElectronicsPackStateHandle->cellModuleVoltages[modulePointer][modulePointerCell];
-			modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellNumber = individualCellPointer++;
-		}
 	}
 }
 
@@ -973,6 +883,7 @@ void modPowerElectronicsCellMonitorsStartCellConversion(void) {
 			driverSWLTC6803ResetCellVoltageRegisters();
 		}break;
 		case CELL_MON_LTC6804_1: {
+		  //driverSWLTC6804StartCellVoltageConversion(MD_FILTERED,DCP_ENABLED,CELL_CH_ALL);
 			driverSWLTC6804StartCellAndAuxVoltageConversion(MD_FILTERED,DCP_ENABLED);
 			driverSWLTC6804ResetCellVoltageRegisters();
 		}break;
@@ -1017,7 +928,6 @@ void modPowerElectronicsCellMonitorsStartTemperatureConversion(void) {
 	}
 }
 
-// Make legacy
 void modPowerElectronicsCellMonitorsEnableBalanceResistors(uint16_t balanceEnableMask){
 	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
 	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
@@ -1025,23 +935,7 @@ void modPowerElectronicsCellMonitorsEnableBalanceResistors(uint16_t balanceEnabl
 			driverSWLTC6803EnableBalanceResistors(balanceEnableMask);
 		}break;
 		case CELL_MON_LTC6804_1: {
-			//driverSWLTC6804EnableBalanceResistorsArray(modPowerElectronicsPackStateHandle->cellModuleBalanceResistorEnableMask);
-		}break;
-		default:
-			break;
-	}
-}
-
-// New
-void modPowerElectronicsCellMonitorsEnableBalanceResistorsArray(){
-	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
-	
-	switch(modPowerElectronicsGeneralConfigHandle->cellMonitorType){
-		case CELL_MON_LTC6803_2: {
-			driverSWLTC6803EnableBalanceResistors(modPowerElectronicsPackStateHandle->cellModuleBalanceResistorEnableMask[0]);
-		}break;
-		case CELL_MON_LTC6804_1: {
-			driverSWLTC6804EnableBalanceResistorsArray(modPowerElectronicsPackStateHandle->cellModuleBalanceResistorEnableMask);	
+		  driverSWLTC6804EnableBalanceResistors(balanceEnableMask);
 		}break;
 		default:
 			break;

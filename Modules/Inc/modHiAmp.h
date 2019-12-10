@@ -14,6 +14,7 @@
 #include "driverSWSHT21.h"
 #include "driverSWMCP3221.h"
 #include "driverSWADS1015.h"
+#include "driverSWAD5245.h"
 
 #define I2CADDRISLMaster     0x40
 #define I2CADDRISLMain       0x44
@@ -24,8 +25,11 @@
 #define I2CADDRADC1          0x4D
 #define I2CADDRFANDriver     0x2E
 #define I2CADS1015           0x49
+#define I2CADDREEPROM        0x50
+#define I2CADDROCDPOTMETER   0x2C
+#define I2CADDROLED          0x3C
 
-#define PRECHARGE_PERCENTAGE 		0.75f
+#define PRECHARGE_PERCENTAGE_HC	0.90f
 #define PREPRECHARGE_LOADDETECT	0.10f
 
 typedef enum {
@@ -41,20 +45,18 @@ typedef enum {
 void  modHiAmpInit(modPowerElectronicsPackStateTypedef* packStateHandle, modConfigGeneralConfigStructTypedef *generalConfigPointer);
 void  modHiAmpTask(void);
 bool  modHiAmpShieldPresentCheck(void);
-uint8_t modHiAmpShieldScanI2CDevices(void);
+uint16_t modHiAmpShieldScanI2CDevices(void);
 void  modHiAmpShieldResetVariables(void);
 void  modHiAmpShieldMainPathMonitorInit(void);
 float modHiAmpShieldShuntMonitorGetVoltage(void);
 float modHiAmpShieldShuntMonitorGetCurrent(void);
+void  modHiAmpShieldSetOCDPotvalue(uint8_t newValue);
 void  modHiAmpShieldSetFANSpeedAll(uint8_t newFANSpeed);
 void  modHiAmpShieldRelayControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage);
-void  modHiAmpShieldHVSSRControllerPassSampledInput(uint8_t relayStateDesired, float mainBusVoltage, float batteryVoltage);
 void  modHiAmpShieldRelayControllerTask(void);
-void  modHiAmpShieldHVSSRControllerTask(void);
 void  modHiAmpShieldRelayControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge);
-void  modHiAmpShieldHVSSRControllerSetRelayOutputState(bool newStateRelay, bool newStatePreCharge);
-void  modHiAmpShieldHVSSRApplyOutputs(void);
 void  modHiAmpShieldTemperatureHumidityMeasureTask(void);
 void  modHiAmpShieldResetSensors(void);
+void  modHiAmpShieldHVSSRTask(void);
 
 #endif
