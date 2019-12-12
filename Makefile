@@ -1,4 +1,5 @@
 # Subdirectory make stuff
+VPATH = Main 
 
 include Libraries/lib.mk
 include Modules/modules.mk 
@@ -29,7 +30,7 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -Wshadow
 # Define extra C flags here
 CFLAGS = -mthumb-interwork -mcpu=$(MCU) -D STM32F303xC -D USE_HAL_DRIVER -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(CWARN) 
 LDFLAGS = $(CFLAGS) -T $(LDSCRIPT) --specs=nosys.specs
-ASFLAGS  = $(CFLAGS)
+ASFLAGS  = $(CFLAGS) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.s=.lst)) 
 
 # Architecture specific stuff - linker script and architecture
 LDSCRIPT= CubeMX/STM32F303CC_FLASH.ld
@@ -37,13 +38,13 @@ MCU  = cortex-m4
 
 ASMSRC = $(STARTUPASM)
 
-CSRC := $(HAL_SRC) \
+CSRC := Main/main.c \
+		$(HAL_SRC) \
 		$(DEVICE_SRC) \
 		$(LIB_SRC) \
 		$(MOD_SRC) \
 		$(HWDRIVER_SRC) \
 		$(SWDRIVER_SRC) \
-		Main/main.c
 
 INCDIR = Main \
 		$(DEVICE_INC) \
@@ -71,7 +72,7 @@ OUTFILES = $(BUILDDIR)/$(PROJECT).elf \
 
 ## Makefile rules
 
-all: $(BUILDDIR) $(OBJDIR) $(LSTDIR) $(OBJS) $(OUTFILES)
+all: $(BUILDDIR) $(OBJDIR) $(LSTDIR) $(DEPDIR) $(OBJS) $(OUTFILES)
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
@@ -82,15 +83,15 @@ $(OBJDIR):
 $(LSTDIR):
 	mkdir -p $(LSTDIR)
 
-$(COBJS) : $(OBJDIR)/%.o : $(CSRC) 
+$(COBJS) : $(OBJDIR)/%.o : %.c Makefile
 	@echo Compiling $(<F)
 	$(CC) -c $(CFLAGS) $(OPT) -I. $(IINCDIR) $< -o $@
 
-$(ASMOBJS) : $(OBJDIR)/%.o : $(ASMSRC)
+$(ASMOBJS) : $(OBJDIR)/%.o : %.s Makefile
 	@echo Compiling $(<F)
 	$(AS) -c $(ASFLAGS) $(IINCDIR) $< -o $@
 
-$(OBJS): | $(BUILDDIR) $(OBJDIR) $(LSTDIR)
+$(OBJS): | $(BUILDDIR) $(OBJDIR) $(LSTDIR) 
 
 %.elf: $(OBJS) $(LDSCRIPT)
 	@echo Linking $@
