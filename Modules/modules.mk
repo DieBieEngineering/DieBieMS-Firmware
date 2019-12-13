@@ -1,3 +1,5 @@
+VPATH += Modules/src \
+
 MOD_SRC =	$(wildcard Modules/src/mod*.c)
 #			Modules/Src/modCAN.c \
 #			Modules/Src/modCommands.c \

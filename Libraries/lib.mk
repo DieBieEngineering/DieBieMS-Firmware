@@ -1,4 +1,4 @@
-VPATH += Libraries/Src/ \
+VPATH += Libraries/Scr/ \
 
 LIB_SRC = 	$(wildcard Libraries/Scr/lib*.c)
 

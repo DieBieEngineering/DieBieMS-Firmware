@@ -28,7 +28,7 @@ BIN  = $(CP) -O binary
 # Define C warning options here
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -Wshadow
 # Define extra C flags here
-CFLAGS = -mthumb-interwork -mcpu=$(MCU) -D STM32F303xC -D USE_HAL_DRIVER -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(CWARN) 
+CFLAGS = -mthumb-interwork -mcpu=$(MCU) -D STM32F303xC -D USE_HAL_DRIVER -D ARMGCC $(CWARN)
 LDFLAGS = $(CFLAGS) -T $(LDSCRIPT) --specs=nosys.specs
 ASFLAGS  = $(CFLAGS) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.s=.lst)) 
 
@@ -103,30 +103,12 @@ $(OBJS): | $(BUILDDIR) $(OBJDIR) $(LSTDIR)
 
 %.bin: %.elf $(LDSCRIPT)
 	@echo Creating $@
-	$(BIN) $< $@
-
-%.srec: %.elf $(LDSCRIPT)
-	@echo Creating $@
-	$(SREC) $< $@
-
-
-%.dmp: %.elf $(LDSCRIPT)
-	@echo Creating $@
-	$(OD) $(ODFLAGS) $< > $@
-	@echo
-	@$(SZ) $<
-
-%.list: %.elf $(LDSCRIPT)
-	@echo Creating $@
-	$(OD) -S $< > $@
-	@echo
-	@echo Done
+	$(BIN) $< $@ --gap-fill 0xFF
 
 clean:
 	rm -rf $(BUILDDIR) 
 
 #DieBieBMS-firmware.bin: DieBieBMS-firmware.elf
-#	$(BIN) DieBieBMS-firmware.elf DieBieBMS-firmware.bin --gap-fill 0xFF
-
+#	$(BIN) DieBieBMS-firmware.elf DieBieBMS-firmware.bin 
 #DieBieBMS-firmware.elf: $(CSRC)
 #	$(CC) $(CFLAGS) $(ASMSRC) $(CSRC) $(IINCDIR) --specs=nosys.specs -o $@

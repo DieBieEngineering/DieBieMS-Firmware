@@ -10,7 +10,7 @@ SWDRIVER_SRC =	$(wildcard Drivers/SWDrivers/Src/driver*.c)
 
 SWDRIVER_INC =	Drivers/SWDrivers/Inc
 
-HAL_SRC =	$(wildcard Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_*.c)
+HAL_SRC =	$(wildcard Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal*.c)
 
 HAL_INC = 		Drivers/STM32F3xx_HAL_Driver/Inc \
 				Drivers/CMSIS/Include/ \

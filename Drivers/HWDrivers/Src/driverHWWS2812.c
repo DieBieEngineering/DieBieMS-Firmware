@@ -1,5 +1,9 @@
 #include "driverHWWS2812.h"
 
+#ifdef ARMGCC 
+#define __nop() __NOP()
+#endif
+
 void driverHWWS2812Init(void) {
 	GPIO_InitTypeDef PortInitHolder;
 	
