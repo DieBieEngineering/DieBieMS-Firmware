@@ -66,13 +66,11 @@ LSTDIR = $(BUILDDIR)/lst
 
 OUTFILES = $(BUILDDIR)/$(PROJECT).elf \
            $(BUILDDIR)/$(PROJECT).hex \
-           $(BUILDDIR)/$(PROJECT).bin \
-           $(BUILDDIR)/$(PROJECT).dmp \
-           $(BUILDDIR)/$(PROJECT).list		
+           $(BUILDDIR)/$(PROJECT).bin 
 
 ## Makefile rules
 
-all: $(BUILDDIR) $(OBJDIR) $(LSTDIR) $(DEPDIR) $(OBJS) $(OUTFILES)
+all: $(BUILDDIR) $(OBJDIR) $(LSTDIR) $(OBJS) $(OUTFILES)
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
