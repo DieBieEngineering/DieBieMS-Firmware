@@ -18,7 +18,7 @@ CPPC = $(TRGT)g++
 LD   = $(TRGT)gcc
 #LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
-AS   = $(TRGT)gcc -x assembler-with-cpp
+AS   = $(TRGT)gcc 
 AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
@@ -28,8 +28,8 @@ BIN  = $(CP) -O binary
 # Define C warning options here
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -Wshadow
 # Define extra C flags here
-CFLAGS = -mthumb-interwork -mcpu=$(MCU) -D STM32F303xC -D USE_HAL_DRIVER -D ARMGCC $(CWARN)
-LDFLAGS = $(CFLAGS) -T $(LDSCRIPT) --specs=nosys.specs
+CFLAGS = -mthumb -mcpu=$(MCU) -D STM32F303xC -D USE_HAL_DRIVER -D ARMGCC $(CWARN) -g -O2 -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) 
+LDFLAGS = $(CFLAGS) -T $(LDSCRIPT) --specs=nosys.specs --specs=nano.specs -Wl,-Map=${BUILDDIR}/${PROJECT}.map,--cref
 ASFLAGS  = $(CFLAGS) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.s=.lst)) 
 
 # Architecture specific stuff - linker script and architecture
@@ -47,7 +47,6 @@ CSRC := Main/main.c \
 		$(SWDRIVER_SRC) \
 
 INCDIR = Main \
-		$(DEVICE_INC) \
 		$(LIB_INC) \
 		$(MOD_INC) \
 		$(HWDRIVER_INC) \
@@ -66,7 +65,8 @@ LSTDIR = $(BUILDDIR)/lst
 
 OUTFILES = $(BUILDDIR)/$(PROJECT).elf \
            $(BUILDDIR)/$(PROJECT).hex \
-           $(BUILDDIR)/$(PROJECT).bin 
+           $(BUILDDIR)/$(PROJECT).bin \
+		   $(BUILDDIR)/$(PROJECT).s \
 
 ## Makefile rules
 
@@ -101,12 +101,17 @@ $(OBJS): | $(BUILDDIR) $(OBJDIR) $(LSTDIR)
 
 %.bin: %.elf $(LDSCRIPT)
 	@echo Creating $@
-	$(BIN) $< $@ --gap-fill 0xFF
+	$(BIN) $< $@
+
+$(BUILDDIR)/$(PROJECT).s : $(BUILDDIR)/$(PROJECT).elf
+	@echo Creating $@
+	$(OD) -S -d $< > $@
 
 clean:
 	rm -rf $(BUILDDIR) 
+	
+rebuild: clean all
 
-#DieBieBMS-firmware.bin: DieBieBMS-firmware.elf
-#	$(BIN) DieBieBMS-firmware.elf DieBieBMS-firmware.bin 
-#DieBieBMS-firmware.elf: $(CSRC)
-#	$(CC) $(CFLAGS) $(ASMSRC) $(CSRC) $(IINCDIR) --specs=nosys.specs -o $@
+upload: $(BUILDDIR)/$(PROJECT).bin
+	@echo Uploading $(BUILDDIR)/$(PROJECT).bin ...
+	openocd -f board/st_nucleo_f3.cfg -c "program $(BUILDDIR)/$(PROJECT).bin verify reset exit 0x08000000"
