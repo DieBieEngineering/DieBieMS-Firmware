@@ -92,6 +92,11 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+void HardFault_Handler(void)
+{
+    __ASM volatile("BKPT #01");
+    while(1);
+}
 
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

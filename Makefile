@@ -28,12 +28,17 @@ BIN  = $(CP) -O binary
 # Define C warning options here
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -Wshadow
 # Define extra C flags here
-CFLAGS = -mthumb -mcpu=$(MCU) -D STM32F303xC -D USE_HAL_DRIVER -D ARMGCC $(CWARN) -g -O2 -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) 
-LDFLAGS = $(CFLAGS) -T $(LDSCRIPT) --specs=nosys.specs --specs=nano.specs -Wl,-Map=${BUILDDIR}/${PROJECT}.map,--cref
+CFLAGS =  -mthumb-interwork -mcpu=$(MCU) -Os -mlittle-endian -lm
+CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -fsingle-precision-constant 
+CFLAGS += -DSTM32F303xC -DUSE_HAL_DRIVER -DARMGCC --specs=nano.specs
+CFLAGS += $(CWARN) -g -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) 
+CFLAGS += -ffunction-sections -fdata-sections -fsingle-precision-constant
+LDFLAGS = $(CFLAGS) -T $(LDSCRIPT) --specs=nosys.specs
+LDFLAGS += -Wl,-Map=${BUILDDIR}/${PROJECT}.map,--cref,-u,ResetHandler,--gc-sections
 ASFLAGS  = $(CFLAGS) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.s=.lst)) 
 
 # Architecture specific stuff - linker script and architecture
-LDSCRIPT= CubeMX/STM32F303CC_FLASH.ld
+LDSCRIPT = STM32F303CCTx_FLASH.ld
 MCU  = cortex-m4
 
 ASMSRC = $(STARTUPASM)
@@ -115,3 +120,6 @@ rebuild: clean all
 upload: $(BUILDDIR)/$(PROJECT).bin
 	@echo Uploading $(BUILDDIR)/$(PROJECT).bin ...
 	openocd -f board/st_nucleo_f3.cfg -c "program $(BUILDDIR)/$(PROJECT).bin verify reset exit 0x08000000"
+
+debug: 
+	openocd -f board/st_nucleo_f3.cfg
