@@ -19,3 +19,7 @@ asccprj.scc
 *.PrjPCBStructure
 *.wmf
 Project\ Outputs*
+
+build/
+
+.vscode/
