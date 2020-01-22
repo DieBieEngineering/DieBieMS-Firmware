@@ -64,8 +64,8 @@ MEMORY
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 40K
 CCMRAM (rw)      : ORIGIN = 0x10000000, LENGTH = 8K
 FLASH_BOOT (rx)      : ORIGIN = 0x8000000, LENGTH = 2K
-EMULATED_EEPROM(rwx) : ORIGIN = ORIGIN(FLASH_BOOT) + LENGTH(FLASH_BOOT), LENGTH = 4K
-FLASH (rx)              : ORIGIN = ORIGIN(EMULATED_EEPROM) + LENGTH(EMULATED_EEPROM),
+EMULATED_EEPROM(rwx) : ORIGIN = 0x8000800, LENGTH = 4K
+FLASH (rx)              : ORIGIN = 0x08001800,
                               LENGTH = 256k - LENGTH(FLASH_BOOT) - LENGTH(EMULATED_EEPROM)
 }
 
@@ -79,6 +79,14 @@ SECTIONS
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH_BOOT
+
+  .fill :
+  {
+    FILL(0xFFFFFFFF);
+    . = ORIGIN(EMULATED_EEPROM) + LENGTH(EMULATED_EEPROM) - 1;
+    BYTE(0xAA)
+  } >EMULATED_EEPROM
+
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -195,8 +203,6 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
-
-  
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

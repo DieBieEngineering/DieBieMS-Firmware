@@ -32,15 +32,15 @@ MCU  = cortex-m4
 # Define C warning options here
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -Wshadow
 # Define extra C flags here
-CFLAGS += --specs=nosys.specs --specs=nano.specs
-CFLAGS =  -mthumb -mthumb-interwork -mcpu=$(MCU) -Os -mlittle-endian 
-CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -march=armv7e-m
+CFLAGS = --specs=nosys.specs --specs=nano.specs
+CFLAGS += -mthumb -mthumb-interwork -mcpu=$(MCU) -Os -mlittle-endian 
+CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard -march=armv7e-m
 CFLAGS += -D ARM_MATH_CM4 -D STM32F303xC -D USE_HAL_DRIVER -D ARMGCC
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -lc -lm -lgcc -std=c99 
+CFLAGS += -lc -lm -std=c99 
 CFLAGS += $(CWARN) -g -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) 
 LDFLAGS = $(CFLAGS) 
-LDFLAGS += -Wl,--script=$(LDSCRIPT),-lc,-lm,-lgcc,-lnosys,-Map=${BUILDDIR}/${PROJECT}.map,--cref,-u,ResetHandler
+LDFLAGS += -Wl,--script=$(LDSCRIPT),-lc,-lm,-lnosys,-Map=${BUILDDIR}/${PROJECT}.map,--cref,-u,ResetHandler,--gc-sections
 ASFLAGS  = $(CFLAGS) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.s=.lst)) 
 
 ASMSRC = $(STARTUPASM)
